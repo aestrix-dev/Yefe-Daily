@@ -1,13 +1,26 @@
 package utils
 
+import (
+	"os"
+	"path"
+	"sync"
+
+	"gopkg.in/yaml.v3"
+)
+
+var (
+	once         sync.Once
+	app_settings *AppSettings
+)
+
 type (
 	AppSettings struct {
-		Server ServerSettings      `yaml:"server"`
-		DB     PersistenceSettings `yaml:"persistence"`
+		Server      ServerSettings      `yaml:"server"`
+		Persistence PersistenceSettings `yaml:"persistence"`
 	}
 	ServerSettings struct {
 		Name string `yaml:"name"`
-		Port string `yaml:"port"`
+		Port int `yaml:"port"`
 		Host string `yaml:"host"`
 	}
 	PersistenceSettings struct {
@@ -22,3 +35,27 @@ type (
 		DataBase      string `yaml:"database"`
 	}
 )
+
+func LoadConfig() AppSettings {
+	pathStr, err := getBasePath()
+	if err != nil {
+		panic(err)
+	}
+	ymlPath := path.Join(pathStr, "config/config.yml")
+	err = validPath(ymlPath)
+
+	if err != nil {
+		panic(err)
+
+	}
+	yamlBytes, err := os.ReadFile(ymlPath)
+	once.Do(func() {
+		if app_settings == nil {
+			err := yaml.Unmarshal(yamlBytes, &app_settings)
+			if err != nil {
+				panic(err)
+			}
+		}
+	})
+	return *app_settings
+}
