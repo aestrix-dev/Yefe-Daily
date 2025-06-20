@@ -1,4 +1,4 @@
-module github.com/yefe_app/server
+module yefe_app/v1 
 
 go 1.24.3
 

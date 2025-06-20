@@ -20,7 +20,7 @@ type (
 	}
 	ServerSettings struct {
 		Name string `yaml:"name"`
-		Port int `yaml:"port"`
+		Port int    `yaml:"port"`
 		Host string `yaml:"host"`
 	}
 	PersistenceSettings struct {
@@ -50,11 +50,9 @@ func LoadConfig() AppSettings {
 	}
 	yamlBytes, err := os.ReadFile(ymlPath)
 	once.Do(func() {
-		if app_settings == nil {
-			err := yaml.Unmarshal(yamlBytes, &app_settings)
-			if err != nil {
-				panic(err)
-			}
+		err := yaml.Unmarshal(yamlBytes, &app_settings)
+		if err != nil {
+			panic(err)
 		}
 	})
 	return *app_settings

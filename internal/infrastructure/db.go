@@ -2,8 +2,8 @@ package infrastructure
 
 import (
 	"fmt"
+	"yefe_app/v1/pkg/utils"
 
-	"github.com/yefe_app/server/pkg/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
