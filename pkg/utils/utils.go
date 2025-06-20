@@ -5,6 +5,7 @@ import (
 	"path"
 	"sync"
 
+	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
 )
 
@@ -36,6 +37,23 @@ type (
 	}
 )
 
+func LoadEnv() error {
+	pathStr, err := getBasePath()
+	if err != nil {
+		return err
+	}
+	envPath := path.Join(pathStr, "config", ".env")
+
+	err = validPath(envPath)
+	if err != nil {
+		return err
+	}
+	err = godotenv.Load(envPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func LoadConfig() AppSettings {
 	pathStr, err := getBasePath()
 	if err != nil {
