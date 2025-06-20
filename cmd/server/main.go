@@ -11,8 +11,9 @@ import (
 
 func main() {
 	config := utils.LoadConfig()
-	db := infrastructure.NewDB(config.Persistence.PostgresSQl)
+	_ = infrastructure.NewDB(config.Persistence.PostgresSQl)
+	router := infrastructure.NewRouter()
 
 	log.Println("Server started on :3000")
-	http.ListenAndServe(fmt.Sprintf(":%d", config.Server.Port), r)
+	http.ListenAndServe(fmt.Sprintf(":%d", config.Server.Port), router)
 }
