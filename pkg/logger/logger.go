@@ -21,7 +21,7 @@ type dailyLogWriter struct {
 	file    *os.File
 }
 
-func NewDailyLogWriter(dir, prefix string) *dailyLogWriter {
+func newDailyLogWriter(dir, prefix string) *dailyLogWriter {
 	return &dailyLogWriter{
 		dir:    dir,
 		prefix: prefix,
@@ -70,7 +70,7 @@ func Init() {
 		logPrefix = "server"
 	}
 
-	dailyWriter := NewDailyLogWriter(logDir, logPrefix)
+	dailyWriter := newDailyLogWriter(logDir, logPrefix)
 
 	// === Combine stdout + file ===
 	Log.SetOutput(io.MultiWriter(os.Stdout, dailyWriter))

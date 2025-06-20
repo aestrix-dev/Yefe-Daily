@@ -8,8 +8,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewDB(cfg utils.DBSettings) *postgresPersistence {
-	return &postgresPersistence{cfg}
+func NewDB(cfg utils.DBSettings) (*gorm.DB, error) {
+	p := &postgresPersistence{cfg}
+	return p.connect()
 }
 
 type postgresPersistence struct {
@@ -22,14 +23,14 @@ func (p postgresPersistence) connectionString() string {
 		p.config.Host, p.config.Port, p.config.UserName, p.config.DataBase, p.config.Password)
 }
 
-func (p postgresPersistence) Connect() *gorm.DB {
+func (p postgresPersistence) connect() (*gorm.DB, error) {
 	connectionDSN := p.connectionString()
 	db, err := gorm.Open(postgres.New(
 		postgres.Config{
 			DSN:                  connectionDSN,
 			PreferSimpleProtocol: true}), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return db
+	return db, nil
 }
