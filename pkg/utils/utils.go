@@ -5,13 +5,14 @@ import (
 	"path"
 	"sync"
 
+	envsubt "github.com/emperorsixpacks/envsubst"
 	"github.com/joho/godotenv"
-	"gopkg.in/yaml.v3"
 )
 
 var (
-	once         sync.Once
-	app_settings *AppSettings
+	once        sync.Once
+	basePath, _ = getBasePath()
+	LogDir      = path.Join(basePath, "logs")
 )
 
 type (
@@ -54,24 +55,29 @@ func LoadEnv() error {
 	}
 	return nil
 }
-func LoadConfig() AppSettings {
+func LoadConfig() (AppSettings, error) {
+	err := LoadEnv()
+	if err != nil {
+		return AppSettings{}, err
+	}
 	pathStr, err := getBasePath()
 	if err != nil {
-		panic(err)
+		return AppSettings{}, err
 	}
-	ymlPath := path.Join(pathStr, "config/config.yml")
+	ymlPath := path.Join(pathStr, "config/config.yaml")
 	err = validPath(ymlPath)
 
 	if err != nil {
-		panic(err)
+		return AppSettings{}, err
 
 	}
+	var app_settings AppSettings
 	yamlBytes, err := os.ReadFile(ymlPath)
 	once.Do(func() {
-		err := yaml.Unmarshal(yamlBytes, &app_settings)
+		err := envsubt.Unmarshal(yamlBytes, &app_settings)
 		if err != nil {
 			panic(err)
 		}
 	})
-	return *app_settings
+	return app_settings, nil
 }

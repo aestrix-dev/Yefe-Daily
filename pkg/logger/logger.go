@@ -62,7 +62,7 @@ func Init() {
 	// === Setup Daily File Writer ===
 	logDir := os.Getenv("LOG_DIR")
 	if logDir == "" {
-		logDir = "logs"
+		logDir = utils.LogDir
 	}
 
 	logPrefix := os.Getenv("LOG_FILE_PREFIX")

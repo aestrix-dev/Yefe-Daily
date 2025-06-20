@@ -14,18 +14,25 @@ import (
 )
 
 func main() {
-	config := utils.LoadConfig()
+	config, err := utils.LoadConfig()
+	if err != nil {
+
+		logger.Log.WithError(err)
+		return
+	}
 	logger.Init()
 
 	logger.Log.WithFields(map[string]interface{}{
 		"host": config.Server.Host,
 		"port": config.Server.Port,
-	}).Info("Configuration loaded")
+	}).Debug("Configuration loaded")
 
 	// Initialize DB
-	_, err := infrastructure.NewDB(config.Persistence.PostgresSQl)
+	fmt.Println(config)
+	_, err = infrastructure.NewDB(config.Persistence.PostgresSQl)
 	if err != nil {
 		logger.Log.WithError(err).Fatal("Failed to initialize database")
+		return
 	}
 
 	logger.Log.Info("Database initialized")
@@ -65,7 +72,7 @@ func main() {
 		serverStopCtx()
 	}()
 
-	// Start server
+	logger.Log.Info("Starting server")
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Log.WithError(err).Fatal("Server failed")
 	}

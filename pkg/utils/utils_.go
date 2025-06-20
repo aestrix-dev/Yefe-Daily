@@ -13,7 +13,7 @@ func getBasePath() (string, error) {
 	if !ok {
 		return "", errors.New("Could not get file path")
 	}
-	return path.Dir(path.Dir(path.Dir(path.Dir(basePath)))), nil
+	return path.Dir(path.Dir(path.Dir(basePath))), nil
 }
 
 func validPath(configPath string) error {
