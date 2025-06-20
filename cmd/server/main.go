@@ -28,7 +28,6 @@ func main() {
 	}).Debug("Configuration loaded")
 
 	// Initialize DB
-	fmt.Println(config)
 	_, err = infrastructure.NewDB(config.Persistence.PostgresSQl)
 	if err != nil {
 		logger.Log.WithError(err).Fatal("Failed to initialize database")
@@ -72,7 +71,6 @@ func main() {
 		serverStopCtx()
 	}()
 
-	logger.Log.Info("Starting server")
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Log.WithError(err).Fatal("Server failed")
 	}

@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"fmt"
+	"yefe_app/v1/internal/infrastructure/db/models"
 	"yefe_app/v1/pkg/utils"
 
 	"gorm.io/driver/postgres"
@@ -32,5 +33,11 @@ func (p postgresPersistence) connect() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = db.AutoMigrate(models.UserModel{})
+	if err != nil {
+		return nil, err
+	}
 	return db, nil
 }
+
+// TODO add a migration tool like go migrate
