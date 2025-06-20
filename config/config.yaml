@@ -1,0 +1,12 @@
+server:
+  name: "yefe"
+  host: "localhost"
+  port: 8080
+
+persistence:
+  postgres:
+    host: ${DB_HOST} 
+    port: ${DB_PORT}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD} 
+    database: ${DB_NAME} 
