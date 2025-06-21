@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 	"yefe_app/v1/internal/infrastructure/db/models"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
 	"gorm.io/driver/postgres"
@@ -31,35 +32,39 @@ func (p postgresPersistence) connectionString() string {
 }
 
 func (p postgresPersistence) connect() (*gorm.DB, error) {
+	logger.Log.Info("Setting up database")
 	connectionDSN := p.connectionString()
 	db, err := gorm.Open(postgres.New(
 		postgres.Config{
 			DSN:                  connectionDSN,
 			PreferSimpleProtocol: true}), &gorm.Config{})
 	if err != nil {
-		return nil, err
-	}
-
-	if err != nil {
+		logger.Log.WithError(err).Fatal("Could not open database")
 		return nil, err
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
+		logger.Log.WithError(err).Fatal("")
 		return nil, err
 	}
 
 	sqlDB.SetMaxOpenConns(p.MaxOpenConns)
 	sqlDB.SetMaxIdleConns(p.MaxIdleConns)
 	sqlDB.SetConnMaxLifetime(p.ConnMaxLifetime)
+	logger.Log.Info("Starting db migrations")
 	err = autoMigrate(db)
 	if err != nil {
+		logger.Log.WithError(err).Fatal("Could not perform db migrations")
 		return nil, err
 	}
+	logger.Log.Info("Done db migrations")
+	logger.Log.Info("Creating indexes")
 	err = createIndexes(db)
 	if err != nil {
 		return nil, err
 	}
+	logger.Log.Info("Done creating indexes")
 	return db, nil
 }
 func autoMigrate(db *gorm.DB) error {
