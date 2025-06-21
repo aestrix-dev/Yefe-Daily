@@ -1,9 +1,6 @@
 package models
 
 import (
-	"database/sql/driver"
-	"encoding/json"
-	"errors"
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/pkg/types"
@@ -24,7 +21,7 @@ type User struct {
 	AccountLockedUntil *time.Time             `gorm:"index" json:"-"`
 	Profile            *UserProfile           `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"profile,omitempty"`
 	Sessions           []domain.Session       `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
-	SecurityEvents     []domain.SecurityEvent `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
+	SecurityEvents     []domain.SecurityEvent `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADEt" json:"-"`
 	CreatedAt          time.Time              `gorm:"index" json:"created_at"`
 	UpdatedAt          time.Time              `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt         `gorm:"index" json:"-"`
@@ -34,47 +31,47 @@ type User struct {
 
 // UserProfile for extended user information
 type UserProfile struct {
-	ID          string     `gorm:"type:varchar(36);primaryKey" json:"id"`
-	UserID      string     `gorm:"type:varchar(36);not null;index" json:"user_id"`
-	Name        string     `gorm:"type:varchar(100)" json:"first_name"`
-	DateOfBirth *time.Time `json:"date_of_birth"`
-	PhoneNumber string     `gorm:"type:varchar(20)" json:"phone_number"`
-	Avatar      string     `gorm:"type:text" json:"avatar"` // URL or base64
-	Bio         string     `gorm:"type:text" json:"bio"`
-	Location    string     `gorm:"type:varchar(255)" json:"location"`
-	Preferences JSONMap    `gorm:"type:json" json:"preferences"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	ID          string        `gorm:"type:varchar(36);primaryKey" json:"id"`
+	UserID      string        `gorm:"type:varchar(36);not null;index" json:"user_id"`
+	Name        string        `gorm:"type:varchar(100)" json:"first_name"`
+	DateOfBirth *time.Time    `json:"date_of_birth"`
+	PhoneNumber string        `gorm:"type:varchar(20)" json:"phone_number"`
+	Avatar      string        `gorm:"type:text" json:"avatar"` // URL or base64
+	Bio         string        `gorm:"type:text" json:"bio"`
+	Location    string        `gorm:"type:varchar(255)" json:"location"`
+	Preferences types.JSONMap `gorm:"type:jsonb" json:"preferences"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
 // Session model for authentication tokens
 type Session struct {
-	ID           string     `gorm:"type:varchar(36);primaryKey" json:"id"`
-	UserID       string     `gorm:"type:varchar(36);not null;index" json:"user_id"`
-	User         User       `gorm:"foreignKey:UserID" json:"-"`
-	Token        string     `gorm:"type:varchar(255);uniqueIndex;not null" json:"-"`
-	RefreshToken string     `gorm:"type:varchar(255);uniqueIndex;not null" json:"-"`
-	ExpiresAt    time.Time  `gorm:"index;not null" json:"expires_at"`
-	IPAddress    string     `gorm:"type:varchar(45);index" json:"ip_address"`
-	UserAgent    string     `gorm:"type:text" json:"user_agent"`
-	IsActive     bool       `gorm:"default:true;index" json:"is_active"`
-	LastUsedAt   *time.Time `gorm:"index" json:"last_used_at"`
-	DeviceInfo   JSONMap    `gorm:"type:json" json:"device_info"`
-	CreatedAt    time.Time  `gorm:"index" json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
+	ID           string        `gorm:"type:varchar(36);primaryKey" json:"id"`
+	UserID       string        `gorm:"type:varchar(36);not null;index" json:"user_id"`
+	User         User          `gorm:"foreignKey:UserID" json:"-"`
+	Token        string        `gorm:"type:varchar(255);uniqueIndex;not null" json:"-"`
+	RefreshToken string        `gorm:"type:varchar(255);uniqueIndex;not null" json:"-"`
+	ExpiresAt    time.Time     `gorm:"index;not null" json:"expires_at"`
+	IPAddress    string        `gorm:"type:varchar(45);index" json:"ip_address"`
+	UserAgent    string        `gorm:"type:text" json:"user_agent"`
+	IsActive     bool          `gorm:"default:true;index" json:"is_active"`
+	LastUsedAt   *time.Time    `gorm:"index" json:"last_used_at"`
+	DeviceInfo   types.JSONMap `gorm:"type:json" json:"device_info"`
+	CreatedAt    time.Time     `gorm:"index" json:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at"`
 }
 
 type LoginAttempt struct {
-	ID         string    `gorm:"type:varchar(36);primaryKey" json:"id"`
-	UserID     string    `gorm:"type:varchar(36);index" json:"user_id"` // Nullable for failed attempts
-	Email      string    `gorm:"type:varchar(255);index" json:"email"`
-	IPAddress  string    `gorm:"type:varchar(45);index" json:"ip_address"`
-	UserAgent  string    `gorm:"type:text" json:"user_agent"`
-	Success    bool      `gorm:"index" json:"success"`
-	FailReason string    `gorm:"type:varchar(100)" json:"fail_reason"`
-	DeviceInfo JSONMap   `gorm:"type:json" json:"device_info"`
-	Location   string    `gorm:"type:varchar(255)" json:"location"`
-	CreatedAt  time.Time `gorm:"index" json:"created_at"`
+	ID         string        `gorm:"type:varchar(36);primaryKey" json:"id"`
+	UserID     string        `gorm:"type:varchar(36);index" json:"user_id"` // Nullable for failed attempts
+	Email      string        `gorm:"type:varchar(255);index" json:"email"`
+	IPAddress  string        `gorm:"type:varchar(45);index" json:"ip_address"`
+	UserAgent  string        `gorm:"type:text" json:"user_agent"`
+	Success    bool          `gorm:"index" json:"success"`
+	FailReason string        `gorm:"type:varchar(100)" json:"fail_reason"`
+	DeviceInfo types.JSONMap `gorm:"type:jsonb" json:"device_info"`
+	Location   string        `gorm:"type:varchar(255)" json:"location"`
+	CreatedAt  time.Time     `gorm:"index" json:"created_at"`
 }
 
 // SecurityEvent for comprehensive audit logging
@@ -86,7 +83,7 @@ type SecurityEvent struct {
 	EventType  types.SecurityEventType `gorm:"type:varchar(50);index;not null" json:"event_type"`
 	IPAddress  string                  `gorm:"type:varchar(45);index" json:"ip_address"`
 	UserAgent  string                  `gorm:"type:text" json:"user_agent"`
-	Details    JSONMap                 `gorm:"type:json" json:"details"`
+	Details    types.JSONMap           `gorm:"type:jsonb" json:"details"`
 	Severity   types.EventSeverity     `gorm:"type:varchar(20);index;default:'info'" json:"severity"`
 	Location   string                  `gorm:"type:varchar(255)" json:"location"` // Geolocation
 	Resolved   bool                    `gorm:"default:false;index" json:"resolved"`
@@ -97,18 +94,18 @@ type SecurityEvent struct {
 
 // TrustedDevice for device-based security
 type TrustedDevice struct {
-	ID         string    `gorm:"type:varchar(36);primaryKey" json:"id"`
-	UserID     string    `gorm:"type:varchar(36);not null;index" json:"user_id"`
-	User       User      `gorm:"foreignKey:UserID" json:"-"`
-	DeviceHash string    `gorm:"type:varchar(255);uniqueIndex;not null" json:"device_hash"`
-	DeviceName string    `gorm:"type:varchar(255)" json:"device_name"`
-	DeviceInfo JSONMap   `gorm:"type:json" json:"device_info"`
-	LastUsedAt time.Time `gorm:"index" json:"last_used_at"`
-	IPAddress  string    `gorm:"type:varchar(45)" json:"ip_address"`
-	IsActive   bool      `gorm:"default:true;index" json:"is_active"`
-	TrustLevel int       `gorm:"default:1" json:"trust_level"` // 1-5 scale
-	CreatedAt  time.Time `gorm:"index" json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID         string        `gorm:"type:varchar(36);primaryKey" json:"id"`
+	UserID     string        `gorm:"type:varchar(36);not null;index" json:"user_id"`
+	User       User          `gorm:"foreignKey:UserID" json:"-"`
+	DeviceHash string        `gorm:"type:varchar(255);uniqueIndex;not null" json:"device_hash"`
+	DeviceName string        `gorm:"type:varchar(255)" json:"device_name"`
+	DeviceInfo types.JSONMap `gorm:"type:jsonb" json:"device_info"`
+	LastUsedAt time.Time     `gorm:"index" json:"last_used_at"`
+	IPAddress  string        `gorm:"type:varchar(45)" json:"ip_address"`
+	IsActive   bool          `gorm:"default:true;index" json:"is_active"`
+	TrustLevel int           `gorm:"default:1" json:"trust_level"` // 1-5 scale
+	CreatedAt  time.Time     `gorm:"index" json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
 }
 
 // Permission system
@@ -147,29 +144,6 @@ type RolePermission struct {
 	RoleID       string    `gorm:"type:varchar(36);primaryKey" json:"role_id"`
 	PermissionID string    `gorm:"type:varchar(36);primaryKey" json:"permission_id"`
 	CreatedAt    time.Time `json:"created_at"`
-}
-
-type JSONMap map[string]any
-
-func (j JSONMap) Value() (driver.Value, error) {
-	if j == nil {
-		return nil, nil
-	}
-	return json.Marshal(j)
-}
-
-func (j *JSONMap) Scan(value any) error {
-	if value == nil {
-		*j = nil
-		return nil
-	}
-
-	bytes, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
-	}
-
-	return json.Unmarshal(bytes, j)
 }
 
 // Table name overrides

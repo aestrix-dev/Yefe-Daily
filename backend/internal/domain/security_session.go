@@ -37,7 +37,7 @@ type SecurityEvent struct {
 	EventType types.SecurityEventType `json:"event_type"`
 	IPAddress string                  `json:"ip_address"`
 	UserAgent string                  `json:"user_agent"`
-	Details   map[string]any          `json:"details"`
+	Details   types.JSONMap           `json:"details"`
 	Severity  types.EventSeverity     `json:"severity"`
 	CreatedAt time.Time               `json:"created_at"`
 }

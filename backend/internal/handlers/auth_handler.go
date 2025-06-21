@@ -18,7 +18,7 @@ type authHandler struct {
 
 func (a *authHandler) Handle() *chi.Mux {
 	router := chi.NewRouter()
-	router.Post("register", a.RegisterRoute)
+	router.Post("/register", a.RegisterRoute)
 	return router
 }
 

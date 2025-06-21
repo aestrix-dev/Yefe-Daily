@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 	"yefe_app/v1/internal/domain"
-	"yefe_app/v1/internal/infrastructure/db/models"
 	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 
@@ -213,7 +212,7 @@ func (r *postgresSecurityEventRepository) LogSecurityEvent(ctx context.Context, 
 		EventType: types.SecurityEventType(eventType),
 		IPAddress: ipAddress,
 		UserAgent: userAgent,
-		Details:   models.JSONMap(details),
+		Details:   types.JSONMap(details),
 		Severity:  types.SeverityInfo,
 		CreatedAt: time.Now().UTC(),
 	}

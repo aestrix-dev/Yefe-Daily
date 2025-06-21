@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 	"yefe_app/v1/internal/domain"
-
-	"github.com/go-chi/chi/middleware"
 )
 
 // Response helpers
@@ -74,7 +72,8 @@ func SuccessResponse(w http.ResponseWriter, statusCode int, message string, data
 	}
 
 	// Add request ID if available from context
-	if reqID := middleware.GetReqID(w.Header().Get("X-Request-Id")); reqID != "" {
+	if reqID := w.Header().Get("X-Request-Id"); reqID != "" {
+
 		response.RequestID = reqID
 	}
 
@@ -94,7 +93,7 @@ func ErrorResponse(w http.ResponseWriter, statusCode int, message string, errorD
 	}
 
 	// Add request ID if available from context
-	if reqID := middleware.GetReqID(w.Header().Get("X-Request-Id")); reqID != "" {
+	if reqID := w.Header().Get("X-Request-Id"); reqID != "" {
 		response.RequestID = reqID
 	}
 

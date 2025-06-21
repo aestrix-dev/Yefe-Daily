@@ -1,5 +1,11 @@
 package types
 
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+)
+
 // Password security configuration
 type PasswordConfig struct {
 	Memory      uint32
@@ -36,4 +42,21 @@ const (
 
 type PasswordChecker interface {
 	IsStrong(password string) bool
+}
+
+type JSONMap map[string]any
+
+func (j JSONMap) Value() (driver.Value, error) {
+
+	return json.Marshal(j)
+}
+
+func (j *JSONMap) Scan(value any) error {
+
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(bytes, j)
 }
