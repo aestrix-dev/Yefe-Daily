@@ -1,12 +1,17 @@
 package utils
 
 import (
+	"crypto/rand"
+	"crypto/subtle"
+	"encoding/base32"
 	"os"
 	"path"
 	"sync"
+	"yefe_app/v1/pkg/types"
 
 	envsubt "github.com/emperorsixpacks/envsubst"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/argon2"
 )
 
 var (
@@ -80,4 +85,29 @@ func LoadConfig() (AppSettings, error) {
 		}
 	})
 	return app_settings, nil
+}
+
+func GenerateSalt(length uint32) string {
+	salt := make([]byte, length)
+	rand.Read(salt)
+	return base32.StdEncoding.EncodeToString(salt)
+}
+
+func HashPassword(password, salt string, config types.PasswordConfig) string {
+	saltBytes, _ := base32.StdEncoding.DecodeString(salt)
+	hash := argon2.IDKey([]byte(password), saltBytes, config.Iterations, config.Memory, config.Parallelism, config.KeyLength)
+	return base32.StdEncoding.EncodeToString(hash)
+}
+
+func VerifyPassword(password, salt, hash string, config types.PasswordConfig) bool {
+	saltBytes, _ := base32.StdEncoding.DecodeString(salt)
+	hashBytes, _ := base32.StdEncoding.DecodeString(hash)
+	expectedHash := argon2.IDKey([]byte(password), saltBytes, config.Iterations, config.Memory, config.Parallelism, config.KeyLength)
+	return subtle.ConstantTimeCompare(hashBytes, expectedHash) == 1
+}
+
+func GenerateSecureToken() string {
+	bytes := make([]byte, 32)
+	rand.Read(bytes)
+	return base32.StdEncoding.EncodeToString(bytes)
 }
