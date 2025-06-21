@@ -20,9 +20,10 @@ type userRepository struct {
 }
 
 // NewUserRepository creates a new user repository instance
-func NewUserRepository(db *gorm.DB) domain.UserRepository {
+func NewUserRepository(db *gorm.DB, secRepo domain.SecurityEventRepository) domain.UserRepository {
 	return &userRepository{
-		db: db,
+		db:                 db,
+		secEventRepository: secRepo,
 	}
 }
 

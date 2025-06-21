@@ -38,9 +38,9 @@ func main() {
 	}
 
 	logger.Log.Info("Database initialized")
-	userRepo := repository.NewUserRepository(db)
 	secEventRepo := repository.NewPostgresSecurityEventRepository(db)
 	sessionRepo, err := repository.NewRedisSessionRepository(config.Persistence.Redis)
+	userRepo := repository.NewUserRepository(db, secEventRepo)
 	if err != nil {
 		logger.Log.WithError(err).Fatal("Failed to initialize redis")
 		return
