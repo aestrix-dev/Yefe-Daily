@@ -64,7 +64,7 @@ func (p postgresPersistence) connect() (*gorm.DB, error) {
 }
 func autoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
-		&models.UserModel{},
+		&models.User{},
 		&models.UserProfile{},
 		&models.Session{},
 		&models.SecurityEvent{},
