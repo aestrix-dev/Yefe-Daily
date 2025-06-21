@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"time"
 	"yefe_app/v1/internal/domain"
+	"yefe_app/v1/internal/infrastructure/db/models"
 	"yefe_app/v1/pkg/types"
+	"yefe_app/v1/pkg/utils"
 
 	"gorm.io/gorm"
 )
@@ -23,7 +25,7 @@ func NewPostgresSecurityEventRepository(db *gorm.DB) *PostgresSecurityEventRepos
 }
 
 // Create stores a new security event in PostgreSQL
-func (r *PostgresSecurityEventRepository) Create(ctx context.Context, tx *gorm.DB, event *domain.SecurityEvent) error {
+func (r *PostgresSecurityEventRepository) Create(ctx context.Context, event *domain.SecurityEvent) error {
 	if event == nil {
 		return fmt.Errorf("event cannot be nil")
 	}
@@ -43,7 +45,7 @@ func (r *PostgresSecurityEventRepository) Create(ctx context.Context, tx *gorm.D
 	}
 
 	// Create the record
-	result := tx.Create(event)
+	result := r.db.WithContext(ctx).Create(event)
 	if result.Error != nil {
 		return fmt.Errorf("failed to create security event: %w", result.Error)
 	}
@@ -202,4 +204,20 @@ func (r *PostgresSecurityEventRepository) GetRecentSuspiciousActivity(ctx contex
 	}
 
 	return events, nil
+}
+
+func (r *PostgresSecurityEventRepository) LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details map[string]interface{}) error {
+	event := domain.SecurityEvent{
+		ID:        utils.GenerateID(),
+		UserID:    userID,
+		EventType: types.SecurityEventType(eventType),
+		IPAddress: ipAddress,
+		UserAgent: userAgent,
+		Details:   models.JSONMap(details),
+		Severity:  types.SeverityInfo,
+		CreatedAt: time.Now().UTC(),
+	}
+
+	// Don't fail the main operation if logging fails
+	return r.Create(ctx, &event)
 }

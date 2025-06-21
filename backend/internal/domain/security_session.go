@@ -47,8 +47,14 @@ type SecurityEvent struct {
 type SecurityEventRepository interface {
 	Create(ctx context.Context, tx *gorm.DB, event *SecurityEvent) error
 	GetByUserID(ctx context.Context, userID string, limit int) ([]*SecurityEvent, error)
+	LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details map[string]interface{}) error
 }
 
+// Additional security services
+type EmailService interface {
+	SendVerificationEmail(user User, token string) error
+	SendPasswordResetEmail(user User, token string) error
+}
 type SessionRepository interface {
 	Create(ctx context.Context, session *Session) error
 	GetByToken(ctx context.Context, token string) (*Session, error)

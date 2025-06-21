@@ -15,8 +15,8 @@ import (
 )
 
 type userRepository struct {
-	db                      *gorm.DB
-	securityEventRepository domain.SecurityEventRepository
+	db                 *gorm.DB
+	secEventRepository domain.SecurityEventRepository
 }
 
 // NewUserRepository creates a new user repository instance
@@ -60,7 +60,7 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 		}
 
 		// Log security event
-		r.logSecurityEvent(ctx, tx, dbUser.ID, types.EventAccountCreated, "", "", nil)
+		r.secEventRepository.LogSecurityEvent(ctx, dbUser.ID, types.EventAccountCreated, "", "", nil)
 
 		return nil
 	})
@@ -138,41 +138,6 @@ func (r *userRepository) GetByUsername(ctx context.Context, username string) (*d
 	return r.modelToDomain(&dbUser), nil
 }
 
-// GetByEmailOrUsername retrieves a user by email or username
-func (r *userRepository) GetByEmailOrUsername(ctx context.Context, identifier string) (*domain.User, error) {
-	if identifier == "" {
-		return nil, errors.New("identifier cannot be empty")
-	}
-
-	identifier = strings.TrimSpace(identifier)
-
-	var dbUser models.User
-	var err error
-
-	if strings.Contains(identifier, "@") {
-		// It's an email
-		err = r.db.WithContext(ctx).
-			Preload("Profile").
-			Where("email = ? AND deleted_at IS NULL", strings.ToLower(identifier)).
-			First(&dbUser).Error
-	} else {
-		// It's a username
-		err = r.db.WithContext(ctx).
-			Preload("Profile").
-			Where("username = ? AND deleted_at IS NULL", identifier).
-			First(&dbUser).Error
-	}
-
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, domain.ErrUserNotFound
-		}
-		return nil, fmt.Errorf("failed to get user by identifier: %w", err)
-	}
-
-	return r.modelToDomain(&dbUser), nil
-}
-
 // Update updates an existing user
 func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 	if user == nil {
@@ -210,7 +175,7 @@ func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 
 		// Log security event for sensitive updates
 		if r.isSensitiveUpdate(user) {
-			r.logSecurityEvent(ctx, tx, user.ID, types.EventProfileUpdated, "", "", nil)
+			r.secEventRepository.LogSecurityEvent(ctx, user.ID, types.EventProfileUpdated, "", "", nil)
 		}
 
 		return nil
@@ -240,7 +205,7 @@ func (r *userRepository) Delete(ctx context.Context, id string) error {
 			Update("is_active", false)
 
 		// Log security event
-		r.logSecurityEvent(ctx, tx, id, types.EventAccountDeleted, "", "", nil)
+		r.secEventRepository.LogSecurityEvent(ctx, id, types.EventAccountDeleted, "", "", nil)
 
 		return nil
 	})
@@ -278,7 +243,7 @@ func (r *userRepository) UpdatePassword(ctx context.Context, userID, passwordHas
 			Update("is_active", false)
 
 		// Log security event
-		r.logSecurityEvent(ctx, tx, userID, types.EventPasswordChange, "", "", nil)
+		r.secEventRepository.LogSecurityEvent(ctx, userID, types.EventPasswordChange, "", "", nil)
 
 		return nil
 	})
@@ -338,7 +303,7 @@ func (r *userRepository) IncrementFailedLogin(ctx context.Context, userID string
 			user.AccountLockedUntil = &lockUntil
 
 			// Log account locked event
-			r.logSecurityEvent(ctx, tx, userID, types.EventAccountLocked, "", "",
+			r.secEventRepository.LogSecurityEvent(ctx, userID, types.EventAccountLocked, "", "",
 				map[string]interface{}{
 					"failed_attempts": user.FailedLoginCount,
 					"locked_until":    lockUntil,
@@ -549,21 +514,4 @@ func (r *userRepository) isSensitiveUpdate(user *domain.User) bool {
 	// Add logic to determine if update is sensitive
 	// For now, we'll log all updates
 	return true
-}
-
-// logSecurityEvent logs a security event
-func (r *userRepository) logSecurityEvent(ctx context.Context, tx *gorm.DB, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details map[string]interface{}) {
-	event := domain.SecurityEvent{
-		ID:        utils.GenerateID(),
-		UserID:    userID,
-		EventType: types.SecurityEventType(eventType),
-		IPAddress: ipAddress,
-		UserAgent: userAgent,
-		Details:   models.JSONMap(details),
-		Severity:  types.SeverityInfo,
-		CreatedAt: time.Now().UTC(),
-	}
-
-	// Don't fail the main operation if logging fails
-	r.securityEventRepository.Create(ctx, tx, &event)
 }

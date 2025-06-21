@@ -36,13 +36,12 @@ func NewAuthUseCase(
 	secEventRepo domain.SecurityEventRepository,
 	passwordChecker PasswordChecker,
 	jwtSecret string,
-) domain.AuthUseCase {
+) *authUseCase {
 	return &authUseCase{
 		userRepo:     userRepo,
 		sessionRepo:  sessionRepo,
 		secEventRepo: secEventRepo,
 		//	emailService:    emailService,
-		rateLimiter:     rateLimiter,
 		passwordChecker: passwordChecker,
 		jwtSecret:       jwtSecret,
 	}
@@ -61,7 +60,7 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	}
 
 	// Check if username exists
-	if existingUser, _ := a.userRepo.GetByUsername(ctx, req.Username); existingUser != nil {
+	if existingUser, _ := a.userRepo.GetByEmail(ctx, req.Email); existingUser != nil {
 		return nil, domain.ErrUsernameAlreadyExists
 	}
 
@@ -88,29 +87,21 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	//go a.sendEmailVerification(user)
 
 	// Log security event
-	a.logSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)
+	a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)
 
 	return user, nil
 }
 
 func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error) {
-	// Rate limiting
-	if !a.rateLimiter.Allow("login:"+req.IPAddress, 5, time.Minute*15) {
-		return nil, domain.ErrRateLimitExceeded
-	}
 
 	// Find user by email or username
 	var user *domain.User
 	var err error
 
-	if strings.Contains(req.EmailOrUsername, "@") {
-		user, err = a.userRepo.GetByEmail(ctx, req.EmailOrUsername)
-	} else {
-		user, err = a.userRepo.GetByUsername(ctx, req.EmailOrUsername)
-	}
+	user, err = a.userRepo.GetByEmail(ctx, req.EmailOrUsername)
 
 	if err != nil || user == nil {
-		a.logSecurityEvent(ctx, "", types.EventLoginFailed, req.IPAddress, req.UserAgent,
+		a.secEventRepo.LogSecurityEvent(ctx, "", types.EventLoginFailed, req.IPAddress, req.UserAgent,
 			map[string]interface{}{"reason": "user_not_found"})
 		return nil, domain.ErrInvalidCredentials
 	}
@@ -135,11 +126,11 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 		if user.FailedLoginCount >= 5 {
 			lockUntil := time.Now().Add(time.Hour * 1)
 			user.AccountLockedUntil = &lockUntil
-			a.logSecurityEvent(ctx, user.ID, types.EventAccountLocked, req.IPAddress, req.UserAgent, nil)
+			a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventAccountLocked, req.IPAddress, req.UserAgent, nil)
 		}
 
 		a.userRepo.Update(ctx, user)
-		a.logSecurityEvent(ctx, user.ID, types.EventLoginFailed, req.IPAddress, req.UserAgent, nil)
+		a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventLoginFailed, req.IPAddress, req.UserAgent, nil)
 		return nil, domain.ErrInvalidCredentials
 	}
 
@@ -175,7 +166,7 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 		return nil, err
 	}
 
-	a.logSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)
+	a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)
 
 	return &dto.LoginResponse{
 		AccessToken:  accessToken,
@@ -194,29 +185,6 @@ func (a *authUseCase) generateJWT(userID, sessionID string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(a.jwtSecret))
-}
-
-func (a *authUseCase) logSecurityEvent(ctx context.Context, userID string, eventType domain.SecurityEventType, ip, userAgent string, details map[string]interface{}) {
-	event := &domain.SecurityEvent{
-		ID:        uuid.New().String(),
-		UserID:    userID,
-		EventType: eventType,
-		IPAddress: ip,
-		UserAgent: userAgent,
-		Details:   details,
-		CreatedAt: time.Now(),
-	}
-	a.secEventRepo.Create(ctx, event)
-}
-
-// Additional security services
-type EmailService interface {
-	SendVerificationEmail(user *domain.User, token string) error
-	SendPasswordResetEmail(user *domain.User, token string) error
-}
-
-type RateLimiter interface {
-	Allow(key string, limit int, window time.Duration) bool
 }
 
 type PasswordChecker interface {
