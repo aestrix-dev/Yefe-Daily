@@ -10,6 +10,7 @@ import (
 	"yefe_app/v1/pkg/types"
 
 	envsubt "github.com/emperorsixpacks/envsubst"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/argon2"
 )
@@ -110,4 +111,9 @@ func GenerateSecureToken() string {
 	bytes := make([]byte, 32)
 	rand.Read(bytes)
 	return base32.StdEncoding.EncodeToString(bytes)
+}
+
+// generateID generates a new UUID
+func GenerateID() string {
+	return uuid.NewString()
 }
