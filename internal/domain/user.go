@@ -1,13 +1,20 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"time"
+	"yefe_app/v1/internal/handlers/dto"
+
+	"github.com/google/uuid"
+)
 
 type User struct {
 	ID        uuid.UUID
-	FirstName string
-	LastName  string
-	UserName  string
+	Name      string
 	Email     string
+	Password  string
+	IsActive  bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type UserRepository interface {
@@ -15,4 +22,10 @@ type UserRepository interface {
 	Update(id uuid.UUID) error
 	GetUser(id uuid.UUID) User
 	FindAll() ([]User, error)
+}
+
+type UserService interface {
+	CreateUser(req dto.CreateUserRequest) error
+	GetUser(id string) (*User, error)
+	AuthenticateUser(email, password string) (*User, error)
 }
