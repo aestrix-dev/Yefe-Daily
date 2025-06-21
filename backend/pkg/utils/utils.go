@@ -33,6 +33,7 @@ type (
 	}
 	PersistenceSettings struct {
 		PostgresSQl DBSettings `yaml:"postgres"`
+		Redis       DBSettings `yaml:"redis"`
 	}
 	DBSettings struct {
 		Host          string `yaml:"host"`
