@@ -18,7 +18,7 @@ type authUseCase struct {
 	sessionRepo  domain.SessionRepository
 	secEventRepo domain.SecurityEventRepository
 	//emailService    EmailService
-	passwordChecker PasswordChecker
+	passwordChecker types.PasswordChecker
 	jwtSecret       string
 }
 
@@ -34,15 +34,14 @@ func NewAuthUseCase(
 	userRepo domain.UserRepository,
 	sessionRepo domain.SessionRepository,
 	secEventRepo domain.SecurityEventRepository,
-	passwordChecker PasswordChecker,
 	jwtSecret string,
-) *authUseCase {
+) domain.AuthUseCase {
 	return &authUseCase{
 		userRepo:     userRepo,
 		sessionRepo:  sessionRepo,
 		secEventRepo: secEventRepo,
 		//	emailService:    emailService,
-		passwordChecker: passwordChecker,
+		passwordChecker: utils.NewBasicPasswordChecker(),
 		jwtSecret:       jwtSecret,
 	}
 }
@@ -185,37 +184,4 @@ func (a *authUseCase) generateJWT(userID, sessionID string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(a.jwtSecret))
-}
-
-type PasswordChecker interface {
-	IsStrong(password string) bool
-}
-
-// Example password checker implementation
-type passwordChecker struct{}
-
-func (p *passwordChecker) IsStrong(password string) bool {
-	if len(password) < 8 {
-		return false
-	}
-
-	hasUpper := false
-	hasLower := false
-	hasDigit := false
-	hasSpecial := false
-
-	for _, char := range password {
-		switch {
-		case char >= 'A' && char <= 'Z':
-			hasUpper = true
-		case char >= 'a' && char <= 'z':
-			hasLower = true
-		case char >= '0' && char <= '9':
-			hasDigit = true
-		default:
-			hasSpecial = true
-		}
-	}
-
-	return hasUpper && hasLower && hasDigit && hasSpecial
 }
