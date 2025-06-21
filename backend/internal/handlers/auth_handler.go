@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
 	"github.com/go-chi/chi/v5"
@@ -26,7 +27,8 @@ func (a *authHandler) Handle() *chi.Mux {
 func (a *authHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 	var req dto.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		logger.Log.WithError(err).Error("")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err.Error())
 		return
 	}
 
@@ -36,7 +38,8 @@ func (a *authHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 
 	// Validate request
 	if err := a.validator.Struct(&req); err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		logger.Log.WithError(err).Error("")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err.Error())
 		return
 	}
 
