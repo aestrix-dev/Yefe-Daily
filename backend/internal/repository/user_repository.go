@@ -9,13 +9,14 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/infrastructure/db/models"
 	"yefe_app/v1/pkg/types"
+	"yefe_app/v1/pkg/utils"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type userRepository struct {
-	db *gorm.DB
+	db                      *gorm.DB
+	securityEventRepository domain.SecurityEventRepository
 }
 
 // NewUserRepository creates a new user repository instance
@@ -48,7 +49,7 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 
 		// Create default user profile
 		profile := &models.UserProfile{
-			ID:        generateID(),
+			ID:        utils.GenerateID(),
 			UserID:    dbUser.ID,
 			CreatedAt: time.Now().UTC(),
 			UpdatedAt: time.Now().UTC(),
@@ -277,7 +278,7 @@ func (r *userRepository) UpdatePassword(ctx context.Context, userID, passwordHas
 			Update("is_active", false)
 
 		// Log security event
-		r.logSecurityEvent(ctx, tx, userID, domain.EventPasswordChange, "", "", nil)
+		r.logSecurityEvent(ctx, tx, userID, types.EventPasswordChange, "", "", nil)
 
 		return nil
 	})
@@ -337,7 +338,7 @@ func (r *userRepository) IncrementFailedLogin(ctx context.Context, userID string
 			user.AccountLockedUntil = &lockUntil
 
 			// Log account locked event
-			r.logSecurityEvent(ctx, tx, userID, domain.EventAccountLocked, "", "",
+			r.logSecurityEvent(ctx, tx, userID, types.EventAccountLocked, "", "",
 				map[string]interface{}{
 					"failed_attempts": user.FailedLoginCount,
 					"locked_until":    lockUntil,
@@ -476,14 +477,12 @@ func (r *userRepository) SearchUsers(ctx context.Context, query string, limit, o
 	return domainUsers, total, nil
 }
 
-// Helper methods
-
 // domainToModel converts domain user to database model
 func (r *userRepository) domainToModel(user *domain.User) *models.User {
 	return &models.User{
 		ID:                 user.ID,
 		Email:              user.Email,
-		Username:           user.Username,
+		Name:               user.Name,
 		PasswordHash:       user.PasswordHash,
 		Salt:               user.Salt,
 		IsEmailVerified:    user.IsEmailVerified,
@@ -554,8 +553,8 @@ func (r *userRepository) isSensitiveUpdate(user *domain.User) bool {
 
 // logSecurityEvent logs a security event
 func (r *userRepository) logSecurityEvent(ctx context.Context, tx *gorm.DB, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details map[string]interface{}) {
-	event := &models.SecurityEvent{
-		ID:        generateID(),
+	event := domain.SecurityEvent{
+		ID:        utils.GenerateID(),
 		UserID:    userID,
 		EventType: types.SecurityEventType(eventType),
 		IPAddress: ipAddress,
@@ -566,12 +565,5 @@ func (r *userRepository) logSecurityEvent(ctx context.Context, tx *gorm.DB, user
 	}
 
 	// Don't fail the main operation if logging fails
-	tx.Create(event)
-}
-
-// generateID generates a new UUID
-func generateID() string {
-	// Implementation depends on your UUID library
-	// Using Google's UUID library as example
-	return uuid.New().String()
+	r.securityEventRepository.Create(ctx, tx, &event)
 }
