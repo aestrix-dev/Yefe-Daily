@@ -1,17 +1,25 @@
 package dto
 
-import "github.com/google/uuid"
-
-type CreateUserRequest struct {
-	Name             string `json:"first_name"`
-	Email            string `json:"email"`
-	Password         string `json:"password"`
-	Confirm_Password string `json:"Confirm_Password"`
+// Request/Response DTOs
+type RegisterRequest struct {
+	Email           string `json:"email" validate:"required,email"`
+	Username        string `json:"username" validate:"required,min=3,max=50"`
+	Password        string `json:"password" validate:"required,min=8"`
+	ConfirmPassword string `json:"confirm_password" validate:"required,eqfield=Password"`
+	IPAddress       string `json:"-"`
+	UserAgent       string `json:"-"`
 }
 
-type UserResponse struct {
-	ID    uuid.UUID
-	Name  string `json:"first_name"`
-	Email string `json:"email"`
-	Plan  string `json:"plan"`
+type LoginRequest struct {
+	EmailOrUsername string `json:"email_or_username" validate:"required"`
+	Password        string `json:"password" validate:"required"`
+	TwoFactorCode   string `json:"two_factor_code,omitempty"`
+	IPAddress       string `json:"-"`
+	UserAgent       string `json:"-"`
+}
+
+type LoginResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int64  `json:"expires_in"`
 }
