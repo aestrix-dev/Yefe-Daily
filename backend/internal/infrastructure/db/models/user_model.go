@@ -31,17 +31,17 @@ type User struct {
 
 // UserProfile for extended user information
 type UserProfile struct {
-	ID          string        `gorm:"type:varchar(36);primaryKey" json:"id"`
-	UserID      string        `gorm:"type:varchar(36);not null;index" json:"user_id"`
-	Name        string        `gorm:"type:varchar(100)" json:"first_name"`
-	DateOfBirth *time.Time    `json:"date_of_birth"`
-	PhoneNumber string        `gorm:"type:varchar(20)" json:"phone_number"`
-	Avatar      string        `gorm:"type:text" json:"avatar"` // URL or base64
-	Bio         string        `gorm:"type:text" json:"bio"`
-	Location    string        `gorm:"type:varchar(255)" json:"location"`
-	Preferences types.JSONMap `gorm:"type:jsonb" json:"preferences"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
+	ID          string     `gorm:"type:varchar(36);primaryKey" json:"id"`
+	UserID      string     `gorm:"type:varchar(36);not null;index" json:"user_id"`
+	Name        string     `gorm:"type:varchar(100)" json:"first_name"`
+	DateOfBirth *time.Time `json:"date_of_birth"`
+	PhoneNumber string     `gorm:"type:varchar(20)" json:"phone_number"`
+	Avatar      string     `gorm:"type:text" json:"avatar"` // URL or base64
+	Bio         string     `gorm:"type:text" json:"bio"`
+	Location    string     `gorm:"type:varchar(255)" json:"location"`
+	//	Preferences types.JSONMap `gorm:"type:jsonb" json:"preferences"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Session model for authentication tokens
@@ -56,7 +56,7 @@ type Session struct {
 	UserAgent    string        `gorm:"type:text" json:"user_agent"`
 	IsActive     bool          `gorm:"default:true;index" json:"is_active"`
 	LastUsedAt   *time.Time    `gorm:"index" json:"last_used_at"`
-	DeviceInfo   types.JSONMap `gorm:"type:json" json:"device_info"`
+	DeviceInfo   types.JSONMap `gorm:"type:jsonb" json:"device_info"`
 	CreatedAt    time.Time     `gorm:"index" json:"created_at"`
 	UpdatedAt    time.Time     `json:"updated_at"`
 }
