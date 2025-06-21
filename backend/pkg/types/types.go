@@ -33,3 +33,7 @@ const (
 	SeverityError    EventSeverity = "error"
 	SeverityCritical EventSeverity = "critical"
 )
+
+type PasswordChecker interface {
+	IsStrong(password string) bool
+}
