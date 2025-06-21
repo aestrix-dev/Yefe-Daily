@@ -1,9 +1,5 @@
 package types
 
-type HttpHander interface {
-	Handle()
-}
-
 // Password security configuration
 type PasswordConfig struct {
 	Memory      uint32
