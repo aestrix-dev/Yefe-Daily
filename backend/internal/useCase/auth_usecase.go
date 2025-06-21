@@ -14,11 +14,10 @@ import (
 )
 
 type authUseCase struct {
-	userRepo        domain.UserRepository
-	sessionRepo     domain.SessionRepository
-	secEventRepo    domain.SecurityEventRepository
-	emailService    EmailService
-	rateLimiter     RateLimiter
+	userRepo     domain.UserRepository
+	sessionRepo  domain.SessionRepository
+	secEventRepo domain.SecurityEventRepository
+	//emailService    EmailService
 	passwordChecker PasswordChecker
 	jwtSecret       string
 }
@@ -35,16 +34,14 @@ func NewAuthUseCase(
 	userRepo domain.UserRepository,
 	sessionRepo domain.SessionRepository,
 	secEventRepo domain.SecurityEventRepository,
-	emailService EmailService,
-	rateLimiter RateLimiter,
 	passwordChecker PasswordChecker,
 	jwtSecret string,
 ) domain.AuthUseCase {
 	return &authUseCase{
-		userRepo:        userRepo,
-		sessionRepo:     sessionRepo,
-		secEventRepo:    secEventRepo,
-		emailService:    emailService,
+		userRepo:     userRepo,
+		sessionRepo:  sessionRepo,
+		secEventRepo: secEventRepo,
+		//	emailService:    emailService,
 		rateLimiter:     rateLimiter,
 		passwordChecker: passwordChecker,
 		jwtSecret:       jwtSecret,
@@ -52,10 +49,6 @@ func NewAuthUseCase(
 }
 
 func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*domain.User, error) {
-	// Rate limiting
-	if !a.rateLimiter.Allow("register:"+req.IPAddress, 3, time.Hour) {
-		return nil, domain.ErrRateLimitExceeded
-	}
 
 	// Validate password strength
 	if !a.passwordChecker.IsStrong(req.Password) {
@@ -79,7 +72,7 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	user := &domain.User{
 		ID:           uuid.New().String(),
 		Email:        strings.ToLower(strings.TrimSpace(req.Email)),
-		Username:     strings.TrimSpace(req.Username),
+		Name:         strings.TrimSpace(req.Name),
 		PasswordHash: passwordHash,
 		Salt:         salt,
 		IsActive:     true,
@@ -92,7 +85,7 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	}
 
 	// Send email verification
-	go a.sendEmailVerification(user)
+	//go a.sendEmailVerification(user)
 
 	// Log security event
 	a.logSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)

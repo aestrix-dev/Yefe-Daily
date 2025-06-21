@@ -14,12 +14,14 @@ import (
 )
 
 func main() {
+	// Load configuration
 	config, err := utils.LoadConfig()
 	if err != nil {
-
-		logger.Log.WithError(err)
+		logger.Log.WithError(err).Fatal("Failed to load config")
 		return
 	}
+
+	// Init logger
 	logger.Init()
 
 	logger.Log.WithFields(map[string]interface{}{
@@ -43,14 +45,13 @@ func main() {
 
 	logger.Log.WithField("address", address).Info("Starting server")
 
-	// Setup graceful shutdown
+	// Graceful shutdown setup
 	serverCtx, serverStopCtx := context.WithCancel(context.Background())
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	go func() {
 		<-sig
-
 		logger.Log.Warn("Shutdown signal received")
 
 		shutdownCtx, cancelCtx := context.WithTimeout(serverCtx, 30*time.Second)
@@ -71,6 +72,7 @@ func main() {
 		serverStopCtx()
 	}()
 
+	// Start the server
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Log.WithError(err).Fatal("Server failed")
 	}
