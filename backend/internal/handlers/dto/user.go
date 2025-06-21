@@ -13,7 +13,6 @@ type RegisterRequest struct {
 type LoginRequest struct {
 	EmailOrUsername string `json:"email_or_username" validate:"required"`
 	Password        string `json:"password" validate:"required"`
-	TwoFactorCode   string `json:"two_factor_code,omitempty"`
 	IPAddress       string `json:"-"`
 	UserAgent       string `json:"-"`
 }
