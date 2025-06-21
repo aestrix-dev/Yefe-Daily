@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 	"yefe_app/v1/internal/infrastructure"
+	"yefe_app/v1/internal/repository"
 	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 )
@@ -30,16 +31,24 @@ func main() {
 	}).Debug("Configuration loaded")
 
 	// Initialize DB
-	_, err = infrastructure.NewDB(config.Persistence.PostgresSQl)
+	db, err := infrastructure.NewDB(config.Persistence.PostgresSQl)
 	if err != nil {
 		logger.Log.WithError(err).Fatal("Failed to initialize database")
 		return
 	}
 
 	logger.Log.Info("Database initialized")
+	userRepo := repository.NewUserRepository(db)
+	secEventRepo := repository.NewPostgresSecurityEventRepository(db)
+	sessionRepo, err := repository.NewRedisSessionRepository(config.Persistence.Redis)
+	if err != nil {
+		logger.Log.WithError(err).Fatal("Failed to initialize redis")
+		return
+	}
+	serverConfig := infrastructure.ServerConfig{DB: db, UserRepo: userRepo, SessionRepo: sessionRepo, SecEventRepo: secEventRepo}
 
 	// Setup router and server
-	router := infrastructure.NewRouter()
+	router := infrastructure.NewRouter(serverConfig)
 	address := fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port)
 	server := &http.Server{Addr: address, Handler: router}
 

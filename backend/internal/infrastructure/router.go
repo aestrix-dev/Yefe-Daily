@@ -12,17 +12,19 @@ import (
 )
 
 type ServerConfig struct {
-	db              *gorm.DB
-	user_repository *domain.UserRepository
+	DB           *gorm.DB
+	UserRepo     domain.UserRepository
+	SessionRepo  domain.SessionRepository
+	SecEventRepo domain.SecurityEventRepository
 }
 
-func (conf *ServerConfig) auth_usecase() *domain.AuthUseCase {
-	return usecase.NewAuthUseCase(*conf.user_repository)
+func (conf *ServerConfig) auth_usecase() domain.AuthUseCase {
+	return usecase.NewAuthUseCase(conf.UserRepo, conf.SessionRepo, conf.SecEventRepo, "")
 }
 
 func NewRouter(config ServerConfig) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Mount("/auth", handlers.AuthHandler())
+	r.Mount("/auth", handlers.AuthHandler(config.auth_usecase()))
 	return r
 }

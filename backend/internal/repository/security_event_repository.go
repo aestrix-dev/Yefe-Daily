@@ -12,20 +12,20 @@ import (
 	"gorm.io/gorm"
 )
 
-// PostgresSecurityEventRepository implements SecurityEventRepository using PostgreSQL
-type PostgresSecurityEventRepository struct {
+// postgresSecurityEventRepository implements SecurityEventRepository using PostgreSQL
+type postgresSecurityEventRepository struct {
 	db *gorm.DB
 }
 
-// NewPostgresSecurityEventRepository creates a new PostgreSQL security event repository
-func NewPostgresSecurityEventRepository(db *gorm.DB) *PostgresSecurityEventRepository {
-	return &PostgresSecurityEventRepository{
+// NewpostgresSecurityEventRepository creates a new PostgreSQL security event repository
+func NewPostgresSecurityEventRepository(db *gorm.DB) domain.SecurityEventRepository {
+	return &postgresSecurityEventRepository{
 		db: db,
 	}
 }
 
 // Create stores a new security event in PostgreSQL
-func (r *PostgresSecurityEventRepository) Create(ctx context.Context, event *domain.SecurityEvent) error {
+func (r *postgresSecurityEventRepository) Create(ctx context.Context, event *domain.SecurityEvent) error {
 	if event == nil {
 		return fmt.Errorf("event cannot be nil")
 	}
@@ -54,7 +54,7 @@ func (r *PostgresSecurityEventRepository) Create(ctx context.Context, event *dom
 }
 
 // GetByUserID retrieves security events for a specific user, ordered by most recent first
-func (r *PostgresSecurityEventRepository) GetByUserID(ctx context.Context, userID string, limit int) ([]*domain.SecurityEvent, error) {
+func (r *postgresSecurityEventRepository) GetByUserID(ctx context.Context, userID string, limit int) ([]*domain.SecurityEvent, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("userID cannot be empty")
 	}
@@ -85,7 +85,7 @@ func (r *PostgresSecurityEventRepository) GetByUserID(ctx context.Context, userI
 // Additional helper methods that might be useful
 
 // GetByUserIDAndType retrieves security events for a user filtered by event type
-func (r *PostgresSecurityEventRepository) GetByUserIDAndType(ctx context.Context, userID, eventType string, limit int) ([]*domain.SecurityEvent, error) {
+func (r *postgresSecurityEventRepository) GetByUserIDAndType(ctx context.Context, userID, eventType string, limit int) ([]*domain.SecurityEvent, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("userID cannot be empty")
 	}
@@ -116,7 +116,7 @@ func (r *PostgresSecurityEventRepository) GetByUserIDAndType(ctx context.Context
 }
 
 // GetByUserIDSince retrieves security events for a user since a specific time
-func (r *PostgresSecurityEventRepository) GetByUserIDSince(ctx context.Context, userID string, since time.Time, limit int) ([]*domain.SecurityEvent, error) {
+func (r *postgresSecurityEventRepository) GetByUserIDSince(ctx context.Context, userID string, since time.Time, limit int) ([]*domain.SecurityEvent, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("userID cannot be empty")
 	}
@@ -144,7 +144,7 @@ func (r *PostgresSecurityEventRepository) GetByUserIDSince(ctx context.Context, 
 }
 
 // CountByUserID returns the total count of security events for a user
-func (r *PostgresSecurityEventRepository) CountByUserID(ctx context.Context, userID string) (int64, error) {
+func (r *postgresSecurityEventRepository) CountByUserID(ctx context.Context, userID string) (int64, error) {
 	if userID == "" {
 		return 0, fmt.Errorf("userID cannot be empty")
 	}
@@ -163,7 +163,7 @@ func (r *PostgresSecurityEventRepository) CountByUserID(ctx context.Context, use
 }
 
 // DeleteOldEvents removes security events older than the specified duration
-func (r *PostgresSecurityEventRepository) DeleteOldEvents(ctx context.Context, olderThan time.Duration) error {
+func (r *postgresSecurityEventRepository) DeleteOldEvents(ctx context.Context, olderThan time.Duration) error {
 	cutoffTime := time.Now().Add(-olderThan)
 
 	result := r.db.WithContext(ctx).
@@ -179,7 +179,7 @@ func (r *PostgresSecurityEventRepository) DeleteOldEvents(ctx context.Context, o
 
 // GetRecentSuspiciousActivity gets recent suspicious activities across all users
 // This could be useful for admin dashboards
-func (r *PostgresSecurityEventRepository) GetRecentSuspiciousActivity(ctx context.Context, eventTypes []string, limit int) ([]*domain.SecurityEvent, error) {
+func (r *postgresSecurityEventRepository) GetRecentSuspiciousActivity(ctx context.Context, eventTypes []string, limit int) ([]*domain.SecurityEvent, error) {
 	if len(eventTypes) == 0 {
 		eventTypes = []string{string(types.EventLoginFailed), string(types.EventAccountLocked), string(types.EventSuspiciousActivity)}
 	}
@@ -206,7 +206,7 @@ func (r *PostgresSecurityEventRepository) GetRecentSuspiciousActivity(ctx contex
 	return events, nil
 }
 
-func (r *PostgresSecurityEventRepository) LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details map[string]interface{}) error {
+func (r *postgresSecurityEventRepository) LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details map[string]interface{}) error {
 	event := domain.SecurityEvent{
 		ID:        utils.GenerateID(),
 		UserID:    userID,

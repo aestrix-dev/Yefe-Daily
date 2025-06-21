@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 	"yefe_app/v1/pkg/types"
-
-	"gorm.io/gorm"
 )
 
 // Session represents user session
@@ -45,7 +43,7 @@ type SecurityEvent struct {
 }
 
 type SecurityEventRepository interface {
-	Create(ctx context.Context, tx *gorm.DB, event *SecurityEvent) error
+	Create(ctx context.Context, event *SecurityEvent) error
 	GetByUserID(ctx context.Context, userID string, limit int) ([]*SecurityEvent, error)
 	LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details map[string]interface{}) error
 }
