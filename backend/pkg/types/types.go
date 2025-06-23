@@ -47,9 +47,17 @@ type PasswordChecker interface {
 type JSONMap map[string]any
 
 func (j JSONMap) Value() (driver.Value, error) {
+	if j == nil {
+		return "{}", nil
+	}
 
-	return json.Marshal(j)
+	b, err := json.Marshal(j)
+	if err != nil {
+		return nil, err
+	}
+	return string(b), nil // 👈 return a string instead of []byte
 }
+
 
 func (j *JSONMap) Scan(value any) error {
 

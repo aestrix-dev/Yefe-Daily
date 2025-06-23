@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 	"yefe_app/v1/internal/domain"
+	"yefe_app/v1/internal/infrastructure/db/models"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 
@@ -25,15 +27,18 @@ func NewPostgresSecurityEventRepository(db *gorm.DB) domain.SecurityEventReposit
 
 // Create stores a new security event in PostgreSQL
 func (r *postgresSecurityEventRepository) Create(ctx context.Context, event *domain.SecurityEvent) error {
+	eventModel := r.domainToModel(event)
 	if event == nil {
 		return fmt.Errorf("event cannot be nil")
 	}
 
 	// Validate required fields
 	if event.UserID == "" {
+		logger.Log.Error("Could not create security event, User ID not provided")
 		return fmt.Errorf("userID is required")
 	}
 	if event.EventType == "" {
+		logger.Log.Error("Could not create security event, Event Type not provided")
 		return fmt.Errorf("eventType is required")
 	}
 
@@ -44,8 +49,9 @@ func (r *postgresSecurityEventRepository) Create(ctx context.Context, event *dom
 	}
 
 	// Create the record
-	result := r.db.WithContext(ctx).Create(event)
+	result := r.db.WithContext(ctx).Create(eventModel)
 	if result.Error != nil {
+		logger.Log.WithError(result.Error).Error("Could not create security event")
 		return fmt.Errorf("failed to create security event: %w", result.Error)
 	}
 
@@ -205,18 +211,43 @@ func (r *postgresSecurityEventRepository) GetRecentSuspiciousActivity(ctx contex
 	return events, nil
 }
 
-func (r *postgresSecurityEventRepository) LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details map[string]interface{}) error {
+func (r *postgresSecurityEventRepository) LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details types.JSONMap) error {
 	event := domain.SecurityEvent{
 		ID:        utils.GenerateID(),
 		UserID:    userID,
-		EventType: types.SecurityEventType(eventType),
+		EventType: eventType,
 		IPAddress: ipAddress,
 		UserAgent: userAgent,
-		Details:   types.JSONMap(details),
+		Details:   details,
 		Severity:  types.SeverityInfo,
 		CreatedAt: time.Now().UTC(),
 	}
 
 	// Don't fail the main operation if logging fails
 	return r.Create(ctx, &event)
+}
+
+func (r *postgresSecurityEventRepository) modelToDomain(event *models.SecurityEvent) *domain.SecurityEvent {
+	return &domain.SecurityEvent{
+		ID:        event.ID,
+		UserID:    event.UserID,
+		EventType: event.EventType,
+		IPAddress: event.IPAddress,
+		UserAgent: event.UserAgent,
+		Severity:  event.Severity,
+		CreatedAt: event.CreatedAt,
+	}
+}
+
+func (r *postgresSecurityEventRepository) domainToModel(event *domain.SecurityEvent) *models.SecurityEvent {
+	return &models.SecurityEvent{
+		ID:        event.ID,
+		UserID:    event.UserID,
+		EventType: event.EventType,
+		IPAddress: event.IPAddress,
+		UserAgent: event.UserAgent,
+		Details:   event.Details,
+		Severity:  event.Severity,
+		CreatedAt: event.CreatedAt,
+	}
 }

@@ -60,9 +60,6 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 			return fmt.Errorf("failed to create user profile: %w", err)
 		}
 
-		// Log security event
-		r.secEventRepository.LogSecurityEvent(ctx, dbUser.ID, types.EventAccountCreated, "", "", nil)
-
 		return nil
 	})
 }

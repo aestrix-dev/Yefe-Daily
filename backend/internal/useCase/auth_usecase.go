@@ -86,7 +86,9 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	//go a.sendEmailVerification(user)
 
 	// Log security event
-	a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)
+	a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventAccountCreated, req.IPAddress, req.UserAgent, types.JSONMap{
+		"message": "User created",
+	})
 
 	return user, nil
 }

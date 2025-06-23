@@ -45,7 +45,7 @@ type SecurityEvent struct {
 type SecurityEventRepository interface {
 	Create(ctx context.Context, event *SecurityEvent) error
 	GetByUserID(ctx context.Context, userID string, limit int) ([]*SecurityEvent, error)
-	LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details map[string]interface{}) error
+	LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details types.JSONMap) error
 }
 
 // Additional security services
