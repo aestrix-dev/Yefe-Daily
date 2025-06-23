@@ -99,7 +99,7 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 	var user *domain.User
 	var err error
 
-	user, err = a.userRepo.GetByEmail(ctx, req.EmailOrUsername)
+	user, err = a.userRepo.GetByEmail(ctx, req.Email)
 
 	if err != nil || user == nil {
 		a.secEventRepo.LogSecurityEvent(ctx, "", types.EventLoginFailed, req.IPAddress, req.UserAgent,

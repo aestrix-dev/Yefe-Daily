@@ -20,7 +20,37 @@ type authHandler struct {
 func (a *authHandler) Handle() *chi.Mux {
 	router := chi.NewRouter()
 	router.Post("/register", a.RegisterRoute)
+	router.Post("/login", a.LoginRoute)
 	return router
+}
+
+// Login handles user login
+
+func (a *authHandler) LoginRoute(w http.ResponseWriter, r *http.Request) {
+	var req dto.LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Log.WithError(err).Error("")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err.Error())
+		return
+	}
+
+	// Set IP and User Agent
+	req.IPAddress = utils.GetClientIP(r)
+	req.UserAgent = r.UserAgent()
+
+	// Validate request
+	if err := a.validator.Struct(&req); err != nil {
+		logger.Log.WithError(err).Error("")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err.Error())
+		return
+	}
+
+	user, err := a.authUseCase.Login(r.Context(), req)
+	if err != nil {
+		utils.HandleDomainError(w, err)
+		return
+	}
+	utils.SuccessResponse(w, http.StatusCreated, "User logined-in successfully", user)
 }
 
 // Register handles user registration

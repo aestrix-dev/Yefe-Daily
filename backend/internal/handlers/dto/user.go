@@ -11,10 +11,10 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-	EmailOrUsername string `json:"email_or_username" validate:"required"`
-	Password        string `json:"password" validate:"required"`
-	IPAddress       string `json:"-"`
-	UserAgent       string `json:"-"`
+	Email     string `json:"email" validate:"required,email"`
+	Password  string `json:"password" validate:"required"`
+	IPAddress string `json:"-"`
+	UserAgent string `json:"-"`
 }
 
 type LoginResponse struct {
