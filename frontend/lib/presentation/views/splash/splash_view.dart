@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../core/constants/app_routes.dart';
 import 'splash_viewmodel.dart';
 
 class SplashView extends StackedView<SplashViewModel> {
@@ -16,48 +17,41 @@ class SplashView extends StackedView<SplashViewModel> {
     Widget? child,
   ) {
     // Call handleStartup when the view is first built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      viewModel.handleStartup();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Show splash for 3 seconds
+      await Future.delayed(const Duration(seconds: 3));
+
+      final hasSeenOnboarding = viewModel.hasSeenOnboarding;
+      final isLoggedIn = viewModel.isLoggedIn;
+
+      print('SplashView: hasSeenOnboarding = $hasSeenOnboarding');
+      print('SplashView: isLoggedIn = $isLoggedIn');
+
+      // Navigation logic
+      if (!hasSeenOnboarding) {
+        // First time user - show onboarding
+        print('SplashView: Navigating to onboarding');
+        context.pushReplacement(AppRoutes.onboarding);
+      } else {
+        // Logged in user - go to home
+        print('SplashView: Navigating to home');
+        context.pushReplacement(AppRoutes.home);
+      }
     });
 
     return Scaffold(
       backgroundColor: AppColors.primary,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 120.w,
-              height: 120.h,
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.flutter_dash,
-                size: 60.sp,
-                color: AppColors.primary,
-              ),
+      body: Stack(
+        children: [ 
+          // Logo centered on the screen
+          Center(
+            child: Image.asset(
+              'assets/images/logo.png',
+              width: 150.w,
+              height: 198.h,
             ),
-
-            SizedBox(height: 40.h),
-
-            Text(
-              AppStrings.appName,
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 28.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            SizedBox(height: 20.h),
-
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

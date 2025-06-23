@@ -10,6 +10,7 @@ import '../presentation/views/splash/splash_view.dart';
 import '../presentation/views/onboarding/onboarding_view.dart';
 import '../presentation/views/home/home_view.dart';
 
+// Declare the navigator key here
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatelessWidget {
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
 }
 
 final GoRouter _router = GoRouter(
+  navigatorKey: navigatorKey, // This connects the key to GoRouter
   initialLocation: AppRoutes.splash,
   routes: [
     GoRoute(
