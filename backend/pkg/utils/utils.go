@@ -27,9 +27,10 @@ type (
 		Persistence PersistenceSettings `yaml:"persistence"`
 	}
 	ServerSettings struct {
-		Name string `yaml:"name"`
-		Port int    `yaml:"port"`
-		Host string `yaml:"host"`
+		Name   string `yaml:"name"`
+		Port   int    `yaml:"port"`
+		Host   string `yaml:"host"`
+		Secret string `yaml:"secret"`
 	}
 	PersistenceSettings struct {
 		PostgresSQl DBSettings `yaml:"postgres"`
