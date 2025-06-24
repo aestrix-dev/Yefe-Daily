@@ -48,8 +48,8 @@ type UserRepository interface {
 type AuthUseCase interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*User, error)
 	Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error)
+	Logout(ctx context.Context, req dto.LogoutRequest) error
 	//RefreshToken(ctx context.Context, refreshToken string) (*dto.LoginResponse, error)
-	//Logout(ctx context.Context, token string) error
 	//LogoutAll(ctx context.Context, userID string) error
 	//VerifyEmail(ctx context.Context, token string) error
 	//ForgotPassword(ctx context.Context, email string) error
