@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"context"
+	"encoding/hex"
+	"fmt"
 	"strings"
 	"time"
 	"yefe_app/v1/internal/domain"
@@ -177,15 +179,8 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 }
 
 func (a *authUseCase) Logout(ctx context.Context, req dto.LogoutRequest) error {
-	sessionID, err := utils.ExtractSessionIDFromToken(req.AccessToken, a.jwtSecret)
-	if err != nil {
-		a.secEventRepo.LogSecurityEvent(ctx, "", types.EventLogoutFailed, req.IPAddress, req.UserAgent,
-			map[string]any{"reason": "invalid_token"})
-		return domain.ErrInvalidToken
-	}
-
 	// Get session from repository
-	session, err := a.sessionRepo.GetByToken(ctx, sessionID)
+	session, err := a.sessionRepo.GetByID(ctx, req.SessionID)
 	if err != nil || session == nil {
 		a.secEventRepo.LogSecurityEvent(ctx, "", types.EventLoginFailed, req.IPAddress, req.UserAgent,
 			map[string]any{"reason": "session_not_found"})
@@ -228,5 +223,10 @@ func (a *authUseCase) generateJWT(userID, sessionID string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(a.jwtSecret))
+	secret, err := hex.DecodeString(a.jwtSecret)
+	if err != nil {
+		return "", fmt.Errorf("invalid JWT secret encoding: %w", err)
+	}
+
+	return token.SignedString(secret)
 }

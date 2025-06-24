@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -127,13 +128,16 @@ func ExtractSessionIDFromToken(tokenString, jwtSecret string) (string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(jwtSecret), nil
+		secret, err := hex.DecodeString(jwtSecret)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JWT secret encoding: %w", err)
+		}
+		return secret, nil
 	})
 
 	if err != nil {
 		return "", err
 	}
-
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if sessionID, exists := claims["session_id"]; exists {
 			if sessionIDStr, ok := sessionID.(string); ok {
