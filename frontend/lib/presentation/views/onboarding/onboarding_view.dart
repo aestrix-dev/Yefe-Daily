@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+import 'package:yefa/core/constants/app_colors.dart';
 
 import 'onboarding_viewmodel.dart';
 import 'widgets/onboarding_page_one.dart';
@@ -16,6 +17,7 @@ class OnboardingView extends StackedView<OnboardingViewModel> {
     Widget? child,
   ) {
     return Scaffold(
+      backgroundColor: AppColors.primary,
       body: SafeArea(
         child: PageView(
           controller: viewModel.pageController,
@@ -25,10 +27,17 @@ class OnboardingView extends StackedView<OnboardingViewModel> {
             OnboardingPageOne(onGetStarted: viewModel.nextPage),
 
             // Page 2
-            OnboardingPageTwo(onContinue: viewModel.nextPage),
+            OnboardingPageTwo(
+              onContinue: viewModel.nextPage,
+              onBack: viewModel.previousPage, // Pass the back callback
+            ),
 
             // Page 3
-            OnboardingPageThree(onContinue: viewModel.completeOnboarding),
+            OnboardingPageThree(
+              onContinue: viewModel.completeOnboarding,
+              onBack: viewModel
+                  .previousPage,
+            ),
           ],
         ),
       ),

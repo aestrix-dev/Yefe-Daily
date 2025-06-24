@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../../app/app_setup.dart';
-
 import '../../../data/services/storage_service.dart';
 
 class OnboardingViewModel extends BaseViewModel {
@@ -13,7 +12,7 @@ class OnboardingViewModel extends BaseViewModel {
   int _currentIndex = 0;
 
   int get currentIndex => _currentIndex;
-  bool get isLastPage => _currentIndex == 2; // 3 pages (0, 1, 2)
+  bool get isLastPage => _currentIndex == 2;
 
   void onPageChanged(int index) {
     _currentIndex = index;
@@ -29,8 +28,19 @@ class OnboardingViewModel extends BaseViewModel {
     }
   }
 
+  // Add this method for going back
+  void previousPage() {
+    if (_currentIndex > 0) {
+      pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   void completeOnboarding() {
     _storageService.setBool('hasSeenOnboarding', true);
+    
   }
 
   @override

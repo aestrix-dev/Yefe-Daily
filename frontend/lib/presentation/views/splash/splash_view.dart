@@ -16,8 +16,9 @@ class SplashView extends StackedView<SplashViewModel> {
     SplashViewModel viewModel,
     Widget? child,
   ) {
-    // Call handleStartup when the view is first built
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+
+    WidgetsBinding.instance.addPostFrameCallback((_)
+     async {
       // Show splash for 3 seconds
       await Future.delayed(const Duration(seconds: 3));
 
@@ -47,8 +48,8 @@ class SplashView extends StackedView<SplashViewModel> {
           Center(
             child: Image.asset(
               'assets/images/logo.png',
-              width: 150.w,
-              height: 198.h,
+              width: 200.w,
+              height: 298.h,
             ),
           ),
         ],

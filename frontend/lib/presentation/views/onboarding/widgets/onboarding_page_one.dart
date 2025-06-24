@@ -19,24 +19,16 @@ class OnboardingPageOne extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
           // Main image at center
+           SizedBox(height: 70.h),
           Container(
-            width: 280.w,
-            height: 280.h,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.r),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.grey.withOpacity(0.2),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
+            width: 300.w,
+            height: 300.h,
+         
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20.r),
+             
               child: Image.asset(
                 'assets/images/onboarding1.png',
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     decoration: BoxDecoration(
@@ -54,30 +46,30 @@ class OnboardingPageOne extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 60.h),
+          SizedBox(height: 28.h),
 
           // Main heading
           Text(
             'Welcome to Yefa Daily App',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 32.sp,
+              fontSize: 24.sp,
               fontWeight: FontWeight.w900,
-              color: AppColors.black,
+              color: AppColors.secondary,
               height: 1.2,
             ),
           ),
 
-          SizedBox(height: 24.h),
+          SizedBox(height: 10.h),
 
           // Subheading
           Text(
-            'Your personal companion for daily motivation, task management, and achieving your goals one step at a time.',
+            'A space for the modern man to reflect, grow, and rise — one day at a time.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: 14.sp,
               color: AppColors.grey,
-              height: 1.6,
+              height: 1.2,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -89,7 +81,7 @@ class OnboardingPageOne extends StatelessWidget {
             text: 'Get Started',
             onPressed: onGetStarted,
             width: double.infinity,
-            height: 56.h,
+            height: 50.h,
           ),
         ],
         ),

@@ -4,93 +4,277 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../shared/widgets/custom_button.dart';
 
-class OnboardingPageThree extends StatelessWidget {
+class OnboardingPageThree extends StatefulWidget {
   final VoidCallback onContinue;
+  final VoidCallback onBack;
 
-  const OnboardingPageThree({super.key, required this.onContinue});
+  const OnboardingPageThree({
+    super.key,
+    required this.onContinue,
+    required this.onBack,
+  });
+
+  @override
+  State<OnboardingPageThree> createState() => _OnboardingPageThreeState();
+}
+
+class _OnboardingPageThreeState extends State<OnboardingPageThree> {
+  TimeOfDay? morningTime;
+  TimeOfDay? eveningTime;
+
+  // Check if both times are selected
+  bool get isFormValid => morningTime != null && eveningTime != null;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set default times
+    morningTime = const TimeOfDay(hour: 6, minute: 0); // 6:00 AM
+    eveningTime = const TimeOfDay(hour: 21, minute: 0); // 9:00 PM
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Main image
-          Container(
-            width: 280.w,
-            height: 280.h,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.r),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.grey.withOpacity(0.2),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20.r),
-              child: Image.asset(
-                'assets/images/onboarding3.png',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
+    return Scaffold(
+      backgroundColor: AppColors.primary,
+      body: SafeArea(
+        child: Column(
+          children: [
+             SizedBox(height: 58.h),
+            // Back button section
+            Padding(
+              padding: EdgeInsets.all(15.w),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: widget.onBack,
+                  child: Container(
+                    width: 40.w,
+                    height: 40.h,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(20.r),
+                      color: AppColors.accentDark,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Icon(
-                      Icons.emoji_events,
-                      size: 120.sp,
-                      color: AppColors.primary,
+                      Icons.arrow_back_ios_new,
+                      size: 18.sp,
+                      color: AppColors.black,
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
-          ),
 
-          SizedBox(height: 60.h),
+            // Card section
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 14.w),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.accentDark,
+                    borderRadius: BorderRadius.circular(20.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(15.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title
+                        Text(
+                          'Reminders Setup',
+                          style: TextStyle(
+                            fontSize: 24.sp,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.black,
+                            height: 1.2,
+                          ),
+                        ),
 
-          // Heading
-          Text(
-            'Achieve Your Goals',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 32.sp,
-              fontWeight: FontWeight.w900,
-              color: AppColors.black,
-              height: 1.2,
+                        SizedBox(height: 40.h),
+
+                        // Morning Reminder
+                        Text(
+                          'Morning Reminder',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.black,
+                          ),
+                        ),
+
+                        SizedBox(height: 12.h),
+
+                        _buildTimeSelector(
+                          time: morningTime,
+                          onTap: () => _selectTime(context, true),
+                        ),
+
+                        SizedBox(height: 32.h),
+
+                        // Evening Reminder
+                        Text(
+                          'Evening Reminder',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.black,
+                          ),
+                        ),
+
+                        SizedBox(height: 12.h),
+
+                        _buildTimeSelector(
+                          time: eveningTime,
+                          onTap: () => _selectTime(context, false),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
 
-          SizedBox(height: 24.h),
-
-          // Description
-          Text(
-            'Turn your dreams into reality with daily motivation, progress tracking, and celebrating every milestone on your journey.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16.sp,
-              color: AppColors.grey,
-              height: 1.6,
-              fontWeight: FontWeight.w400,
+            SizedBox(height: 40.h),
+            
+            // Set Reminder button
+            Padding(
+              padding: EdgeInsets.all(20.w),
+              child: CustomButton(
+                text: 'Set Reminder',
+                onPressed:  _handleSetReminder ,
+                width: double.infinity,
+                height: 56.h,
+                backgroundColor: 
+                    AppColors.accentLight,
+              ),
             ),
-          ),
-
-          SizedBox(height: 60.h),
-
-          // Continue button
-          CustomButton(
-            text: 'Continue',
-            onPressed: onContinue,
-            width: double.infinity,
-            height: 56.h,
-          ),
-        ],
+              SizedBox(height: 120.h),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildTimeSelector({
+    required TimeOfDay? time,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 50.h,
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.greyLight),
+          borderRadius: BorderRadius.circular(40.r),
+          color: AppColors.backgroundLight,
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 14.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                time != null ? _formatTime(time) : 'Select time',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: time != null ? AppColors.black : AppColors.grey,
+                ),
+              ),
+              Container(
+                width: 32.w,
+                height: 32.h,
+                decoration: BoxDecoration(
+                  color: AppColors.greyLight,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Icon(
+                  Icons.access_time,
+                  size: 20.sp,
+                  color: AppColors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectTime(BuildContext context, bool isMorning) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: isMorning
+          ? (morningTime ?? const TimeOfDay(hour: 6, minute: 0))
+          : (eveningTime ?? const TimeOfDay(hour: 21, minute: 0)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: AppColors.white,
+              hourMinuteTextColor: AppColors.black,
+              hourMinuteColor: AppColors.primaryLight,
+              dayPeriodTextColor: AppColors.black,
+              dayPeriodColor: AppColors.primaryLight,
+              dialHandColor: AppColors.primary,
+              dialBackgroundColor: AppColors.backgroundLight,
+              dialTextColor: AppColors.black,
+              entryModeIconColor: AppColors.primary,
+              helpTextStyle: TextStyle(color: AppColors.black, fontSize: 16.sp),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isMorning) {
+          morningTime = picked;
+        } else {
+          eveningTime = picked;
+        }
+      });
+    }
+  }
+
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hourOfPeriod;
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+    final displayHour = hour == 0 ? 12 : hour;
+
+    return '$displayHour:$minute $period';
+  }
+
+  void _handleSetReminder() {
+    if (isFormValid) {
+      // Save the reminder times (you can add this to your storage service)
+      print('Morning reminder set for: ${_formatTime(morningTime!)}');
+      print('Evening reminder set for: ${_formatTime(eveningTime!)}');
+
+      // Navigate to auth screen
+      widget.onContinue();
+    }
   }
 }
