@@ -1,4 +1,4 @@
-package middleware
+package middlewares
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 	"yefe_app/v1/internal/domain"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 )
@@ -80,40 +81,31 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 	// Parse and validate JWT
 	sessionID, err := utils.ExtractSessionIDFromToken(token, m.jwtSecret)
 	if err != nil {
-		m.secEventRepo.LogSecurityEvent(r.Context(), sessionID, types.EventAuthFailed, "", "", types.JSONMap{
-			"reason": "invalid_jwt",
-		})
 		return nil, nil, domain.ErrInvalidToken
 	}
 
 	// Get session from database
-	session, err := m.sessionRepo.GetByToken(r.Context(), sessionID)
+	session, err := m.sessionRepo.GetByID(r.Context(), sessionID)
 	if err != nil || session == nil {
-		m.secEventRepo.LogSecurityEvent(r.Context(), sessionID, types.EventAuthFailed, "", "", types.JSONMap{
-			"reason": "session_not_found",
-		})
+    logger.Log.WithError(err).Errorf("Session not found: ", sessionID)
 		return nil, nil, domain.ErrSessionNotFound
 	}
 
 	// Check if session is active
 	if !session.IsActive {
-		m.secEventRepo.LogSecurityEvent(r.Context(), sessionID, types.EventAuthFailed, "", "", types.JSONMap{
-			"reason": "session_inactive",
-		})
+		logger.Log.Errorf("Session %s inactive", sessionID)
 		return nil, nil, domain.ErrSessionInactive
 	}
 
 	// Check if session has expired
 	if session.ExpiresAt.Before(time.Now()) {
-		m.secEventRepo.LogSecurityEvent(r.Context(), sessionID, types.EventAuthFailed, "", "", types.JSONMap{
-			"reason": "session_expired",
-		})
+    logger.Log.Errorf("Session expired: ", sessionID)
 		return nil, nil, domain.ErrSessionExpired
 	}
 
 	user, err := m.userRepo.GetByID(r.Context(), session.UserID)
 	if err != nil || user == nil {
-		m.secEventRepo.LogSecurityEvent(r.Context(), sessionID, types.EventAuthFailed, "", "", types.JSONMap{
+		m.secEventRepo.LogSecurityEvent(r.Context(), user.ID, types.EventAuthFailed, "", "", types.JSONMap{
 			"reason": "user_not_found",
 		})
 		return nil, nil, domain.ErrUserNotFound
@@ -121,7 +113,7 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 
 	// Check if user is active
 	if !user.IsActive {
-		m.secEventRepo.LogSecurityEvent(r.Context(), sessionID, types.EventAuthFailed, "", "", types.JSONMap{
+		m.secEventRepo.LogSecurityEvent(r.Context(), user.ID, types.EventAuthFailed, "", "", types.JSONMap{
 			"reason": "user_inactive",
 		})
 		return nil, nil, domain.ErrUserInactive
@@ -129,7 +121,7 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 
 	// Check if account is locked
 	if user.AccountLockedUntil != nil && time.Now().Before(*user.AccountLockedUntil) {
-		m.secEventRepo.LogSecurityEvent(r.Context(), sessionID, types.EventAuthFailed, "", "", types.JSONMap{
+		m.secEventRepo.LogSecurityEvent(r.Context(), user.ID, types.EventAuthFailed, "", "", types.JSONMap{
 			"reason": "account_locked",
 		})
 		return nil, nil, domain.ErrAccountLocked
