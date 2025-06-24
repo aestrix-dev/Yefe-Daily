@@ -96,18 +96,8 @@ func (r *RedisSessionRepository) Create(ctx context.Context, session *domain.Ses
 	return nil
 }
 
-// GetByToken retrieves a session by its token
-func (r *RedisSessionRepository) GetByToken(ctx context.Context, token string) (*domain.Session, error) {
-	tokenKey := tokenKeyPrefix + token
-
-	// Get session ID from token
-	sessionID, err := r.client.Get(ctx, tokenKey).Result()
-	if err != nil {
-		if err == redis.Nil {
-			return nil, fmt.Errorf("session not found")
-		}
-		return nil, fmt.Errorf("failed to get session ID: %w", err)
-	}
+// GetByToken retrieves a session by its id
+func (r *RedisSessionRepository) GetByID(ctx context.Context, sessionID string) (*domain.Session, error) {
 
 	// Get session data
 	sessionKey := sessionKeyPrefix + sessionID
