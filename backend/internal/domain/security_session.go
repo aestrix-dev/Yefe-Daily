@@ -56,7 +56,7 @@ type EmailService interface {
 }
 type SessionRepository interface {
 	Create(ctx context.Context, session *Session) error
-	GetByToken(ctx context.Context, token string) (*Session, error)
+	GetByID(ctx context.Context, sessionID string) (*Session, error)
 	GetByUserID(ctx context.Context, userID string) ([]*Session, error)
 	Update(ctx context.Context, session *Session) error
 	Delete(ctx context.Context, id string) error
