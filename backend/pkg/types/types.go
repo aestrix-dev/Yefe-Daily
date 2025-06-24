@@ -21,6 +21,7 @@ const (
 	EventLogin              SecurityEventType = "login"
 	EventLoginFailed        SecurityEventType = "login_failed"
 	EventLogout             SecurityEventType = "logout"
+	EventLogoutFailed       SecurityEventType = "logout_failed"
 	EventAccountCreated     SecurityEventType = "account_created"
 	EventAccountDeleted     SecurityEventType = "account_deleted"
 	EventProfileUpdated     SecurityEventType = "profile_updated"
@@ -29,6 +30,7 @@ const (
 	EventAccountLocked      SecurityEventType = "account_locked"
 	EventAccountUnlocked    SecurityEventType = "account_unlocked"
 	EventSuspiciousActivity SecurityEventType = "suspicious_activity"
+	EventAuthFailed         SecurityEventType = "authentication_faield"
 )
 
 type EventSeverity string
@@ -57,7 +59,6 @@ func (j JSONMap) Value() (driver.Value, error) {
 	}
 	return string(b), nil // 👈 return a string instead of []byte
 }
-
 
 func (j *JSONMap) Scan(value any) error {
 

@@ -176,6 +176,49 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 	}, nil
 }
 
+func (a *authUseCase) Logout(ctx context.Context, req dto.LogoutRequest) error {
+	sessionID, err := utils.ExtractSessionIDFromToken(req.AccessToken, a.jwtSecret)
+	if err != nil {
+		a.secEventRepo.LogSecurityEvent(ctx, "", types.EventLogoutFailed, req.IPAddress, req.UserAgent,
+			map[string]any{"reason": "invalid_token"})
+		return domain.ErrInvalidToken
+	}
+
+	// Get session from repository
+	session, err := a.sessionRepo.GetByToken(ctx, sessionID)
+	if err != nil || session == nil {
+		a.secEventRepo.LogSecurityEvent(ctx, "", types.EventLoginFailed, req.IPAddress, req.UserAgent,
+			map[string]any{"reason": "session_not_found"})
+		return domain.ErrSessionNotFound
+	}
+
+	// Check if session is already inactive
+	if !session.IsActive {
+		return domain.ErrSessionAlreadyInactive
+	}
+
+	// Check if session has expired
+	if time.Now().After(session.ExpiresAt) {
+		return domain.ErrAccountInactive
+	}
+
+	// Deactivate the session
+	session.IsActive = false
+	session.LoggedOutAt = time.Now()
+
+	// Update session in repository
+	if err := a.sessionRepo.Update(ctx, session); err != nil {
+		a.secEventRepo.LogSecurityEvent(ctx, session.UserID, types.EventLogoutFailed, req.IPAddress, req.UserAgent,
+			map[string]any{"reason": "database_error"})
+		return err
+	}
+
+	// Log successful logout
+	a.secEventRepo.LogSecurityEvent(ctx, session.UserID, types.EventLogout, req.IPAddress, req.UserAgent, nil)
+
+	return nil
+}
+
 func (a *authUseCase) generateJWT(userID, sessionID string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":    userID,

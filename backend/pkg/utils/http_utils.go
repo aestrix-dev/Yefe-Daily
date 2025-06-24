@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 	"yefe_app/v1/internal/domain"
+
+	"github.com/golang-jwt/jwt"
 )
 
 // Response helpers
@@ -117,4 +119,28 @@ func InternalServerError(w http.ResponseWriter, err error) {
 	// Log the actual error for debugging
 	fmt.Printf("Internal server error: %v\n", err)
 	ErrorResponse(w, http.StatusInternalServerError, "Internal server error", nil)
+}
+
+// Helper function to extract session ID from JWT token
+func ExtractSessionIDFromToken(tokenString, jwtSecret string) (string, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(jwtSecret), nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if sessionID, exists := claims["session_id"]; exists {
+			if sessionIDStr, ok := sessionID.(string); ok {
+				return sessionIDStr, nil
+			}
+		}
+	}
+
+	return "", domain.ErrInvalidToken
 }
