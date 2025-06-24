@@ -24,7 +24,7 @@ type LoginResponse struct {
 }
 
 type LogoutRequest struct {
-	AccessToken string `json:"access_token" validate:"required"`
-	IPAddress   string `json:"-"`
-	UserAgent   string `json:"-"`
+	SessionID string `json:"session_id" validate:"required"`
+	IPAddress string `json:"-"`
+	UserAgent string `json:"-"`
 }
