@@ -45,7 +45,7 @@ func main() {
 		logger.Log.WithError(err).Fatal("Failed to initialize redis")
 		return
 	}
-	serverConfig := infrastructure.ServerConfig{DB: db, UserRepo: userRepo, SessionRepo: sessionRepo, SecEventRepo: secEventRepo}
+	serverConfig := infrastructure.ServerConfig{DB: db, JWT_SECRET: config.Server.Secret, UserRepo: userRepo, SessionRepo: sessionRepo, SecEventRepo: secEventRepo}
 
 	// Setup router and server
 	router := infrastructure.NewRouter(serverConfig)
