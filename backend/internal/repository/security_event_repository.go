@@ -224,7 +224,11 @@ func (r *postgresSecurityEventRepository) LogSecurityEvent(ctx context.Context, 
 	}
 
 	// Don't fail the main operation if logging fails
-	return r.Create(ctx, &event)
+	err := r.Create(ctx, &event)
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not log event to database")
+	}
+	return err
 }
 
 func (r *postgresSecurityEventRepository) modelToDomain(event *models.SecurityEvent) *domain.SecurityEvent {
