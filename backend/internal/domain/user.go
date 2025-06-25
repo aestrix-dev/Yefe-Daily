@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/types"
 )
 
 type User struct {
@@ -23,26 +24,39 @@ type User struct {
 	LastLoginIP        string       `json:"-"`
 	Profile            *UserProfile `json:"user_profile"`
 }
+
 type UserProfile struct {
-	ID          string
-	UserID      string
-	Name        string
-	DateOfBirth *time.Time
-	PhoneNumber string
-	Avatar      string
-	Bio         string
-	Location    string
-	//	Preferences JSONMap
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID                string                  `json:"id"`
+	UserID            string                  `json:"user_id"`
+	DateOfBirth       *time.Time              `json:"date_of_birth"`
+	PhoneNumber       string                  `json:"phone_number"`
+	AvatarURL         string                  `json:"avatar_url"`
+	Bio               string                  `json:"bio"`
+	Location          string                  `json:"location"`
+	UserNotifications types.NotificationsPref `json:"notification_preferences"`
+	CreatedAt         time.Time               `json:"created_at"`
+	UpdatedAt         time.Time               `json:"updated_at"`
 }
 
 type UserRepository interface {
-	Create(ctx context.Context, user *User) error
+	Create(ctx context.Context, user *User, notificationsPrefs types.NotificationsPref) error
 	GetByID(ctx context.Context, id string) (*User, error)
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	Update(ctx context.Context, user *User) error
 	Delete(ctx context.Context, id string) error
+}
+
+type UserProfileRepository interface {
+	Create(ctx context.Context, profile *UserProfile) error
+	GetByID(ctx context.Context, id string) (*UserProfile, error)
+	GetByUserID(ctx context.Context, userID string) (*UserProfile, error)
+	Update(ctx context.Context, profile *UserProfile) error
+	UpdatePartial(ctx context.Context, id string, updates map[string]interface{}) error
+	Delete(ctx context.Context, id string) error
+	UpdateAvatar(ctx context.Context, userID, avatarURL string) error
+	UpdateNotificationPreferences(ctx context.Context, userID string, prefs types.NotificationsPref) error
+	Count(ctx context.Context) (int64, error)
+	Exists(ctx context.Context, userID string) (bool, error)
 }
 
 type AuthUseCase interface {

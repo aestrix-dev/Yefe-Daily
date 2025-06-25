@@ -8,6 +8,7 @@ import (
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/infrastructure/db/models"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 
@@ -28,18 +29,31 @@ func NewUserRepository(db *gorm.DB, secRepo domain.SecurityEventRepository) doma
 }
 
 // Create creates a new user in the database
-func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
+func (r *userRepository) Create(ctx context.Context, user *domain.User, userPrefs types.NotificationsPref) error {
+	var dbUser models.User
+	var dbnotificationprefs types.NotificationsPref
 	if user == nil {
 		return errors.New("user cannot be nil")
 	}
 
 	// Convert domain user to database model
-	dbUser := r.domainToModel(user)
+	err := utils.TypeConverter(user, &dbUser)
+	if err != nil {
+		logger.Log.WithError(err).Error("user domain to model error")
+		return err
+	}
+	dbUser.PasswordHash = user.PasswordHash
+	dbUser.Salt = user.Salt
+	err = utils.TypeConverter(userPrefs, &dbnotificationprefs)
+	if err != nil {
+		logger.Log.WithError(err).Error("notification domain to model error")
+		return err
+	}
 
 	// Use transaction for data consistency
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// Create user
-		if err := tx.Create(dbUser).Error; err != nil {
+		if err := tx.Create(&dbUser).Error; err != nil {
 			if r.isDuplicateError(err) {
 				if strings.Contains(err.Error(), "email") {
 					return domain.ErrEmailAlreadyExists
@@ -50,10 +64,11 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 
 		// Create default user profile
 		profile := &models.UserProfile{
-			ID:        utils.GenerateID(),
-			UserID:    dbUser.ID,
-			CreatedAt: time.Now().UTC(),
-			UpdatedAt: time.Now().UTC(),
+			ID:                      utils.GenerateID(),
+			UserID:                  dbUser.ID,
+			NotificationPreferences: dbnotificationprefs,
+			CreatedAt:               time.Now().UTC(),
+			UpdatedAt:               time.Now().UTC(),
 		}
 
 		if err := tx.Create(profile).Error; err != nil {
@@ -138,6 +153,7 @@ func (r *userRepository) GetByUsername(ctx context.Context, username string) (*d
 
 // Update updates an existing user
 func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
+	var dbUser domain.User
 	if user == nil {
 		return errors.New("user cannot be nil")
 	}
@@ -145,8 +161,12 @@ func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 	if user.ID == "" {
 		return errors.New("user ID cannot be empty")
 	}
+  fmt.Println(user)
 
-	dbUser := r.domainToModel(user)
+	err := utils.TypeConverter(user, &dbUser)
+	if err != nil {
+		return err
+	}
 	dbUser.UpdatedAt = time.Now().UTC()
 
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -159,9 +179,6 @@ func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 			if r.isDuplicateError(result.Error) {
 				if strings.Contains(result.Error.Error(), "email") {
 					return domain.ErrEmailAlreadyExists
-				}
-				if strings.Contains(result.Error.Error(), "username") {
-					return domain.ErrUsernameAlreadyExists
 				}
 			}
 			return fmt.Errorf("failed to update user: %w", result.Error)
@@ -440,26 +457,6 @@ func (r *userRepository) SearchUsers(ctx context.Context, query string, limit, o
 	return domainUsers, total, nil
 }
 
-// domainToModel converts domain user to database model
-func (r *userRepository) domainToModel(user *domain.User) *models.User {
-	return &models.User{
-		ID:                 user.ID,
-		Email:              user.Email,
-		Name:               user.Name,
-		PasswordHash:       user.PasswordHash,
-		Salt:               user.Salt,
-		IsEmailVerified:    user.IsEmailVerified,
-		IsActive:           user.IsActive,
-		FailedLoginCount:   user.FailedLoginCount,
-		LastFailedLogin:    user.LastFailedLogin,
-		AccountLockedUntil: user.AccountLockedUntil,
-		CreatedAt:          user.CreatedAt,
-		UpdatedAt:          user.UpdatedAt,
-		LastLoginAt:        user.LastLoginAt,
-		LastLoginIP:        user.LastLoginIP,
-	}
-}
-
 // modelToDomain converts database model to domain user
 func (r *userRepository) modelToDomain(user *models.User) *domain.User {
 	domainUser := &domain.User{
@@ -483,10 +480,9 @@ func (r *userRepository) modelToDomain(user *models.User) *domain.User {
 	if user.Profile != nil {
 		domainUser.Profile = &domain.UserProfile{
 			ID:          user.Profile.ID,
-			Name:        user.Profile.Name,
 			DateOfBirth: user.Profile.DateOfBirth,
 			PhoneNumber: user.Profile.PhoneNumber,
-			Avatar:      user.Profile.Avatar,
+			AvatarURL:      user.Profile.AvatarURL,
 			Bio:         user.Profile.Bio,
 			Location:    user.Profile.Location,
 		}

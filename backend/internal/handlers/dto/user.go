@@ -1,21 +1,27 @@
 package dto
 
-type UserPrefs struct {
-	MorningPrompt     bool   `json:"morningPrompt"`
-	EveningReflection bool   `json:"eveningReflection"`
-	Challenge         bool   `json:"challenge"`
-	Language          string `validate:"required,oneof=English French Spanish Portuguese"`
+type ReminderRequest struct {
+	MorningReminder string `json:"morning_reminder" validate:"required"`
+	EveningReminder string `json:"evening_reminder" validate:"required"`
+}
+
+type UserPrefsRequest struct {
+	MorningPrompt     bool            `json:"morning_prompt"`
+	EveningReflection bool            `json:"evening_reflection"`
+	Challenge         bool            `json:"challenge"`
+	Language          string          `validate:"required,oneof=English French Spanish Portuguese"`
+	Reminders         ReminderRequest `json:"reminders"`
 }
 
 // Request/Response DTOs
 type RegisterRequest struct {
-	Email           string    `json:"email" validate:"required,email"`
-	Name            string    `json:"Name" validate:"required,min=3,max=50"`
-	Password        string    `json:"password" validate:"required,min=8"`
-	Prefs           UserPrefs `json:"user_prefs" validate:"required"`
-	ConfirmPassword string    `json:"confirm_password" validate:"required,eqfield=Password"`
-	IPAddress       string    `json:"-"`
-	UserAgent       string    `json:"-"`
+	Email           string           `json:"email" validate:"required,email"`
+	Name            string           `json:"Name" validate:"required,min=3,max=50"`
+	Password        string           `json:"password" validate:"required,min=8"`
+	Prefs           UserPrefsRequest `json:"user_prefs" validate:"required"`
+	ConfirmPassword string           `json:"confirm_password" validate:"required,eqfield=Password"`
+	IPAddress       string           `json:"-"`
+	UserAgent       string           `json:"-"`
 }
 
 type LoginRequest struct {

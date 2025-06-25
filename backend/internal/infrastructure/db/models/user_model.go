@@ -31,17 +31,18 @@ type User struct {
 
 // UserProfile for extended user information
 type UserProfile struct {
-	ID          string     `gorm:"type:varchar(36);primaryKey" json:"id"`
-	UserID      string     `gorm:"type:varchar(36);not null;index" json:"user_id"`
-	Name        string     `gorm:"type:varchar(100)" json:"first_name"`
-	DateOfBirth *time.Time `json:"date_of_birth"`
-	PhoneNumber string     `gorm:"type:varchar(20)" json:"phone_number"`
-	Avatar      string     `gorm:"type:text" json:"avatar"` // URL or base64
-	Bio         string     `gorm:"type:text" json:"bio"`
-	Location    string     `gorm:"type:varchar(255)" json:"location"`
-	//	Preferences types.JSONMap `gorm:"type:jsonb" json:"preferences"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID                      string                  `gorm:"primaryKey;type:varchar(36)" json:"id"`
+	UserID                  string                  `gorm:"uniqueIndex;type:varchar(36);not null" json:"user_id"`
+	PhoneNumber             string                  `gorm:"type:varchar(20);index" json:"phone_number"`
+	DateOfBirth             *time.Time              `gorm:"type:date" json:"date_of_birth"`
+	Gender                  string                  `gorm:"type:varchar(20)" json:"gender"`
+	Location                string                  `gorm:"type:varchar(255);index" json:"location"`
+	Bio                     string                  `gorm:"type:text" json:"bio"`
+	AvatarURL               string                  `gorm:"type:varchar(500)" json:"avatar_url"`
+	Website                 string                  `gorm:"type:varchar(255)" json:"website"`
+	NotificationPreferences types.NotificationsPref `gorm:"embedded;embeddedPrefix:notification_" json:"notification_preferences"`
+	CreatedAt               time.Time               `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt               time.Time               `gorm:"autoUpdateTime" json:"updated_at"`
 }
 
 // Session model for authentication tokens

@@ -8,6 +8,7 @@ import (
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 
@@ -31,6 +32,12 @@ var defaultPasswordConfig = types.PasswordConfig{
 	SaltLength:  16,
 	KeyLength:   32,
 }
+
+var (
+	now = time.Now()
+
+	timeLayout = "15:04"
+)
 
 func NewAuthUseCase(
 	userRepo domain.UserRepository,
@@ -70,7 +77,7 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	passwordHash := utils.HashPassword(req.Password, salt, defaultPasswordConfig)
 
 	user := &domain.User{
-		ID:           uuid.New().String(),
+		ID:           utils.GenerateID(),
 		Email:        strings.ToLower(strings.TrimSpace(req.Email)),
 		Name:         strings.TrimSpace(req.Name),
 		PasswordHash: passwordHash,
@@ -80,7 +87,32 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 		UpdatedAt:    time.Now(),
 	}
 
-	if err := a.userRepo.Create(ctx, user); err != nil {
+	prefs := req.Prefs
+
+	morningReminder, err := time.Parse(timeLayout, prefs.Reminders.MorningReminder)
+	if err != nil {
+		return nil, err
+	}
+	eveningReminder, err := time.Parse(timeLayout, prefs.Reminders.EveningReminder)
+	if err != nil {
+		return nil, err
+	}
+
+	reminders := domain.ReminderRequest{
+		MorningReminder: morningReminder,
+		EveningReminder: eveningReminder,
+	}
+
+	userPrefs := &domain.NotificationsPref{
+		MorningPrompt:     prefs.MorningPrompt,
+		EveningReflection: prefs.EveningReflection,
+		Challenge:         prefs.Challenge,
+		Language:          prefs.Language,
+		Reminders:         reminders,
+	}
+
+	if err := a.userRepo.Create(ctx, user, *userPrefs); err != nil {
+		logger.Log.WithError(err).Error("error creating user")
 		return nil, err
 	}
 

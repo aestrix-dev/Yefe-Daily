@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
