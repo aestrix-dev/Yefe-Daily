@@ -142,31 +142,6 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 
 }
 
-// GetByUsername retrieves a user by their username
-func (r *userRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
-	if username == "" {
-		return nil, errors.New("username cannot be empty")
-	}
-
-	// Normalize username
-	username = strings.TrimSpace(username)
-
-	var dbUser models.User
-	err := r.db.WithContext(ctx).
-		Preload("Profile").
-		Where("username = ? AND deleted_at IS NULL", username).
-		First(&dbUser).Error
-
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, domain.ErrUserNotFound
-		}
-		return nil, fmt.Errorf("failed to get user by username: %w", err)
-	}
-
-	return r.modelToDomain(&dbUser), nil
-}
-
 // Update updates an existing user
 func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 	var dbUser domain.User
