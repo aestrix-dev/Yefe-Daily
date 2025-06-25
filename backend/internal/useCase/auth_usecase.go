@@ -98,12 +98,12 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 		return nil, err
 	}
 
-	reminders := domain.ReminderRequest{
+	reminders := types.ReminderRequest{
 		MorningReminder: morningReminder,
 		EveningReminder: eveningReminder,
 	}
 
-	userPrefs := &domain.NotificationsPref{
+	userPrefs := &types.NotificationsPref{
 		MorningPrompt:     prefs.MorningPrompt,
 		EveningReflection: prefs.EveningReflection,
 		Challenge:         prefs.Challenge,
