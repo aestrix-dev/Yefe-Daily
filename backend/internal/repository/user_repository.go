@@ -81,6 +81,8 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User, userPref
 
 // GetByID retrieves a user by their ID
 func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
+	var user *domain.User
+
 	if id == "" {
 		return nil, errors.New("id cannot be empty")
 	}
@@ -98,11 +100,18 @@ func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 		return nil, fmt.Errorf("failed to get user by id: %w", err)
 	}
 
-	return r.modelToDomain(&dbUser), nil
+	err = utils.TypeConverter(dbUser, user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // GetByEmail retrieves a user by their email address
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	var user *domain.User
 	if email == "" {
 		return nil, errors.New("email cannot be empty")
 	}
@@ -123,7 +132,14 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 		return nil, fmt.Errorf("failed to get user by email: %w", err)
 	}
 
-	return r.modelToDomain(&dbUser), nil
+	err = utils.TypeConverter(dbUser, user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+
 }
 
 // GetByUsername retrieves a user by their username
@@ -161,13 +177,12 @@ func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 	if user.ID == "" {
 		return errors.New("user ID cannot be empty")
 	}
-  fmt.Println(user)
 
 	err := utils.TypeConverter(user, &dbUser)
 	if err != nil {
 		return err
 	}
-	dbUser.UpdatedAt = time.Now().UTC()
+	dbUser.UpdatedAt = time.Now().UTC() // TODO this should not be here
 
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// Update user
@@ -455,40 +470,6 @@ func (r *userRepository) SearchUsers(ctx context.Context, query string, limit, o
 	}
 
 	return domainUsers, total, nil
-}
-
-// modelToDomain converts database model to domain user
-func (r *userRepository) modelToDomain(user *models.User) *domain.User {
-	domainUser := &domain.User{
-		ID:                 user.ID,
-		Email:              user.Email,
-		Name:               user.Name,
-		PasswordHash:       user.PasswordHash,
-		Salt:               user.Salt,
-		IsEmailVerified:    user.IsEmailVerified,
-		IsActive:           user.IsActive,
-		FailedLoginCount:   user.FailedLoginCount,
-		LastFailedLogin:    user.LastFailedLogin,
-		AccountLockedUntil: user.AccountLockedUntil,
-		CreatedAt:          user.CreatedAt,
-		UpdatedAt:          user.UpdatedAt,
-		LastLoginAt:        user.LastLoginAt,
-		LastLoginIP:        user.LastLoginIP,
-	}
-
-	// Include profile if loaded
-	if user.Profile != nil {
-		domainUser.Profile = &domain.UserProfile{
-			ID:          user.Profile.ID,
-			DateOfBirth: user.Profile.DateOfBirth,
-			PhoneNumber: user.Profile.PhoneNumber,
-			AvatarURL:      user.Profile.AvatarURL,
-			Bio:         user.Profile.Bio,
-			Location:    user.Profile.Location,
-		}
-	}
-
-	return domainUser
 }
 
 // isDuplicateError checks if error is due to duplicate key constraint
