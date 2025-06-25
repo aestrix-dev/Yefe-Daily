@@ -1,13 +1,21 @@
 package dto
 
+type UserPrefs struct {
+	MorningPrompt     bool   `json:"morningPrompt"`
+	EveningReflection bool   `json:"eveningReflection"`
+	Challenge         bool   `json:"challenge"`
+	Language          string `validate:"required,oneof=English French Spanish Portuguese"`
+}
+
 // Request/Response DTOs
 type RegisterRequest struct {
-	Email           string `json:"email" validate:"required,email"`
-	Name            string `json:"Name" validate:"required,min=3,max=50"`
-	Password        string `json:"password" validate:"required,min=8"`
-	ConfirmPassword string `json:"confirm_password" validate:"required,eqfield=Password"`
-	IPAddress       string `json:"-"`
-	UserAgent       string `json:"-"`
+	Email           string    `json:"email" validate:"required,email"`
+	Name            string    `json:"Name" validate:"required,min=3,max=50"`
+	Password        string    `json:"password" validate:"required,min=8"`
+	Prefs           UserPrefs `json:"user_prefs" validate:"required"`
+	ConfirmPassword string    `json:"confirm_password" validate:"required,eqfield=Password"`
+	IPAddress       string    `json:"-"`
+	UserAgent       string    `json:"-"`
 }
 
 type LoginRequest struct {
