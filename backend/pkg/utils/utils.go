@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base32"
+	"encoding/json"
 	"os"
 	"path"
 	"sync"
@@ -118,4 +119,13 @@ func GenerateSecureToken() string {
 // generateID generates a new UUID
 func GenerateID() string {
 	return uuid.NewString()
+}
+
+func TypeConverter(in any, out any) error {
+	input, err := json.Marshal(in)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(input, out)
+	return nil
 }
