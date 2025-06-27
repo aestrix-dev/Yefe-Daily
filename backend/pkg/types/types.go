@@ -48,16 +48,16 @@ type PasswordChecker interface {
 }
 
 type ReminderRequest struct {
-	MorningReminder time.Time `json:"morning_reminder"`
-	EveningReminder time.Time `json:"evening_reminder"`
+	MorningReminder time.Time `json:"notification_reminders_morning_reminder"`
+	EveningReminder time.Time `json:"notification_reminders_evening_reminder"`
 }
 
 type NotificationsPref struct {
-	MorningPrompt     bool            `gorm:"default:true" json:"morning_prompt"`
-	EveningReflection bool            `gorm:"default:true" json:"evening_reflection"`
-	Challenge         bool            `gorm:"default:true" json:"challange"`
-	Language          string          `gorm:"default:false" json:"language"`
-	Reminders         ReminderRequest `gorm:"embedded;embeddedPrefix:reminders_" json:"reminders"`
+	MorningPrompt     bool            `gorm:"default:true" json:"notification_morning_prompt"`
+	EveningReflection bool            `gorm:"default:true" json:"notification_evening_reflection"`
+	Challenge         bool            `gorm:"default:true" json:"notification_challange"`
+	Language          string          `gorm:"default:false" json:"notification_language"`
+	Reminders         ReminderRequest `gorm:"embedded;embeddedPrefix:reminders_" json:"notification_reminders"`
 }
 
 type JSONMap map[string]any
