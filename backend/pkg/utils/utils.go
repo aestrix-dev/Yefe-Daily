@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"path"
+	"slices"
 	"sync"
 	"yefe_app/v1/pkg/types"
 
@@ -128,4 +129,20 @@ func TypeConverter(in any, out any) error {
 	}
 	err = json.Unmarshal(input, out)
 	return nil
+}
+
+// GetJournalEntryTypes returns all valid journal entry types
+func GetJournalEntryTypes() []string {
+	return []string{"morning", "evening", "wisdom_note"}
+}
+
+// GetDefaultTags returns default tags for the journal
+func GetDefaultTags() []string {
+	return []string{"Faith", "Family", "Focus", "Rest", "Growth", "Gratitude"}
+}
+
+// IsValidEntryType checks if the entry type is valid
+func IsValidEntryType(entryType string) bool {
+	validTypes := GetJournalEntryTypes()
+	return slices.Contains(validTypes, entryType)
 }

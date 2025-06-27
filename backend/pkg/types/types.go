@@ -4,6 +4,8 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -82,4 +84,36 @@ func (j *JSONMap) Scan(value any) error {
 	}
 
 	return json.Unmarshal(bytes, j)
+}
+
+type Tags []string
+
+// Value implements the driver.Valuer interface (for saving to DB)
+func (t Tags) Value() (driver.Value, error) {
+	if len(t) == 0 {
+		return "", nil
+	}
+	return strings.Join(t, ","), nil
+}
+
+// Scan implements the sql.Scanner interface (for reading from DB)
+func (t *Tags) Scan(value any) error {
+	if value == nil {
+		*t = Tags{}
+		return nil
+	}
+
+	strVal, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("failed to scan Tags: value is not a string")
+	}
+
+	// Handle empty string case
+	if strVal == "" {
+		*t = Tags{}
+	} else {
+		*t = strings.Split(strVal, ",")
+	}
+
+	return nil
 }
