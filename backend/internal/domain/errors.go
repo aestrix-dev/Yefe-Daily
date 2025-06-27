@@ -20,4 +20,10 @@ var (
 	ErrSessionExpired         = errors.New("Session expired")
 	ErrMissingAuthHeader      = errors.New("Auth Header not found")
 	ErrInvalidAuthHeader      = errors.New("Invalid Auth header")
+
+	ErrEntryNotFound    = errors.New("journal entry not found")
+	ErrUnauthorized     = errors.New("unauthorized access to journal entry")
+	ErrInvalidEntryType = errors.New("invalid entry type")
+	ErrEmptyContent     = errors.New("journal entry content cannot be empty")
+	ErrDuplicateEntry   = errors.New("entry for this type already exists today")
 )

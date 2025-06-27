@@ -40,12 +40,20 @@ func main() {
 	logger.Log.Info("Database initialized")
 	secEventRepo := repository.NewPostgresSecurityEventRepository(db)
 	sessionRepo, err := repository.NewRedisSessionRepository(config.Persistence.Redis)
-	userRepo := repository.NewUserRepository(db, secEventRepo)
 	if err != nil {
 		logger.Log.WithError(err).Fatal("Failed to initialize redis")
 		return
 	}
-	serverConfig := infrastructure.ServerConfig{DB: db, JWT_SECRET: config.Server.Secret, UserRepo: userRepo, SessionRepo: sessionRepo, SecEventRepo: secEventRepo}
+	userRepo := repository.NewUserRepository(db, secEventRepo)
+	journalRepo := repository.NewJournalRepository(db)
+	serverConfig := infrastructure.ServerConfig{
+		DB:           db,
+		JWT_SECRET:   config.Server.Secret,
+		UserRepo:     userRepo,
+		SessionRepo:  sessionRepo,
+		SecEventRepo: secEventRepo,
+		JournalRepo:  journalRepo,
+	}
 
 	// Setup router and server
 	router := infrastructure.NewRouter(serverConfig)

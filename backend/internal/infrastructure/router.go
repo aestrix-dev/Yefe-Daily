@@ -18,10 +18,15 @@ type ServerConfig struct {
 	UserRepo     domain.UserRepository
 	SessionRepo  domain.SessionRepository
 	SecEventRepo domain.SecurityEventRepository
+	JournalRepo  domain.JournalRepository
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
 	return usecase.NewAuthUseCase(conf.UserRepo, conf.SessionRepo, conf.SecEventRepo, conf.JWT_SECRET)
+}
+
+func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
+	return usecase.NewJournalUseCase(conf.JournalRepo, conf.UserRepo)
 }
 
 func (conf ServerConfig) auth_middleware() *middlewares.AuthMiddleware {
@@ -34,9 +39,11 @@ func NewRouter(config ServerConfig) http.Handler {
 	r.Use(middleware.Logger)
 
 	auth_handlers := handlers.NewAuthHandler(config.auth_usecase())
+	journal_handlers := handlers.NewJournalHandler(config.journal_usecase())
 	r.Group(func(r chi.Router) {
 		r.Use(config.auth_middleware().RequireAuth)
 		r.Post("/auth/logout", auth_handlers.LogoutRoute)
+		r.Mount("/journal", journal_handlers.Handle())
 	})
 
 	// auth routes
