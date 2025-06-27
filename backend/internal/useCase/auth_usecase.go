@@ -136,8 +136,6 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 	user, err = a.userRepo.GetByEmail(ctx, req.Email)
 
 	if err != nil || user == nil {
-		a.secEventRepo.LogSecurityEvent(ctx, "", types.EventLoginFailed, req.IPAddress, req.UserAgent,
-			map[string]interface{}{"reason": "user_not_found"})
 		return nil, domain.ErrInvalidCredentials
 	}
 

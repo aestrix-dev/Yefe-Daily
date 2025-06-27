@@ -114,7 +114,6 @@ func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 // GetByEmail retrieves a user by their email address
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	var user domain.User
-	var userProfile domain.UserProfile
 	if email == "" {
 		return nil, errors.New("email cannot be empty")
 	}
@@ -141,15 +140,8 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 		return nil, err
 	}
 
-	err = utils.TypeConverter(dbUser.Profile, &userProfile)
-
-	if err != nil {
-		return nil, err
-	}
-
 	user.PasswordHash = dbUser.PasswordHash
 	user.Salt = dbUser.Salt
-	user.Profile = &userProfile
 
 	return &user, nil
 

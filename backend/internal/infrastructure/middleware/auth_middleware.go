@@ -105,9 +105,6 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 
 	user, err := m.userRepo.GetByID(r.Context(), session.UserID)
 	if err != nil || user == nil {
-		m.secEventRepo.LogSecurityEvent(r.Context(), user.ID, types.EventAuthFailed, "", "", types.JSONMap{
-			"reason": "user_not_found",
-		})
 		return nil, nil, domain.ErrUserNotFound
 	}
 
