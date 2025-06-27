@@ -26,16 +26,16 @@ type User struct {
 }
 
 type UserProfile struct {
-	ID                string                  `json:"id"`
-	UserID            string                  `json:"user_id"`
-	DateOfBirth       *time.Time              `json:"date_of_birth"`
-	PhoneNumber       string                  `json:"phone_number"`
-	AvatarURL         string                  `json:"avatar_url"`
-	Bio               string                  `json:"bio"`
-	Location          string                  `json:"location"`
-	UserNotifications types.NotificationsPref `json:"notification_preferences"`
-	CreatedAt         time.Time               `json:"created_at"`
-	UpdatedAt         time.Time               `json:"updated_at"`
+	ID                      string                  `json:"id"`
+	UserID                  string                  `json:"user_id"`
+	DateOfBirth             *time.Time              `json:"date_of_birth"`
+	PhoneNumber             string                  `json:"phone_number"`
+	AvatarURL               string                  `json:"avatar_url"`
+	Bio                     string                  `json:"bio"`
+	Location                string                  `json:"location"`
+	NotificationPreferences types.NotificationsPref `json:"notification_preferences"`
+	CreatedAt               time.Time               `json:"created_at"`
+	UpdatedAt               time.Time               `json:"updated_at"`
 }
 
 type UserRepository interface {
@@ -44,6 +44,7 @@ type UserRepository interface {
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	Update(ctx context.Context, user *User) error
 	Delete(ctx context.Context, id string) error
+	UpdateLastLogin(ctx context.Context, userID string) error
 }
 
 type UserProfileRepository interface {
