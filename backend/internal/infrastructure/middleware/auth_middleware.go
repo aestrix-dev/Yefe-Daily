@@ -87,7 +87,7 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 	// Get session from database
 	session, err := m.sessionRepo.GetByID(r.Context(), sessionID)
 	if err != nil || session == nil {
-    logger.Log.WithError(err).Errorf("Session not found: ", sessionID)
+		logger.Log.WithError(err).Errorf("Session not found: ", sessionID)
 		return nil, nil, domain.ErrSessionNotFound
 	}
 
@@ -99,7 +99,7 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 
 	// Check if session has expired
 	if session.ExpiresAt.Before(time.Now()) {
-    logger.Log.Errorf("Session expired: ", sessionID)
+		logger.Log.Errorf("Session expired: ", sessionID)
 		return nil, nil, domain.ErrSessionExpired
 	}
 

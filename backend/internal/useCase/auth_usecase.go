@@ -157,14 +157,17 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 		user.LastFailedLogin = &time.Time{}
 		*user.LastFailedLogin = time.Now()
 
-		// Lock account after 5 failed attempts
+		// Lock account after 5 failed attempts TODO this does not make any sense
 		if user.FailedLoginCount >= 5 {
 			lockUntil := time.Now().Add(time.Hour * 1)
 			user.AccountLockedUntil = &lockUntil
 			a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventAccountLocked, req.IPAddress, req.UserAgent, nil)
 		}
 
-		a.userRepo.Update(ctx, user)
+		err := a.userRepo.UpdateLastLogin(ctx, user.ID)
+		if err != nil {
+			logger.Log.WithError(err).Error("Could not update last login")
+		}
 		a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventLoginFailed, req.IPAddress, req.UserAgent, nil)
 		return nil, domain.ErrInvalidCredentials
 	}
@@ -176,7 +179,7 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 	user.LastLoginAt = &time.Time{}
 	*user.LastLoginAt = time.Now()
 	user.LastLoginIP = req.IPAddress
-	a.userRepo.Update(ctx, user)
+	//a.userRepo.Update(ctx, user)
 
 	// Create session
 	session := &domain.Session{

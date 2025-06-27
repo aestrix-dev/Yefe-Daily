@@ -81,13 +81,13 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User, userPref
 
 // GetByID retrieves a user by their ID
 func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
-	var user *domain.User
+	var user domain.User
+	var dbUser models.User
 
 	if id == "" {
 		return nil, errors.New("id cannot be empty")
 	}
 
-	var dbUser models.User
 	err := r.db.WithContext(ctx).
 		Preload("Profile").
 		Where("id = ? AND deleted_at IS NULL", id).
@@ -100,18 +100,21 @@ func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 		return nil, fmt.Errorf("failed to get user by id: %w", err)
 	}
 
-	err = utils.TypeConverter(dbUser, user)
+	err = utils.TypeConverter(dbUser, &user)
 
 	if err != nil {
 		return nil, err
 	}
+	user.PasswordHash = dbUser.PasswordHash
+	user.Salt = dbUser.Salt
 
-	return user, nil
+	return &user, nil
 }
 
 // GetByEmail retrieves a user by their email address
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
-	var user *domain.User
+	var user domain.User
+	var userProfile domain.UserProfile
 	if email == "" {
 		return nil, errors.New("email cannot be empty")
 	}
@@ -132,13 +135,23 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 		return nil, fmt.Errorf("failed to get user by email: %w", err)
 	}
 
-	err = utils.TypeConverter(dbUser, user)
+	err = utils.TypeConverter(dbUser, &user)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	err = utils.TypeConverter(dbUser.Profile, &userProfile)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user.PasswordHash = dbUser.PasswordHash
+	user.Salt = dbUser.Salt
+	user.Profile = &userProfile
+
+	return &user, nil
 
 }
 
@@ -255,7 +268,7 @@ func (r *userRepository) UpdatePassword(ctx context.Context, userID, passwordHas
 }
 
 // UpdateLastLogin updates user's last login information
-func (r *userRepository) UpdateLastLogin(ctx context.Context, userID, ipAddress string) error {
+func (r *userRepository) UpdateLastLogin(ctx context.Context, userID string) error {
 	if userID == "" {
 		return errors.New("userID cannot be empty")
 	}
@@ -266,7 +279,6 @@ func (r *userRepository) UpdateLastLogin(ctx context.Context, userID, ipAddress 
 		Where("id = ? AND deleted_at IS NULL", userID).
 		Updates(map[string]interface{}{
 			"last_login_at":        &now,
-			"last_login_ip":        ipAddress,
 			"failed_login_count":   0,
 			"last_failed_login":    nil,
 			"account_locked_until": nil,
@@ -371,80 +383,6 @@ func (r *userRepository) IsUsernameTaken(ctx context.Context, username string, e
 	}
 
 	return count > 0, nil
-}
-
-// GetActiveUsers retrieves active users with pagination
-func (r *userRepository) GetActiveUsers(ctx context.Context, limit, offset int) ([]*domain.User, int64, error) {
-	var users []models.User
-	var total int64
-
-	// Count total active users
-	if err := r.db.WithContext(ctx).
-		Model(&models.User{}).
-		Where("is_active = ? AND deleted_at IS NULL", true).
-		Count(&total).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to count users: %w", err)
-	}
-
-	// Get users with pagination
-	if err := r.db.WithContext(ctx).
-		Preload("Profile").
-		Where("is_active = ? AND deleted_at IS NULL", true).
-		Order("created_at DESC").
-		Limit(limit).
-		Offset(offset).
-		Find(&users).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to get users: %w", err)
-	}
-
-	// Convert to domain models
-	domainUsers := make([]*domain.User, len(users))
-	for i, user := range users {
-		domainUsers[i] = r.modelToDomain(&user)
-	}
-
-	return domainUsers, total, nil
-}
-
-// SearchUsers searches users by email or username
-func (r *userRepository) SearchUsers(ctx context.Context, query string, limit, offset int) ([]*domain.User, int64, error) {
-	if query == "" {
-		return r.GetActiveUsers(ctx, limit, offset)
-	}
-
-	searchTerm := "%" + strings.ToLower(strings.TrimSpace(query)) + "%"
-
-	var users []models.User
-	var total int64
-
-	// Count matching users
-	if err := r.db.WithContext(ctx).
-		Model(&models.User{}).
-		Where("(LOWER(email) LIKE ? OR LOWER(username) LIKE ?) AND is_active = ? AND deleted_at IS NULL",
-			searchTerm, searchTerm, true).
-		Count(&total).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to count search results: %w", err)
-	}
-
-	// Get matching users
-	if err := r.db.WithContext(ctx).
-		Preload("Profile").
-		Where("(LOWER(email) LIKE ? OR LOWER(username) LIKE ?) AND is_active = ? AND deleted_at IS NULL",
-			searchTerm, searchTerm, true).
-		Order("created_at DESC").
-		Limit(limit).
-		Offset(offset).
-		Find(&users).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to search users: %w", err)
-	}
-
-	// Convert to domain models
-	domainUsers := make([]*domain.User, len(users))
-	for i, user := range users {
-		domainUsers[i] = r.modelToDomain(&user)
-	}
-
-	return domainUsers, total, nil
 }
 
 // isDuplicateError checks if error is due to duplicate key constraint
