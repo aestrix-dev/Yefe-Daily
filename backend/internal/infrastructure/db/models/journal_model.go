@@ -11,7 +11,6 @@ import (
 type JournalEntry struct {
 	ID        string         `gorm:"primaryKey;type:varchar(36)" json:"id"`
 	UserID    string         `gorm:"not null;type:varchar(36);index:idx_user_entries" json:"user_id"`
-	Title     string         `gorm:"type:varchar(200)" json:"title"`
 	Content   string         `gorm:"type:text;not null" json:"content"`
 	Type      string         `gorm:"type:varchar(20);not null;index:idx_user_type" json:"type"`
 	Tags      types.Tags     `gorm:"type:varchar(20)" json:"tags"`

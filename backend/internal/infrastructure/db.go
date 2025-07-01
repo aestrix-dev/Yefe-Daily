@@ -92,7 +92,7 @@ func createIndexes(db *gorm.DB) error {
 		"CREATE INDEX IF NOT EXISTS idx_security_events_user_type ON security_events(user_id, event_type)",
 		"CREATE INDEX IF NOT EXISTS idx_security_events_created_severity ON security_events(created_at, severity)",
 		"CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_created ON login_attempts(ip_address, created_at)",
-		"CREATE INDEX IF NOT EXISTS idx_content_search ON journal_entries USING gin(to_tsvector('english', title || ' ' || content));",
+		"CREATE INDEX IF NOT EXISTS idx_content_search ON journal_entries USING gin(to_tsvector('english',' ' || content));",
 		"CREATE INDEX IF NOT EXISTS idx_user_type_created ON journal_entries(user_id, type, created_at DESC);",
 		"CREATE INDEX IF NOT EXISTS idx_user_created_desc ON journal_entries(user_id, created_at DESC);",
 	}

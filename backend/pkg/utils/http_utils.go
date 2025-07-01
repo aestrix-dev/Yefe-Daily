@@ -53,7 +53,7 @@ func HandleDomainError(w http.ResponseWriter, err error) {
 		ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
 	case domain.ErrEmailAlreadyExists, domain.ErrUsernameAlreadyExists:
 		ErrorResponse(w, http.StatusConflict, err.Error(), nil)
-	case domain.ErrInvalidToken:
+	case domain.ErrInvalidToken, domain.ErrInvalidEntryType:
 		ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
 	case domain.ErrRateLimitExceeded:
 		ErrorResponse(w, http.StatusTooManyRequests, err.Error(), nil)
