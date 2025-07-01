@@ -87,6 +87,8 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 		UpdatedAt:    time.Now(),
 	}
 
+  user.DowngradeToFree()
+
 	prefs := req.Prefs
 
 	morningReminder, err := time.Parse(timeLayout, prefs.Reminders.MorningReminder)
