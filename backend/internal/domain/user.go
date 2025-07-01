@@ -5,8 +5,6 @@ import (
 	"time"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/types"
-
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -25,6 +23,7 @@ type User struct {
 	LastLoginAt        *time.Time   `json:"last_login_at"`
 	LastLoginIP        string       `json:"-"`
 	Profile            *UserProfile `json:"user_profile"`
+	Role               string       `json:"role"`
 
 	PlanType      string     `json:"plan_type"`
 	PlanName      string     `json:"plan_name"`
@@ -105,6 +104,22 @@ func (u *User) IsPlanExpired() bool {
 	return time.Now().After(*u.PlanEndDate)
 }
 
+func (u *User) IsAdmin() bool {
+	return u.Role == "admin"
+}
+
+func (u *User) IsUser() bool {
+	return u.Role == "user"
+}
+
+func (u *User) SetAsAdmin() {
+	u.Role = "admin"
+}
+
+func (u *User) SetAsUser() {
+	u.Role = "user"
+}
+
 func (u *User) UpgradeToYefePlus(endDate *time.Time, autoRenew bool) {
 	u.PlanType = "yefe_plus"
 	u.PlanName = "Yefe Plus"
@@ -145,15 +160,4 @@ func (u *User) GetPlanFeatures() map[string]any {
 		"projects":         3,
 		"priority_support": false,
 	}
-}
-
-// GORM Hook to set default plan for new users
-func (u *User) BeforeCreate(tx *gorm.DB) error {
-	if u.PlanType == "" {
-		u.PlanType = "free"
-		u.PlanName = "Free"
-		u.PlanStartDate = time.Now()
-		u.PlanStatus = "active"
-	}
-	return nil
 }
