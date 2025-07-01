@@ -9,24 +9,35 @@ import (
 )
 
 type User struct {
-	ID                 string                 `gorm:"type:varchar(36);primaryKey" json:"id"`
-	Email              string                 `gorm:"type:varchar(255);uniqueIndex;not null" json:"email"`
-	Name               string                 `gorm:"type:varchar(50);not null" json:"name"`
-	PasswordHash       string                 `gorm:"type:varchar(255);not null" json:"-"`
-	Salt               string                 `gorm:"type:varchar(255);not null" json:"-"`
-	IsEmailVerified    bool                   `gorm:"default:false" json:"is_email_verified"`
-	IsActive           bool                   `gorm:"default:true" json:"is_active"`
-	FailedLoginCount   int                    `gorm:"default:0" json:"-"`
-	LastFailedLogin    *time.Time             `gorm:"index" json:"-"`
-	AccountLockedUntil *time.Time             `gorm:"index" json:"-"`
-	Profile            *UserProfile           `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"profile,omitempty"`
-	Sessions           []domain.Session       `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
-	SecurityEvents     []domain.SecurityEvent `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADEt" json:"-"`
-	CreatedAt          time.Time              `gorm:"index" json:"created_at"`
-	UpdatedAt          time.Time              `json:"updated_at"`
-	DeletedAt          gorm.DeletedAt         `gorm:"index" json:"-"`
-	LastLoginAt        *time.Time             `gorm:"index" json:"last_login_at"`
-	LastLoginIP        string                 `gorm:"type:varchar(45)" json:"-"` // IPv6 compatible
+	ID                 string     `gorm:"type:varchar(36);primaryKey" json:"id"`
+	Email              string     `gorm:"type:varchar(255);uniqueIndex;not null" json:"email"`
+	Name               string     `gorm:"type:varchar(50);not null" json:"name"`
+	PasswordHash       string     `gorm:"type:varchar(255);not null" json:"-"`
+	Salt               string     `gorm:"type:varchar(255);not null" json:"-"`
+	IsEmailVerified    bool       `gorm:"default:false" json:"is_email_verified"`
+	IsActive           bool       `gorm:"default:true" json:"is_active"`
+	FailedLoginCount   int        `gorm:"default:0" json:"-"`
+	LastFailedLogin    *time.Time `gorm:"index" json:"-"`
+	AccountLockedUntil *time.Time `gorm:"index" json:"-"`
+
+	// Plan fields embedded directly in user
+	PlanType      string     `gorm:"type:varchar(20);default:'free';not null" json:"plan_type"`
+	PlanName      string     `gorm:"type:varchar(50);default:'Free';not null" json:"plan_name"`
+	PlanStartDate time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"plan_start_date"`
+	PlanEndDate   *time.Time `json:"plan_end_date"`
+	PlanAutoRenew bool       `gorm:"default:false" json:"plan_auto_renew"`
+	PlanStatus    string     `gorm:"type:varchar(20);default:'active'" json:"plan_status"`
+
+	// Relationships
+	Profile        *UserProfile           `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"profile,omitempty"`
+	Sessions       []domain.Session       `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
+	SecurityEvents []domain.SecurityEvent `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
+
+	CreatedAt   time.Time      `gorm:"index" json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
+	LastLoginAt *time.Time     `gorm:"index" json:"last_login_at"`
+	LastLoginIP string         `gorm:"type:varchar(45)" json:"-"` // IPv6 compatible
 }
 
 // UserProfile for extended user information

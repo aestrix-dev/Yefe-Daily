@@ -5,6 +5,8 @@ import (
 	"time"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/types"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -23,6 +25,13 @@ type User struct {
 	LastLoginAt        *time.Time   `json:"last_login_at"`
 	LastLoginIP        string       `json:"-"`
 	Profile            *UserProfile `json:"user_profile"`
+
+	PlanType      string     `json:"plan_type"`
+	PlanName      string     `json:"plan_name"`
+	PlanStartDate time.Time  `json:"plan_start_date"`
+	PlanEndDate   *time.Time `json:"plan_end_date"`
+	PlanAutoRenew bool       `json:"plan_auto_renew"`
+	PlanStatus    string     `json:"plan_status"`
 }
 
 type UserProfile struct {
@@ -52,7 +61,7 @@ type UserProfileRepository interface {
 	GetByID(ctx context.Context, id string) (*UserProfile, error)
 	GetByUserID(ctx context.Context, userID string) (*UserProfile, error)
 	Update(ctx context.Context, profile *UserProfile) error
-	UpdatePartial(ctx context.Context, id string, updates map[string]interface{}) error
+	UpdatePartial(ctx context.Context, id string, updates map[string]any) error
 	Delete(ctx context.Context, id string) error
 	UpdateAvatar(ctx context.Context, userID, avatarURL string) error
 	UpdateNotificationPreferences(ctx context.Context, userID string, prefs types.NotificationsPref) error
@@ -70,4 +79,81 @@ type AuthUseCase interface {
 	//ForgotPassword(ctx context.Context, email string) error
 	//ResetPassword(ctx context.Context, token, newPassword string) error
 	//ChangePassword(ctx context.Context, userID, currentPassword, newPassword string) error
+}
+
+// Helper methods for plan management
+func (u *User) IsFreePlan() bool {
+	return u.PlanType == "free"
+}
+
+func (u *User) IsYefePlusPlan() bool {
+	return u.PlanType == "yefe_plus"
+}
+
+func (u *User) GetActivePlanName() string {
+	return u.PlanName
+}
+
+func (u *User) IsActivePlan() bool {
+	return u.PlanStatus == "active"
+}
+
+func (u *User) IsPlanExpired() bool {
+	if u.PlanEndDate == nil {
+		return false // Free plan never expires
+	}
+	return time.Now().After(*u.PlanEndDate)
+}
+
+func (u *User) UpgradeToYefePlus(endDate *time.Time, autoRenew bool) {
+	u.PlanType = "yefe_plus"
+	u.PlanName = "Yefe Plus"
+	u.PlanStartDate = time.Now()
+	u.PlanEndDate = endDate
+	u.PlanAutoRenew = autoRenew
+	u.PlanStatus = "active"
+}
+
+func (u *User) DowngradeToFree() {
+	u.PlanType = "free"
+	u.PlanName = "Free"
+	u.PlanStartDate = time.Now()
+	u.PlanEndDate = nil
+	u.PlanAutoRenew = false
+	u.PlanStatus = "active"
+}
+
+func (u *User) CancelPlan() {
+	u.PlanStatus = "cancelled"
+	u.PlanAutoRenew = false
+}
+
+func (u *User) GetPlanFeatures() map[string]any {
+	if u.PlanType == "yefe_plus" {
+		return map[string]any{
+			"api_calls":        10000,
+			"storage_gb":       10,
+			"projects":         -1,
+			"priority_support": true,
+		}
+	}
+
+	// Default free plan features
+	return map[string]any{
+		"api_calls":        1000,
+		"storage_gb":       1,
+		"projects":         3,
+		"priority_support": false,
+	}
+}
+
+// GORM Hook to set default plan for new users
+func (u *User) BeforeCreate(tx *gorm.DB) error {
+	if u.PlanType == "" {
+		u.PlanType = "free"
+		u.PlanName = "Free"
+		u.PlanStartDate = time.Now()
+		u.PlanStatus = "active"
+	}
+	return nil
 }
