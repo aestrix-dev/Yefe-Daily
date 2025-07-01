@@ -11,7 +11,6 @@ import (
 type JournalEntry struct {
 	ID        string     `json:"id"`
 	UserID    string     `json:"user_id"`
-	Title     string     `json:"title"`
 	Content   string     `json:"content"`
 	Type      string     `json:"type"`
 	Tags      types.Tags `json:"tags"`
@@ -34,6 +33,8 @@ type JournalRepository interface {
 	CountByType(ctx context.Context, userID, entryType string) (int64, error)
 	SearchByContent(ctx context.Context, userID, query string, limit, offset int) ([]*JournalEntry, error)
 	GetTodayEntry(ctx context.Context, userID, entryType string) (*JournalEntry, error)
+	GetEntriesByUserIDAndDateRange(ctx context.Context, userID string, startDate string) ([]JournalEntry, error)
+	CountEntriesByUserIDAndDateRange(ctx context.Context, userID string, startDate, endDate time.Time) (int64, error)
 }
 
 // JournalUseCase defines the interface for journal business logic

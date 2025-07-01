@@ -6,7 +6,6 @@ import (
 
 // CreateJournalEntryRequest represents the request to create a journal entry
 type CreateJournalEntryRequest struct {
-	Title   string   `json:"title" validate:"max=200"`
 	Content string   `json:"content" validate:"required,min=1,max=10000"`
 	Type    string   `json:"type" validate:"required,oneof=morning evening wisdom_note"`
 	Tags    []string `json:"tags" validate:"dive,max=50"`
@@ -14,7 +13,6 @@ type CreateJournalEntryRequest struct {
 
 // UpdateJournalEntryRequest represents the request to update a journal entry
 type UpdateJournalEntryRequest struct {
-	Title   *string  `json:"title,omitempty" validate:"omitempty,max=200"`
 	Content *string  `json:"content,omitempty" validate:"omitempty,min=1,max=10000"`
 	Tags    []string `json:"tags,omitempty" validate:"dive,max=50"`
 }
@@ -22,7 +20,6 @@ type UpdateJournalEntryRequest struct {
 // JournalEntryResponse represents the response for a journal entry
 type JournalEntryResponse struct {
 	ID        string    `json:"id"`
-	Title     string    `json:"title"`
 	Content   string    `json:"content"`
 	Type      string    `json:"type"`
 	Tags      []string  `json:"tags"`

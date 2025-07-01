@@ -32,8 +32,13 @@ func (r *journalRepository) Create(ctx context.Context, entry *domain.JournalEnt
 }
 
 func (r *journalRepository) GetByID(ctx context.Context, id string) (*domain.JournalEntry, error) {
+	var dbentry models.JournalEntry
 	var entry domain.JournalEntry
-	err := r.db.WithContext(ctx).Where("id = ?", id).First(&entry).Error
+	err := r.db.WithContext(ctx).Where("id = ?", id).First(&dbentry).Error
+	if err != nil {
+		return nil, err
+	}
+	err = utils.TypeConverter(dbentry, &entry)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +128,7 @@ func (r *journalRepository) Count(ctx context.Context, userID string) (int64, er
 
 func (r *journalRepository) CountByType(ctx context.Context, userID, entryType string) (int64, error) {
 	var count int64
-	err := r.db.WithContext(ctx).Model(&domain.JournalEntry{}).
+	err := r.db.WithContext(ctx).Model(&models.JournalEntry{}).
 		Where("user_id = ? AND type = ?", userID, entryType).Count(&count).Error
 	return count, err
 }
@@ -133,7 +138,7 @@ func (r *journalRepository) SearchByContent(ctx context.Context, userID, query s
 	searchQuery := "%" + strings.ToLower(query) + "%"
 
 	dbQuery := r.db.WithContext(ctx).
-		Where("user_id = ? AND (LOWER(title) LIKE ? OR LOWER(content) LIKE ?)",
+		Where("user_id = ? AND (LOWER(content) LIKE ?)",
 			userID, searchQuery, searchQuery).
 		Order("created_at DESC")
 
@@ -149,6 +154,7 @@ func (r *journalRepository) SearchByContent(ctx context.Context, userID, query s
 }
 
 func (r *journalRepository) GetTodayEntry(ctx context.Context, userID, entryType string) (*domain.JournalEntry, error) {
+	var dbentry models.JournalEntry
 	var entry domain.JournalEntry
 	today := time.Now().Truncate(24 * time.Hour)
 	tomorrow := today.Add(24 * time.Hour)
@@ -156,10 +162,41 @@ func (r *journalRepository) GetTodayEntry(ctx context.Context, userID, entryType
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND type = ? AND created_at >= ? AND created_at < ?",
 			userID, entryType, today, tomorrow).
-		First(&entry).Error
+		First(&dbentry).Error
 
 	if err != nil {
 		return nil, err
 	}
+	if err = utils.TypeConverter(dbentry, &entry); err != nil {
+		return nil, err
+	}
+
 	return &entry, nil
+}
+
+// GetEntriesByUserIDAndDateRange retrieves journal entries for a user within a specified date range.
+func (r *journalRepository) GetEntriesByUserIDAndDateRange(ctx context.Context, userID string, startDate string) ([]domain.JournalEntry, error) {
+	var dbentries []models.JournalEntry
+	var entries []domain.JournalEntry
+	result := r.db.WithContext(ctx).Where("user_id = ? AND created_at >= ?", userID, startDate).
+		Order("created_at asc").Find(&dbentries)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if err := utils.TypeConverter(dbentries, &entries); err != nil {
+		return nil, err
+	}
+	return entries, nil
+}
+
+// CountEntriesByUserIDAndDateRange counts journal entries for a user within a specified date range.
+func (r *journalRepository) CountEntriesByUserIDAndDateRange(ctx context.Context, userID string, startDate, endDate time.Time) (int64, error) {
+	var count int64
+	result := r.db.WithContext(ctx).Model(&models.JournalEntry{}).
+		Where("user_id = ? AND created_at >= ? AND created_at <= ?", userID, startDate, endDate).
+		Count(&count)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return count, nil
 }

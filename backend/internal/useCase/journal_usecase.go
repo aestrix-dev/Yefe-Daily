@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 	"time"
 	"yefe_app/v1/internal/domain"
@@ -47,7 +48,6 @@ func (uc *journalUseCase) CreateEntry(ctx context.Context, userID string, req dt
 	entry := &domain.JournalEntry{
 		ID:        utils.GenerateID(), // You'll need to implement this
 		UserID:    userID,
-		Title:     strings.TrimSpace(req.Title),
 		Content:   strings.TrimSpace(req.Content),
 		Type:      req.Type,
 		Tags:      sanitizeTags(req.Tags),
@@ -168,9 +168,7 @@ func (uc *journalUseCase) UpdateEntry(ctx context.Context, userID, entryID strin
 	}
 
 	// Update fields if provided
-	if req.Title != nil {
-		entry.Title = strings.TrimSpace(*req.Title)
-	}
+
 	if req.Content != nil {
 		content := strings.TrimSpace(*req.Content)
 		if content == "" {
@@ -337,17 +335,6 @@ func sanitizeTags(tags []string) []string {
 	return sanitized
 }
 
-func (uc *journalUseCase) calculateStreaks(ctx context.Context, userID string) (int, int) {
-	// Simplified streak calculation
-	// In a real implementation, you'd want to:
-	// 1. Get entries for the last 30-60 days
-	// 2. Calculate consecutive days with entries
-	// 3. Store/cache streak data for performance
-
-	// For now, return placeholder values
-	return 0, 0
-}
-
 func (uc *journalUseCase) calculateTagsUsage(entries []*domain.JournalEntry) map[string]int {
 	tagsUsage := make(map[string]int)
 
@@ -360,25 +347,142 @@ func (uc *journalUseCase) calculateTagsUsage(entries []*domain.JournalEntry) map
 	return tagsUsage
 }
 
-func (uc *journalUseCase) calculateMonthlyProgress(ctx context.Context, userID string) []dto.MonthlyProgressEntry {
-	// Simplified monthly progress calculation
-	// In a real implementation, you'd query entries by month
+func (uc *journalUseCase) calculateStreaks(ctx context.Context, userID string) (int, int) {
+	// Get entries for the last 60 days to accurately calculate streaks
+	sixtyDaysAgo := time.Now().AddDate(0, 0, -60).Format("2006-01-02")
 
+	entries, err := uc.journalRepo.GetEntriesByUserIDAndDateRange(ctx, userID, sixtyDaysAgo)
+	if err != nil {
+		// In a real application, you'd log this error
+		// For simplicity, returning 0,0 on error, but better error handling is needed.
+		return 0, 0
+	}
+
+	if len(entries) == 0 {
+		return 0, 0
+	}
+
+	currentStreak := 0
+	longestStreak := 0
+	consecutiveDays := 0
+
+	// Use a map to store unique dates with entries to handle multiple entries on the same day
+	entryDates := make(map[string]bool)
+	for _, entry := range entries {
+		entryDates[entry.CreatedAt.Format("2006-01-02")] = true
+	}
+
+	// Collect unique dates into a slice for sorting
+	var sortedDates []time.Time
+	for dateStr := range entryDates {
+		parsedDate, err := time.Parse("2006-01-02", dateStr)
+		if err == nil {
+			sortedDates = append(sortedDates, parsedDate)
+		}
+	}
+
+	// Sort dates in ascending order
+	// This step is crucial if entries are not naturally ordered or if fetching method doesn't guarantee it.
+	sort.Slice(sortedDates, func(i, j int) bool {
+		return sortedDates[i].Before(sortedDates[j])
+	})
+
+	// Calculate longest streak
+	if len(sortedDates) > 0 {
+		consecutiveDays = 1
+		longestStreak = 1
+		for i := 1; i < len(sortedDates); i++ {
+			// Check if the current date is exactly one day after the previous date
+			if sortedDates[i].Sub(sortedDates[i-1]) == 24*time.Hour {
+				consecutiveDays++
+			} else {
+				consecutiveDays = 1 // Reset if not consecutive
+			}
+			if consecutiveDays > longestStreak {
+				longestStreak = consecutiveDays
+			}
+		}
+	}
+
+	// Calculate current streak
+	currentStreak = 0
+	if len(sortedDates) > 0 {
+		nowTruncated := time.Now().Truncate(24 * time.Hour)  // Today's date without time
+		yesterdayTruncated := nowTruncated.AddDate(0, 0, -1) // Yesterday's date without time
+
+		latestEntryDate := sortedDates[len(sortedDates)-1] // Get the most recent entry date from the sorted list
+
+		// If the latest entry is today
+		if latestEntryDate.Equal(nowTruncated) {
+			currentStreak = 1
+			// Go backwards from today to find consecutive days
+			for i := len(sortedDates) - 2; i >= 0; i-- {
+				// Check if the difference between the current date and the one before it is exactly 24 hours
+				if latestEntryDate.Sub(sortedDates[i]) == 24*time.Hour {
+					currentStreak++
+					latestEntryDate = sortedDates[i] // Move to the previous date for the next comparison
+				} else {
+					break // Not consecutive
+				}
+			}
+		} else if latestEntryDate.Equal(yesterdayTruncated) {
+			// If the latest entry was yesterday, the streak ends yesterday.
+			// We count backwards from yesterday.
+			currentStreak = 1
+			for i := len(sortedDates) - 2; i >= 0; i-- {
+				if latestEntryDate.Sub(sortedDates[i]) == 24*time.Hour {
+					currentStreak++
+					latestEntryDate = sortedDates[i]
+				} else {
+					break
+				}
+			}
+		}
+		// If the latest entry is older than yesterday, current streak remains 0.
+	}
+
+	return currentStreak, longestStreak
+}
+
+// calculateMonthlyProgress calculates journal entry progress for the last 6 months.
+func (uc *journalUseCase) calculateMonthlyProgress(ctx context.Context, userID string) []dto.MonthlyProgressEntry {
 	var progress []dto.MonthlyProgressEntry
 	now := time.Now()
 
 	for i := 5; i >= 0; i-- {
 		month := now.AddDate(0, -i, 0)
+		firstDayOfMonth := time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, now.Location())
+		lastDayOfMonth := firstDayOfMonth.AddDate(0, 1, -1) // Last day of the current month
+
 		monthStr := month.Format("2006-01")
 
-		// You would implement actual counting logic here
+		count, err := uc.journalRepo.CountEntriesByUserIDAndDateRange(ctx, userID, firstDayOfMonth, lastDayOfMonth)
+		if err != nil {
+			// Log the error and potentially return partial data or an error for the whole operation
+			// For now, continue with 0 count on error
+			count = 0
+		}
+
+		// Calculate target based on days in month (excluding future days for current month)
+		target := 30 // Default target for a month (can be adjusted)
+		if month.Year() == now.Year() && month.Month() == now.Month() {
+			// For the current month, target is number of days passed so far
+			target = now.Day()
+		} else {
+			target = lastDayOfMonth.Day() // Number of days in the month
+		}
+
+		percent := float64(0)
+		if target > 0 {
+			percent = (float64(count) / float64(target)) * 100
+		}
+
 		progress = append(progress, dto.MonthlyProgressEntry{
 			Month:   monthStr,
-			Count:   0,  // Calculate actual count
-			Target:  30, // Or calculate based on days in month
-			Percent: 0,  // Calculate percentage
+			Count:   count,
+			Target:  target,
+			Percent: int(percent),
 		})
 	}
-
 	return progress
 }
