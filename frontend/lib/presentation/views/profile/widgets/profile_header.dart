@@ -21,7 +21,12 @@ class ProfileHeader extends StatelessWidget {
     final isPremium = userPlan == 'Yefa +';
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: AppColors.accentLight,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
       child: Row(
         children: [
           // Avatar
@@ -69,13 +74,27 @@ class ProfileHeader extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 4.h),
-                Text(
-                  userPlan,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: isPremium ? AppColors.primary : Colors.grey[600],
-                    fontWeight: isPremium ? FontWeight.w600 : FontWeight.normal,
-                  ),
+                Row(
+                  children: [
+                    if (isPremium) ...[
+                      Image.asset(
+                        'assets/images/Crown.png',
+                        width: 16.w,
+                        height: 16.h,
+                      ),
+                      SizedBox(width: 4.w),
+                    ],
+                    Text(
+                      userPlan,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: isPremium ? AppColors.primary : Colors.grey[600],
+                        fontWeight: isPremium
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -88,16 +107,16 @@ class ProfileHeader extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary),
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.workspace_premium,
-                      size: 16.sp,
-                      color: AppColors.primary,
+                    Image.asset(
+                      'assets/images/Crown.png',
+                      width: 16.w,
+                      height: 16.h,
                     ),
                     SizedBox(width: 4.w),
                     Text(

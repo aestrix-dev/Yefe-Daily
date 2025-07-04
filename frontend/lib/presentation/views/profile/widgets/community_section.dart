@@ -32,53 +32,91 @@ class CommunitySection extends StatelessWidget {
 
         SizedBox(height: 16.h),
 
-        // Yefa Man Cave
-        _buildCommunityItem(
-          icon: Icons.group,
-          iconColor: Colors.green,
-          title: 'Yefa Man Cave',
-          subtitle: 'Join our WhatsApp group',
-          onTap: onYefaManCaveTap,
-        ),
+        // Community container
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 20.w),
+          decoration: BoxDecoration(
+            color: AppColors.accentLight,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Column(
+            children: [
+              // Yefa Man Cave
+              _buildCommunityItem(
+                iconPath: 'assets/icons/whatsapp.png',
+                title: 'Yefa Man Cave',
+                subtitle: 'Join our WhatsApp group',
+                onTap: onYefaManCaveTap,
+                showBottomBorder: true,
+              ),
 
-        // Towel Talk
-        _buildCommunityItem(
-          icon: Icons.forum,
-          iconColor: AppColors.primary,
-          title: 'Towel Talk',
-          subtitle: 'Watch our latest videos',
-          onTap: onTowelTalkTap,
+              // Towel Talk
+              _buildCommunityItem(
+                iconPath: 'assets/icons/video.png',
+                title: 'Towel Talk',
+                subtitle: 'Watch our latest videos',
+                onTap: onTowelTalkTap,
+                showBottomBorder: false,
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
   Widget _buildCommunityItem({
-    required IconData icon,
-    required Color iconColor,
+    required String iconPath,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    bool showBottomBorder = false,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.h),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
+          border: showBottomBorder
+              ? Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1))
+              : null,
         ),
         child: Row(
           children: [
             Container(
-              width: 40.w,
-              height: 40.h,
+              width: 60.w,
+              height: 60.h,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(8.r),
               ),
-              child: Icon(icon, size: 20.sp, color: iconColor),
+              child: Padding(
+                padding: EdgeInsets.all(8.w),
+                child: Image.asset(
+                  iconPath,
+                  width: 44.w,
+                  height: 44.h,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback icons
+                    IconData fallbackIcon;
+                    Color fallbackColor;
+
+                    if (iconPath.contains('whatsapp')) {
+                      fallbackIcon = Icons.group;
+                      fallbackColor = Colors.green;
+                    } else {
+                      fallbackIcon = Icons.forum;
+                      fallbackColor = AppColors.primary;
+                    }
+
+                    return Icon(
+                      fallbackIcon,
+                      size: 20.sp,
+                      color: fallbackColor,
+                    );
+                  },
+                ),
+              ),
             ),
             SizedBox(width: 16.w),
             Expanded(

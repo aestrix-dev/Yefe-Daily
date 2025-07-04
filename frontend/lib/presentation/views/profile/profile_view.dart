@@ -50,7 +50,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
                   ),
                 ),
 
-                // Profile Header (Avatar, Name, Upgrade button)
+               
                 ProfileHeader(
                   userName: viewModel.userName,
                   userPlan: viewModel.userPlan,
@@ -60,12 +60,10 @@ class ProfileView extends StackedView<ProfileViewModel> {
 
                 SizedBox(height: 16.h),
 
-                // Upgrade Card (conditional) - REMOVED since we're using popup now
-
-                // Progress Stats (similar to challenges screen)
+              
                 Container(
                   margin: EdgeInsets.symmetric(
-                    horizontal: 20.w,
+                    horizontal: 16.w,
                     vertical: 16.h,
                   ),
                   padding: EdgeInsets.all(20.w),
@@ -79,7 +77,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
                       Text(
                         'Your Progress',
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
                           color: AppColors.primary,
                         ),
@@ -89,20 +87,17 @@ class ProfileView extends StackedView<ProfileViewModel> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _buildProgressItem(
-                            icon: Icons.local_fire_department,
-                            iconColor: Colors.orange,
-                            value: '7 day',
+                            iconPath: 'assets/icons/fire.png',
+                            value: '7/365 day',
                             label: 'streak',
                           ),
                           _buildProgressItem(
-                            icon: Icons.check_circle,
-                            iconColor: Colors.green,
+                            iconPath: 'assets/icons/challenge.png',
                             value: '12',
                             label: 'Challenges',
                           ),
                           _buildProgressItem(
-                            icon: Icons.emoji_events,
-                            iconColor: Colors.amber,
+                            iconPath: 'assets/icons/badge.png',
                             value: '5',
                             label: 'Badges',
                           ),
@@ -148,20 +143,23 @@ class ProfileView extends StackedView<ProfileViewModel> {
   }
 
   Widget _buildProgressItem({
-    required IconData icon,
-    required Color iconColor,
+    required String iconPath,
     required String value,
     required String label,
   }) {
     return Column(
       children: [
-        Icon(icon, size: 32.sp, color: iconColor),
+        Image.asset(
+          iconPath,
+          width: 32.sp,
+          height: 32.sp,
+        ),
         SizedBox(height: 8.h),
         Text(
           '$value $label',
           style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w300,
             color: Colors.black,
           ),
           textAlign: TextAlign.center,

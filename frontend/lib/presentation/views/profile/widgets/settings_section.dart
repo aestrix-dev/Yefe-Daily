@@ -25,7 +25,7 @@ class SettingsSection extends StatelessWidget {
       children: [
         // Settings title
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Text(
             'Settings',
             style: TextStyle(
@@ -38,37 +38,52 @@ class SettingsSection extends StatelessWidget {
 
         SizedBox(height: 16.h),
 
-        // Notifications setting
-        _buildSettingItem(
-          icon: Icons.notifications,
-          title: 'Notifications',
-          trailing: Switch(
-            value: isNotificationsEnabled,
-            onChanged: (_) => onNotificationsToggle(),
-            activeColor: AppColors.primary,
+        // Settings container
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 20.w),
+          decoration: BoxDecoration(
+            color: AppColors.accentLight,
+            borderRadius: BorderRadius.circular(12.r),
           ),
-        ),
+          child: Column(
+            children: [
+              // Notifications
+              _buildSettingItem(
+                icon: Icons.notifications,
+                title: 'Notifications',
+                trailing: Switch(
+                  value: isNotificationsEnabled,
+                  onChanged: (_) => onNotificationsToggle(),
+                  activeColor: AppColors.primary,
+                ),
+                showBottomBorder: true,
+              ),
 
-        // Verse Language setting
-        _buildSettingItem(
-          icon: Icons.translate,
-          title: 'Verse Language',
-          trailing: Icon(
-            Icons.chevron_right,
-            color: Colors.grey[600],
-            size: 20.sp,
-          ),
-          onTap: onVerseLanguageTap,
-        ),
+              // Verse Language
+              _buildSettingItem(
+                icon: Icons.translate,
+                title: 'Verse Language',
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey[600],
+                  size: 20.sp,
+                ),
+                onTap: onVerseLanguageTap,
+                showBottomBorder: true,
+              ),
 
-        // Dark Mode setting
-        _buildSettingItem(
-          icon: Icons.dark_mode,
-          title: 'Dark Mode',
-          trailing: Switch(
-            value: isDarkMode,
-            onChanged: (_) => onThemeToggle(),
-            activeColor: AppColors.primary,
+              // Dark Mode
+              _buildSettingItem(
+                icon: Icons.dark_mode,
+                title: 'Dark Mode',
+                trailing: Switch(
+                  value: isDarkMode,
+                  onChanged: (_) => onThemeToggle(),
+                  activeColor: AppColors.primary,
+                ),
+                showBottomBorder: false,
+              ),
+            ],
           ),
         ),
       ],
@@ -80,15 +95,16 @@ class SettingsSection extends StatelessWidget {
     required String title,
     required Widget trailing,
     VoidCallback? onTap,
+    bool showBottomBorder = false,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.h),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
+          border: showBottomBorder
+              ? Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1))
+              : null,
         ),
         child: Row(
           children: [

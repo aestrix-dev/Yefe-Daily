@@ -52,6 +52,7 @@ class UpgradeCard extends StatelessWidget {
                         width: 20.w,
                         height: 20.h,
                       ),
+                      
                       SizedBox(width: 8.w),
                       Text(
                         'Yefa Plus',
