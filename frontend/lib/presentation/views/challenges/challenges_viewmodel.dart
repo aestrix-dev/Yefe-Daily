@@ -23,6 +23,9 @@ class ChallengesViewModel extends BaseViewModel {
   bool get isActiveTab => _selectedTabIndex == 0;
   bool get isCompletedTab => _selectedTabIndex == 1;
 
+  // Check if puzzle is completed
+  bool get isPuzzleCompleted => _dailyPuzzle?.isAnswered ?? false;
+
   void onModelReady() {
     _loadData();
   }
@@ -117,18 +120,25 @@ class ChallengesViewModel extends BaseViewModel {
   }
 
   void markChallengeAsComplete(String challengeId) {
+    // Only allow marking as complete if puzzle is completed
+    if (!isPuzzleCompleted) {
+      print('Complete the daily puzzle first!');
+      return;
+    }
+
     final challengeIndex = _activeChallenges.indexWhere(
       (c) => c.id == challengeId,
     );
     if (challengeIndex != -1) {
+      // Update the challenge to completed state but keep it in active list
       final challenge = _activeChallenges[challengeIndex];
       final completedChallenge = challenge.copyWith(
         isCompleted: true,
         completedDate: DateTime.now(),
       );
 
-      _activeChallenges.removeAt(challengeIndex);
-      _completedChallenges.insert(0, completedChallenge);
+      // Replace the challenge in the active list with completed version
+      _activeChallenges[challengeIndex] = completedChallenge;
 
       print('=== CHALLENGE COMPLETED ===');
       print('Challenge: ${challenge.title}');

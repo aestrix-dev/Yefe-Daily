@@ -19,6 +19,11 @@ class PuzzleSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+      padding: EdgeInsets.all(13.w),
+      decoration: BoxDecoration(
+        color: AppColors.accentLight,
+        borderRadius: BorderRadius.circular(20.r), // Full rounded border
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -26,9 +31,9 @@ class PuzzleSection extends StatelessWidget {
           Text(
             'Daily Puzzle',
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: AppColors.primary,
             ),
           ),
 
@@ -37,7 +42,7 @@ class PuzzleSection extends StatelessWidget {
           // Question
           Text(
             puzzle.question,
-            style: TextStyle(fontSize: 14.sp, color: Colors.black, height: 1.3),
+            style: TextStyle(fontSize: 12.sp, color: Colors.black, height: 1.3),
           ),
 
           SizedBox(height: 16.h),
@@ -47,8 +52,14 @@ class PuzzleSection extends StatelessWidget {
 
           SizedBox(height: 16.h),
 
-          // Submit button or result
-          _buildSubmitSection(),
+          // Submit button
+          _buildSubmitButton(),
+
+      
+          if (puzzle.isAnswered) ...[
+            SizedBox(height: 12.h),
+            _buildResultAlert(),
+          ],
         ],
       ),
     );
@@ -57,24 +68,22 @@ class PuzzleSection extends StatelessWidget {
   Widget _buildAnswerOption(String option) {
     final isSelected = puzzle.selectedAnswer == option;
     final isAnswered = puzzle.isAnswered;
-    final isCorrect = puzzle.options[puzzle.correctAnswerIndex] == option;
 
     Color backgroundColor;
-    Color textColor = Colors.black;
+    Color textColor;
+    Color borderColor;
 
-    if (isAnswered) {
-      if (isCorrect) {
-        backgroundColor = AppColors.primary;
-        textColor = Colors.white;
-      } else if (isSelected && !isCorrect) {
-        backgroundColor = Colors.red;
-        textColor = Colors.white;
-      } else {
-        backgroundColor = Colors.grey[200]!;
-      }
+    if (isSelected) {
+     
+      backgroundColor =
+          AppColors.primaryLight;
+      textColor = AppColors.primary;
+      borderColor = AppColors.primary;
     } else {
-      backgroundColor = isSelected ? AppColors.primary : Colors.grey[200]!;
-      if (isSelected) textColor = Colors.white;
+      
+      backgroundColor = Colors.transparent;
+      textColor = Colors.black;
+      borderColor = AppColors.primary.withOpacity(0.6);
     }
 
     return Container(
@@ -83,15 +92,16 @@ class PuzzleSection extends StatelessWidget {
       child: GestureDetector(
         onTap: isAnswered ? null : () => onAnswerSelected(option),
         child: Container(
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.all(13.w),
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(25.r),
+            border: Border.all(color: borderColor, width: 1.5),
           ),
           child: Text(
             option,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w500,
               color: textColor,
             ),
@@ -101,62 +111,66 @@ class PuzzleSection extends StatelessWidget {
     );
   }
 
-  Widget _buildSubmitSection() {
-    if (puzzle.isAnswered) {
-      final isCorrect = puzzle.isCorrect;
-      return Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: isCorrect ? Colors.green[50] : Colors.red[50],
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: isCorrect ? Colors.green : Colors.red),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              isCorrect ? Icons.check_circle : Icons.cancel,
-              color: isCorrect ? Colors.green : Colors.red,
-              size: 20.sp,
-            ),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Text(
-                isCorrect
-                    ? 'Correct! You earned 10 points! 🎉'
-                    : 'Check-in Tomorrow',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: isCorrect ? Colors.green : Colors.red,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+  Widget _buildSubmitButton() {
+    final hasSelectedAnswer = puzzle.selectedAnswer != null;
+    final isAnswered = puzzle.isAnswered;
 
     return SizedBox(
       width: double.infinity,
-      height: 48.h,
+      height: 42.h,
       child: ElevatedButton(
-        onPressed: puzzle.selectedAnswer != null ? onSubmit : null,
+        onPressed: isAnswered ? null : (hasSelectedAnswer ? onSubmit : null),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          disabledBackgroundColor: Colors.grey[300],
+          backgroundColor: isAnswered ? Colors.grey[400] : AppColors.primary,
+          disabledBackgroundColor: Colors.grey[400],
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(24.r),
           ),
         ),
         child: Text(
-          'Submit Answer',
+          isAnswered ? 'Check-in Tomorrow' : 'Submit Answer',
           style: TextStyle(
-            fontSize: 16.sp,
+            fontSize: 14.sp,
             fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildResultAlert() {
+    final isCorrect = puzzle.isCorrect;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(13.w),
+      decoration: BoxDecoration(
+        color: isCorrect ? Colors.green[50] : Colors.red[50],
+        borderRadius: BorderRadius.circular(26.r),
+        border: Border.all(color: isCorrect ? Colors.green : Colors.red),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isCorrect ? Icons.check_circle : Icons.cancel,
+            color: isCorrect ? Colors.green : Colors.red,
+            size: 20.sp,
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              isCorrect
+                  ? 'Correct! You earned 10 points! 🎉'
+                  : 'Incorrect. Better luck tomorrow!',
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: isCorrect ? Colors.green : Colors.red,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -35,22 +35,25 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
           child: Column(
             children: [
               // Header
-              Padding(
-                padding: EdgeInsets.all(20.w),
+             Align(
+              alignment: Alignment.centerLeft,
+              child:  Padding(
+                padding: EdgeInsets.all(14.w),
                 child: Text(
                   'Puzzles & Challenges',
                   style: TextStyle(
-                    fontSize: 24.sp,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.black,
                   ),
                 ),
               ),
+             ),
 
               // Tab bar
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 20.w),
-                height: 45.h,
+                height: 44.h,
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(25.r),
@@ -113,7 +116,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                 ),
               ),
 
-              SizedBox(height: 20.h),
+              SizedBox(height: 9.h),
 
               // Content
               Expanded(
@@ -138,6 +141,8 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                             challenge: challenge,
                             onMarkComplete: () =>
                                 viewModel.markChallengeAsComplete(challenge.id),
+                            
+                            isEnabled: viewModel.isPuzzleCompleted,
                           ),
                         ),
                       ] else ...[
@@ -186,4 +191,10 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
   @override
   ChallengesViewModel viewModelBuilder(BuildContext context) =>
       ChallengesViewModel();
+
+  @override
+  void onViewModelReady(ChallengesViewModel viewModel) {
+    super.onViewModelReady(viewModel);
+    viewModel.onModelReady(); 
+  }
 }

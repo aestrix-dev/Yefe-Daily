@@ -7,12 +7,14 @@ class ChallengeCard extends StatelessWidget {
   final ChallengeModel challenge;
   final VoidCallback? onMarkComplete;
   final bool isCompleted;
+  final bool isEnabled;
 
   const ChallengeCard({
     super.key,
     required this.challenge,
     this.onMarkComplete,
     this.isCompleted = false,
+    this.isEnabled = true,
   });
 
   @override
@@ -21,7 +23,7 @@ class ChallengeCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: AppColors.accentLight,
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -40,7 +42,8 @@ class ChallengeCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (challenge.type == ChallengeType.manhood && !isCompleted) ...[
+              if (challenge.type == ChallengeType.manhood &&
+                  !challenge.isCompleted) ...[
                 Icon(
                   Icons.local_fire_department,
                   size: 16.sp,
@@ -81,7 +84,7 @@ class ChallengeCard extends StatelessWidget {
                   width: 20.w,
                   height: 20.h,
                   decoration: const BoxDecoration(
-                    color: Colors.green,
+                    color: AppColors.primary,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.check, size: 14.sp, color: Colors.white),
@@ -93,7 +96,7 @@ class ChallengeCard extends StatelessWidget {
                       : 'Completed',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: Colors.green,
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -104,22 +107,40 @@ class ChallengeCard extends StatelessWidget {
               width: double.infinity,
               height: 40.h,
               child: ElevatedButton(
-                onPressed: onMarkComplete,
+                onPressed: challenge.isCompleted
+                    ? null
+                    : (isEnabled ? onMarkComplete : null),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: challenge.isCompleted
-                      ? Colors.green
-                      : AppColors.primary,
+                      ? AppColors.primary
+                      : (isEnabled ? AppColors.primary : AppColors.accentDark),
+                  disabledBackgroundColor: challenge.isCompleted
+                      ? AppColors.primary
+                      : Colors.grey[400],
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(24.r),
                   ),
                 ),
-                child: Text(
-                  challenge.isCompleted ? 'Completed' : 'Mark as done',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (challenge.isCompleted) ...[
+                      Icon(Icons.check, size: 18.sp, color: Colors.white),
+                      SizedBox(width: 8.w),
+                    ],
+                    Text(
+                      challenge.isCompleted
+                          ? 'Completed'
+                          : (isEnabled
+                                ? 'Mark as done'
+                                : 'Complete puzzle first'),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
