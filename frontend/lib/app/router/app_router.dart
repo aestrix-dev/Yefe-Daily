@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:yefa/presentation/views/profile/profile_view.dart';
 
 import '../../core/constants/app_routes.dart';
 import '../../presentation/views/splash/splash_view.dart';
@@ -34,6 +35,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.challenges,
       builder: (context, state) => const ChallengesView(),
+    ),
+    GoRoute(
+      path: AppRoutes.profile,
+      builder: (context, state) => const ProfileView(),
     ),
   ],
 );

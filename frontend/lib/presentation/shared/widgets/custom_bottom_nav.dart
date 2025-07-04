@@ -58,7 +58,7 @@ class CustomBottomNav extends StatelessWidget {
             iconPath: 'assets/icons/profile.png',
             label: 'Profile',
             route: '/profile',
-            isActive: currentRoute == '/more',
+            isActive: currentRoute == '/profile',
           ),
         ],
       ),
