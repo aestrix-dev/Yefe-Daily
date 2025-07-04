@@ -11,7 +11,7 @@ class ActivityModel {
     required this.type,
   });
 
-  static List<ActivityModel> get sampleActivities => [
+  static List<ActivityModel> get recentActivities => [
     const ActivityModel(
       title: 'Morning Reflection • Faith',
       subtitle:

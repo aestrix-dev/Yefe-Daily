@@ -6,10 +6,10 @@ class ChallengeModel {
   const ChallengeModel({
     required this.title,
     required this.description,
-    required this.isCompleted,
+    this.isCompleted = false,
   });
 
-  static ChallengeModel get sample => const ChallengeModel(
+  static ChallengeModel get todaysChallenge => const ChallengeModel(
     title: 'Manhood Challenge',
     description: 'Reach out to a brother friend and offer encouragement.',
     isCompleted: false,

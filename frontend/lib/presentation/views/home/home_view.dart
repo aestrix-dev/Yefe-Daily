@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
+import 'package:yefa/core/constants/app_colors.dart';
 
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_strings.dart';
-import '../../shared/widgets/custom_button.dart';
 import 'home_viewmodel.dart';
+import 'widgets/greeting_header.dart';
+import 'widgets/verse_card.dart';
+import 'widgets/quick_actions.dart';
+import 'widgets/challenge_card.dart';
+import 'widgets/recent_activities.dart';
+import '../../shared/widgets/custom_bottom_nav.dart';
 
 class HomeView extends StackedView<HomeViewModel> {
   const HomeView({super.key});
@@ -13,48 +17,41 @@ class HomeView extends StackedView<HomeViewModel> {
   @override
   Widget builder(BuildContext context, HomeViewModel viewModel, Widget? child) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.appName),
-        actions: [
-          IconButton(
-            onPressed: viewModel.toggleTheme,
-            icon: Icon(
-              viewModel.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+      backgroundColor: AppColors.accentDark,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GreetingHeader(
+                      userName: viewModel.userName,
+                      subtitle: viewModel.todaySubtitle,
+                      fireCount: viewModel.fireCount,
+                    ),
+
+                    VerseCard(
+                      verse: viewModel.todaysVerse,
+                      onBookmarkTap: viewModel.toggleBookmark,
+                    ),
+
+                    const QuickActions(),
+
+                    ChallengeCard(challenge: viewModel.todaysChallenge),
+
+                    RecentActivities(activities: viewModel.recentActivities),
+
+                    SizedBox(height: 20.h),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Welcome to Your App!',
-                style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: 20.h),
-
-              Text(
-                'This is your home screen. You can start building your app features from here.',
-                style: TextStyle(fontSize: 16.sp, color: AppColors.grey),
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: 40.h),
-
-              CustomButton(
-                text: 'Toggle Theme',
-                onPressed: viewModel.toggleTheme,
-                width: 200.w,
-              ),
-            ],
-          ),
+          ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomNav(),
     );
   }
 
