@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 import 'package:yefa/core/constants/app_colors.dart';
@@ -16,42 +17,58 @@ class HomeView extends StackedView<HomeViewModel> {
 
   @override
   Widget builder(BuildContext context, HomeViewModel viewModel, Widget? child) {
-    return Scaffold(
-      backgroundColor: AppColors.accentDark,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GreetingHeader(
-                      userName: viewModel.userName,
-                      subtitle: viewModel.todaySubtitle,
-                      fireCount: viewModel.fireCount,
-                    ),
+    
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-                    VerseCard(
-                      verse: viewModel.todaysVerse,
-                      onBookmarkTap: viewModel.toggleBookmark,
-                    ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDarkMode
+            ? Brightness
+                  .light 
+            : Brightness.dark, 
+        statusBarBrightness: isDarkMode
+            ? Brightness
+                  .dark 
+            : Brightness.light, 
+      ),
+      child: Scaffold(
+        backgroundColor: AppColors.accentDark,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GreetingHeader(
+                        userName: viewModel.userName,
+                        subtitle: viewModel.todaySubtitle,
+                        fireCount: viewModel.fireCount,
+                      ),
 
-                    const QuickActions(),
+                      VerseCard(
+                        verse: viewModel.todaysVerse,
+                        onBookmarkTap: viewModel.toggleBookmark,
+                      ),
 
-                    ChallengeCard(challenge: viewModel.todaysChallenge),
+                      const QuickActions(),
 
-                    RecentActivities(activities: viewModel.recentActivities),
+                      ChallengeCard(challenge: viewModel.todaysChallenge),
 
-                    SizedBox(height: 20.h),
-                  ],
+                      RecentActivities(activities: viewModel.recentActivities),
+
+                      SizedBox(height: 20.h),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        bottomNavigationBar: const CustomBottomNav(),
       ),
-      bottomNavigationBar: const CustomBottomNav(),
     );
   }
 
