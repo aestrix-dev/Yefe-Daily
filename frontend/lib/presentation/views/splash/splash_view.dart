@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
@@ -16,26 +18,14 @@ class SplashView extends StackedView<SplashViewModel> {
     SplashViewModel viewModel,
     Widget? child,
   ) {
-
-    WidgetsBinding.instance.addPostFrameCallback((_)
-     async {
-      // Show splash for 3 seconds
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(seconds: 3));
 
       final hasSeenOnboarding = viewModel.hasSeenOnboarding;
-      final isLoggedIn = viewModel.isLoggedIn;
 
-      print('SplashView: hasSeenOnboarding = $hasSeenOnboarding');
-      print('SplashView: isLoggedIn = $isLoggedIn');
-
-      // Navigation logic
       if (!hasSeenOnboarding) {
-        // First time user - show onboarding
-        print('SplashView: Navigating to onboarding');
         context.pushReplacement(AppRoutes.onboarding);
       } else {
-        // Logged in user - go to home
-        print('SplashView: Navigating to home');
         context.pushReplacement(AppRoutes.home);
       }
     });
@@ -43,8 +33,19 @@ class SplashView extends StackedView<SplashViewModel> {
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Stack(
-        children: [ 
-          // Logo centered on the screen
+        children: [
+        
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.01,
+              child: Image.asset(
+                'assets/images/background.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+
+         
           Center(
             child: Image.asset(
               'assets/images/logo.png',

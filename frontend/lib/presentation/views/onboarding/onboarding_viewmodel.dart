@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/app_setup.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../data/services/storage_service.dart';
 
 class OnboardingViewModel extends BaseViewModel {
- 
   final _storageService = locator<StorageService>();
 
   final PageController pageController = PageController();
@@ -38,11 +40,23 @@ class OnboardingViewModel extends BaseViewModel {
     }
   }
 
-  void completeOnboarding() {
-    _storageService.setBool('hasSeenOnboarding', true);
-    
-  }
+ void completeOnboarding() {
+    print('OnboardingViewModel: completeOnboarding called');
 
+    _storageService.setBool('hasSeenOnboarding', true);
+    _storageService.setBool('isLoggedIn', true);
+
+    print('OnboardingViewModel: Storage values set');
+
+    // Navigate to home page
+    final context = StackedService.navigatorKey?.currentContext;
+    if (context != null) {
+      print('OnboardingViewModel: Context found, navigating to home');
+      context.pushReplacement(AppRoutes.home);
+    } else {
+      print('OnboardingViewModel: ERROR - Context is null!');
+    }
+  }
   @override
   void dispose() {
     pageController.dispose();

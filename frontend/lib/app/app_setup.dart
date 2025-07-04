@@ -9,6 +9,9 @@ final locator = GetIt.instance;
 
 class AppSetup {
   static Future<void> setupServices() async {
+    // Register navigator key with NavigationService
+    locator.registerSingleton<NavigationService>(NavigationService());
+
     // Register navigation service
     locator.registerSingleton(AppNavigationService());
 

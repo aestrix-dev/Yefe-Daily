@@ -7,12 +7,12 @@ import '../../../shared/widgets/custom_text_field.dart';
 
 class OnboardingPageTwo extends StatefulWidget {
   final VoidCallback onContinue;
-  final VoidCallback onBack; // Add this callback
+  final VoidCallback onBack;
 
   const OnboardingPageTwo({
     super.key,
     required this.onContinue,
-    required this.onBack, // Add this parameter
+    required this.onBack,
   });
 
   @override
@@ -28,221 +28,264 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: SafeArea(
-        child: Column(
-          children: [
+    return Stack(
+      
+      children: [
+       
+        Positioned.fill(
+          child: Opacity(
+            opacity: 0.01,
+            child: Image.asset(
+              'assets/images/background.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
 
-            SizedBox(height: 58.h),
-            // Back button section
-            Padding(
-              padding: EdgeInsets.all(20.w),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: widget
-                      .onBack, // Use the callback instead of Navigator.pop
-                  child: Container(
-                    width: 40.w,
-                    height: 40.h,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
+        // Original content on top
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            child: Column(
+              children: [
+                // SizedBox(height: 3.h),
+                // Back button section
+                Padding(
+                  padding: EdgeInsets.all(20.w),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: widget.onBack,
+                      child: Container(
+                        width: 40.w,
+                        height: 40.h,
+                        decoration: BoxDecoration(
+                          color: AppColors.accentDark,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 18.sp,
-                      color: AppColors.black,
+                        child: Icon(
+                          Icons.arrow_back_ios_new,
+                          size: 18.sp,
+                          color: AppColors.black,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
 
-            // Card section - flexible height
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.w),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.accentLight,
-                    borderRadius: BorderRadius.circular(20.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+                // Card section - flexible height
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15.w),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.accentDark,
+                        borderRadius: BorderRadius.circular(20.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.all(24.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title
-                        Text(
-                          "Let's personalize your journey",
-                          style: TextStyle(
-                            fontSize: 24.sp,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.black,
-                            height: 1.2,
-                          ),
-                        ),
-
-                        SizedBox(height: 32.h),
-
-                        // Name field
-                        Text(
-                          'Name',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.black,
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        CustomTextField(
-                          hintText: 'Enter name',
-                          onChanged: (value) {
-                            setState(() {
-                              userName = value;
-                            });
-                          },
-                        ),
-
-                        SizedBox(height: 24.h),
-
-                        // Preferred Language
-                        Text(
-                          'Preferred Language',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.black,
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        GestureDetector(
-                          onTap: () => _showLanguageBottomSheet(context),
-                          child: Container(
-                            width: double.infinity,
-                            height: 50.h,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.greyLight),
-                              borderRadius: BorderRadius.circular(30.r),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    selectedLanguage,
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      color:
-                                          selectedLanguage == 'Select language'
-                                          ? AppColors.grey
-                                          : AppColors.black,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.keyboard_arrow_down,
-                                    color: AppColors.grey,
-                                    size: 20.sp,
-                                  ),
-                                ],
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(24.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Title
+                            Text(
+                              "Let's personalize your journey",
+                              style: TextStyle(
+                                fontSize: 24.sp,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.black,
+                                height: 1.2,
                               ),
                             ),
-                          ),
+
+                            SizedBox(height: 32.h),
+
+                            // Name field
+                            Text(
+                              'Email address',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.black,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            CustomTextField(
+                              hintText: 'Enter email address',
+                              onChanged: (value) {
+                                setState(() {
+                                  userName = value;
+                                });
+                              },
+                            ),
+
+                            SizedBox(height: 24.h),
+                            // Name field
+                            Text(
+                              'Name',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.black,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            CustomTextField(
+                              hintText: 'Enter name',
+                              onChanged: (value) {
+                                setState(() {
+                                  userName = value;
+                                });
+                              },
+                            ),
+
+                            SizedBox(height: 24.h),
+
+                            // Preferred Language
+                            Text(
+                              'Preferred Language',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.black,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            GestureDetector(
+                              onTap: () => _showLanguageBottomSheet(context),
+                              child: Container(
+                                width: double.infinity,
+                                height: 50.h,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppColors.greyLight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(30.r),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        selectedLanguage,
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          color:
+                                              selectedLanguage ==
+                                                  'Select language'
+                                              ? AppColors.grey
+                                              : AppColors.black,
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: AppColors.grey,
+                                        size: 20.sp,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: 32.h),
+
+                            // Notifications section
+                            Text(
+                              'Notifications',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.black,
+                              ),
+                            ),
+
+                            SizedBox(height: 16.h),
+
+                            // Morning Prompt toggle
+                            _buildNotificationToggle(
+                              '🌅',
+                              'Morning Prompt',
+                              morningPrompt,
+                              (value) {
+                                setState(() {
+                                  morningPrompt = value;
+                                });
+                              },
+                            ),
+
+                            SizedBox(height: 12.h),
+
+                            // Evening Reflection toggle
+                            _buildNotificationToggle(
+                              '🌙',
+                              'Evening Reflection',
+                              eveningReflection,
+                              (value) {
+                                setState(() {
+                                  eveningReflection = value;
+                                });
+                              },
+                            ),
+
+                            SizedBox(height: 12.h),
+
+                            // Challenge toggle
+                            _buildNotificationToggle(
+                              '🎯',
+                              'Challenge',
+                              challenge,
+                              (value) {
+                                setState(() {
+                                  challenge = value;
+                                });
+                              },
+                            ),
+
+                            // Extra space at bottom for scroll
+                            SizedBox(height: 20.h),
+                          ],
                         ),
-
-                        SizedBox(height: 32.h),
-
-                        // Notifications section
-                        Text(
-                          'Notifications',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.black,
-                          ),
-                        ),
-
-                        SizedBox(height: 16.h),
-
-                        // Morning Prompt toggle
-                        _buildNotificationToggle(
-                          '🌅',
-                          'Morning Prompt',
-                          morningPrompt,
-                          (value) {
-                            setState(() {
-                              morningPrompt = value;
-                            });
-                          },
-                        ),
-
-                        SizedBox(height: 12.h),
-
-                        // Evening Reflection toggle
-                        _buildNotificationToggle(
-                          '🌙',
-                          'Evening Reflection',
-                          eveningReflection,
-                          (value) {
-                            setState(() {
-                              eveningReflection = value;
-                            });
-                          },
-                        ),
-
-                        SizedBox(height: 12.h),
-
-                        // Challenge toggle
-                        _buildNotificationToggle('🎯', 'Challenge', challenge, (
-                          value,
-                        ) {
-                          setState(() {
-                            challenge = value;
-                          });
-                        }),
-
-                        // Extra space at bottom for scroll
-                        SizedBox(height: 20.h),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
 
-            SizedBox(height: 6.h),
-            // Button section - fixed at bottom
-            Padding(
-              padding: EdgeInsets.all(16.w),
-              child: CustomButton(
-                text: 'Continue',
-                onPressed: widget.onContinue,
-                width: double.infinity,
-                height: 50.h,
-              ),
+                SizedBox(height: 6.h),
+                // Button section - fixed at bottom
+                Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: CustomButton(
+                    text: 'Continue',
+                    onPressed: widget.onContinue,
+                    width: double.infinity,
+                    height: 50.h,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -275,7 +318,7 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
   void _showLanguageBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.accentLight,
       isScrollControlled: true,
       builder: (context) => LanguageBottomSheet(
         selectedLanguage: selectedLanguage,
@@ -289,7 +332,7 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
   }
 }
 
-// Your other widgets remain the same...
+// Keep all your other classes (_CustomSwitch, LanguageBottomSheet) exactly the same...
 class _CustomSwitch extends StatefulWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -379,7 +422,7 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.accentLight,
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Column(

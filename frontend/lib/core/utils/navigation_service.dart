@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../app/app.dart';
+
+// If navigatorKey is not defined in app.dart, define it here:
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class AppNavigationService {
   BuildContext? get _context => navigatorKey.currentContext;
