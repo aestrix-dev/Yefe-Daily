@@ -31,7 +31,7 @@ class JournalForm extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.all(14.w),
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color: AppColors.accentLight(context),
               borderRadius: BorderRadius.circular(16.r),
             ),
             child: Column(
@@ -43,7 +43,7 @@ class JournalForm extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
 
@@ -54,9 +54,9 @@ class JournalForm extends StatelessWidget {
                   width: double.infinity,
                   height: 120.h,
                   decoration: BoxDecoration(
-                    color: AppColors.accentDark,
+                    color: AppColors.accentDark(context),
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: AppColors.primary),
+                    border: Border.all(color: AppColors.primary(context)),
                   ),
                   child: TextField(
                     onChanged: onContentChanged,
@@ -72,7 +72,8 @@ class JournalForm extends StatelessWidget {
                         fontSize: 14.sp,
                       ),
                     ),
-                    style: TextStyle(fontSize: 14.sp, color: Colors.black),
+                    style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary(context),
+                    ),
                   ),
                 ),
 
@@ -84,7 +85,7 @@ class JournalForm extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                    color: AppColors.textSecondary(context),
                   ),
                 ),
 
@@ -105,7 +106,7 @@ class JournalForm extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primaryLight
+                              ? AppColors.primaryLight(context)
                               : Colors.grey[300],
                           borderRadius: BorderRadius.circular(20.r),
                         ),
@@ -114,7 +115,7 @@ class JournalForm extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w500,
-                            color: isSelected ? AppColors.primary : Colors.black,
+                            color: isSelected ? AppColors.primary(context) : Colors.black,
                           ),
                         ),
                       ),
@@ -134,8 +135,8 @@ class JournalForm extends StatelessWidget {
             child: ElevatedButton(
               onPressed: content.trim().isNotEmpty ? onSave : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                disabledBackgroundColor: Colors.grey[300],
+                backgroundColor: AppColors.primary(context),
+                disabledBackgroundColor: AppColors.accentLight(context),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(26.r),
                 ),

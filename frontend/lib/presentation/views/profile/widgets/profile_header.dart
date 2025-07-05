@@ -24,7 +24,7 @@ class ProfileHeader extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: AppColors.accentLight,
+        color: AppColors.accentLight(context),
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(
@@ -36,7 +36,7 @@ class ProfileHeader extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isPremium ? AppColors.primary : Colors.grey[300]!,
+                color: isPremium ? AppColors.primary(context) : Colors.grey[300]!,
                 width: 2.w,
               ),
             ),
@@ -70,7 +70,7 @@ class ProfileHeader extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -88,7 +88,7 @@ class ProfileHeader extends StatelessWidget {
                       userPlan,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: isPremium ? AppColors.primary : Colors.grey[600],
+                        color: isPremium ? AppColors.textSecondary(context) : Colors.grey[600],
                         fontWeight: isPremium
                             ? FontWeight.w600
                             : FontWeight.normal,
@@ -107,7 +107,7 @@ class ProfileHeader extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: AppColors.primaryLight(context),
                   borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Row(
@@ -124,7 +124,7 @@ class ProfileHeader extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                   ],

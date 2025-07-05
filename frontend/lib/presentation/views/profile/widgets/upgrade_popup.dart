@@ -58,8 +58,8 @@ class UpgradePopup extends StatelessWidget {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  AppColors.primary.withOpacity(0.8),
-                                  AppColors.primary.withOpacity(0.6),
+                                  AppColors.primary(context).withOpacity(0.8),
+                                  AppColors.primary(context).withOpacity(0.6),
                                 ],
                               ),
                             ),
@@ -79,7 +79,7 @@ class UpgradePopup extends StatelessWidget {
                     // Semi-transparent overlay (middle z-index)
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.97),
+                        color: AppColors.primary(context).withOpacity(0.97),
                       ),
                       child: Padding(
                         padding: EdgeInsets.all(20.w),
@@ -156,7 +156,9 @@ class UpgradePopup extends StatelessWidget {
                                 onPressed: onUpgrade,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                      AppColors.primaryLight,
+                                      AppColors.primaryLight(
+                                    context,
+                                  ),
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(24.r),
@@ -167,7 +169,7 @@ class UpgradePopup extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: AppColors.primary(context),
                                   ),
                                 ),
                               ),

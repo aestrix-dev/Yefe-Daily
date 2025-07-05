@@ -42,7 +42,7 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.3,
       decoration: BoxDecoration(
-        color: AppColors.accentLight,
+        color: AppColors.accentLight(context),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20.r),
           topRight: Radius.circular(20.r),
@@ -77,7 +77,7 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
-                          color: Colors.black,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       if (widget.audio.subtitle != null) ...[
@@ -133,10 +133,10 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                 // Progress bar
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: AppColors.primary,
+                    activeTrackColor: AppColors.primary(context),
                     inactiveTrackColor: Colors.grey[300],
-                    thumbColor: AppColors.primary,
-                    overlayColor: AppColors.primary.withOpacity(0.2),
+                    thumbColor: AppColors.primary(context),
+                    overlayColor: AppColors.primary(context).withOpacity(0.2),
                     thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.r),
                     trackHeight: 6.h,
                   ),
@@ -159,7 +159,7 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                       currentTime,
                       style: TextStyle(
                         fontSize: 12.sp,
-                        color: Colors.black,
+                        color: AppColors.textPrimary(context),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -167,7 +167,7 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                       totalTime,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.black,
+                        color: AppColors.textPrimary(context),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -237,7 +237,7 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                     width: 50.w,
                     height: 50.h,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: AppColors.primary(context),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(

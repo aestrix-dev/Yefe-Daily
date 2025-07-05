@@ -60,7 +60,7 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                         width: 40.w,
                         height: 40.h,
                         decoration: BoxDecoration(
-                          color: AppColors.accentDark,
+                          color: AppColors.accentDark(context),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -87,7 +87,7 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: AppColors.accentDark,
+                        color: AppColors.accentDark(context),
                         borderRadius: BorderRadius.circular(20.r),
                         boxShadow: [
                           BoxShadow(
@@ -318,7 +318,7 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
   void _showLanguageBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.accentLight,
+      backgroundColor: AppColors.accentLight(context),
       isScrollControlled: true,
       builder: (context) => LanguageBottomSheet(
         selectedLanguage: selectedLanguage,
@@ -375,7 +375,7 @@ class _CustomSwitchState extends State<_CustomSwitch> {
         height: 28.h,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14.r),
-          color: _value ? AppColors.primary : AppColors.greyLight,
+          color: _value ? AppColors.primary(context) : AppColors.greyLight,
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 200),
@@ -422,7 +422,7 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.accentLight,
+        color: AppColors.accentLight(context),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Column(
@@ -482,11 +482,11 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w500,
-                    color: isSelected ? AppColors.primary : AppColors.black,
+                    color: isSelected ? AppColors.primary(context) : AppColors.black,
                   ),
                 ),
                 if (isSelected)
-                  Icon(Icons.check, color: AppColors.primary, size: 20.sp),
+                  Icon(Icons.check, color: AppColors.primary(context), size: 20.sp),
               ],
             ),
           ),

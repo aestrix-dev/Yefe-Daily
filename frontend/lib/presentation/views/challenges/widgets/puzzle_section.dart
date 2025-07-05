@@ -21,7 +21,7 @@ class PuzzleSection extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
       padding: EdgeInsets.all(13.w),
       decoration: BoxDecoration(
-        color: AppColors.accentLight,
+        color: AppColors.accentLight(context),
         borderRadius: BorderRadius.circular(20.r), // Full rounded border
       ),
       child: Column(
@@ -33,7 +33,7 @@ class PuzzleSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w700,
-              color: AppColors.primary,
+              color: AppColors.textPrimary(context),
             ),
           ),
 
@@ -42,18 +42,18 @@ class PuzzleSection extends StatelessWidget {
           // Question
           Text(
             puzzle.question,
-            style: TextStyle(fontSize: 12.sp, color: Colors.black, height: 1.3),
+            style: TextStyle(fontSize: 12.sp, color: AppColors.textSecondary(context), height: 1.3),
           ),
 
           SizedBox(height: 16.h),
 
           // Answer options
-          ...puzzle.options.map((option) => _buildAnswerOption(option)),
+          ...puzzle.options.map((option) => _buildAnswerOption(context, option)),
 
           SizedBox(height: 16.h),
 
           // Submit button
-          _buildSubmitButton(),
+          _buildSubmitButton(context),
 
       
           if (puzzle.isAnswered) ...[
@@ -65,7 +65,7 @@ class PuzzleSection extends StatelessWidget {
     );
   }
 
-  Widget _buildAnswerOption(String option) {
+  Widget _buildAnswerOption(BuildContext context, String option) {
     final isSelected = puzzle.selectedAnswer == option;
     final isAnswered = puzzle.isAnswered;
 
@@ -76,14 +76,14 @@ class PuzzleSection extends StatelessWidget {
     if (isSelected) {
      
       backgroundColor =
-          AppColors.primaryLight;
-      textColor = AppColors.primary;
-      borderColor = AppColors.primary;
+          AppColors.primaryLight(context);
+      textColor = AppColors.primary(context);
+      borderColor = AppColors.primary(context);
     } else {
       
       backgroundColor = Colors.transparent;
-      textColor = Colors.black;
-      borderColor = AppColors.primary.withOpacity(0.6);
+      textColor = AppColors.textPrimary(context);
+      borderColor = AppColors.primary(context).withOpacity(0.6);
     }
 
     return Container(
@@ -111,7 +111,7 @@ class PuzzleSection extends StatelessWidget {
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(BuildContext context) {
     final hasSelectedAnswer = puzzle.selectedAnswer != null;
     final isAnswered = puzzle.isAnswered;
 
@@ -121,7 +121,7 @@ class PuzzleSection extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isAnswered ? null : (hasSelectedAnswer ? onSubmit : null),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isAnswered ? Colors.grey[400] : AppColors.primary,
+          backgroundColor: isAnswered ? Colors.grey[400] : AppColors.primary(context),
           disabledBackgroundColor: Colors.grey[400],
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24.r),

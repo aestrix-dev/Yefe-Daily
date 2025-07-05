@@ -18,7 +18,7 @@ class OnboardingView extends StackedView<OnboardingViewModel> {
   ) {
     return Scaffold(
         
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.primary1,
       body: SafeArea(
         top: false,
         bottom: false, 

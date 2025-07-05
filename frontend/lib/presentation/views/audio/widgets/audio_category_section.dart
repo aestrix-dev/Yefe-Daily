@@ -28,7 +28,7 @@ class AudioCategorySection extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
-        color: AppColors.accentLight,
+        color: AppColors.accentLight(context),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -40,14 +40,14 @@ class AudioCategorySection extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: AppColors.textPrimary(context),
             ),
           ),
 
           SizedBox(height: 12.h),
 
           // Audio List
-          ...category.audios.map((audio) => _buildAudioItem(audio)),
+          ...category.audios.map((audio) => _buildAudioItem(context, audio)),
 
           // Upgrade Card (conditional)
           if (showUpgradeCard && !isPremiumUser) ...[
@@ -59,7 +59,7 @@ class AudioCategorySection extends StatelessWidget {
     );
   }
 
-  Widget _buildAudioItem(AudioModel audio) {
+  Widget _buildAudioItem(BuildContext context, AudioModel audio) {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       child: GestureDetector(
@@ -67,7 +67,7 @@ class AudioCategorySection extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           decoration: BoxDecoration(
-            color: AppColors.accentDark,
+            color: AppColors.accentDark(context),
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Row(
@@ -77,7 +77,7 @@ class AudioCategorySection extends StatelessWidget {
                 width: 40.w,
                 height: 40.h,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: AppColors.accentLight(context),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -99,7 +99,7 @@ class AudioCategorySection extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     SizedBox(height: 2.h),
@@ -107,7 +107,7 @@ class AudioCategorySection extends StatelessWidget {
                       audio.duration,
                       style: TextStyle(
                         fontSize: 12.sp,
-                        color: Colors.grey[600],
+                        color: AppColors.textSecondary(context),
                       ),
                     ),
                     if (audio.subtitle != null) ...[
@@ -138,7 +138,7 @@ class AudioCategorySection extends StatelessWidget {
                         return Icon(
                           Icons.lock,
                           size: 16.sp,
-                          color: Colors.grey[500],
+                          color: AppColors.accentLight(context),
                         );
                       },
                     ),

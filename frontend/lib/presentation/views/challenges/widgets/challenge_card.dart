@@ -23,7 +23,7 @@ class ChallengeCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: AppColors.accentLight,
+        color: AppColors.accentLight(context),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -38,7 +38,7 @@ class ChallengeCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
               ),
@@ -69,7 +69,7 @@ class ChallengeCard extends StatelessWidget {
             challenge.description,
             style: TextStyle(
               fontSize: 13.sp,
-              color: Colors.grey[700],
+              color: AppColors.textSecondary(context),
               height: 1.3,
             ),
           ),
@@ -83,8 +83,8 @@ class ChallengeCard extends StatelessWidget {
                 Container(
                   width: 20.w,
                   height: 20.h,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary(context),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.check, size: 14.sp, color: Colors.white),
@@ -96,7 +96,7 @@ class ChallengeCard extends StatelessWidget {
                       : 'Completed',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: AppColors.primary,
+                    color: AppColors.primary(context),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -112,10 +112,10 @@ class ChallengeCard extends StatelessWidget {
                     : (isEnabled ? onMarkComplete : null),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: challenge.isCompleted
-                      ? AppColors.primary
-                      : (isEnabled ? AppColors.primary : AppColors.accentDark),
+                      ? AppColors.primary(context)
+                      : (isEnabled ? AppColors.primary(context) : AppColors.accentDark(context)),
                   disabledBackgroundColor: challenge.isCompleted
-                      ? AppColors.primary
+                      ? AppColors.primary(context)
                       : Colors.grey[400],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24.r),

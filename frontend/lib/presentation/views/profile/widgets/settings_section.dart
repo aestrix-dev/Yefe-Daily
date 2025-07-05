@@ -31,7 +31,7 @@ class SettingsSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: AppColors.textPrimary(context),
             ),
           ),
         ),
@@ -42,25 +42,27 @@ class SettingsSection extends StatelessWidget {
         Container(
           margin: EdgeInsets.symmetric(horizontal: 20.w),
           decoration: BoxDecoration(
-            color: AppColors.accentLight,
+            color: AppColors.accentLight(context),
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Column(
             children: [
               // Notifications
               _buildSettingItem(
+                context: context,
                 icon: Icons.notifications,
                 title: 'Notifications',
                 trailing: Switch(
                   value: isNotificationsEnabled,
                   onChanged: (_) => onNotificationsToggle(),
-                  activeColor: AppColors.primary,
+                  activeColor: AppColors.primary(context),
                 ),
                 showBottomBorder: true,
               ),
 
               // Verse Language
               _buildSettingItem(
+                context: context,
                 icon: Icons.translate,
                 title: 'Verse Language',
                 trailing: Icon(
@@ -74,12 +76,13 @@ class SettingsSection extends StatelessWidget {
 
               // Dark Mode
               _buildSettingItem(
+                context: context,
                 icon: Icons.dark_mode,
                 title: 'Dark Mode',
                 trailing: Switch(
                   value: isDarkMode,
                   onChanged: (_) => onThemeToggle(),
-                  activeColor: AppColors.primary,
+                  activeColor: AppColors.primary(context),
                 ),
                 showBottomBorder: false,
               ),
@@ -91,6 +94,7 @@ class SettingsSection extends StatelessWidget {
   }
 
   Widget _buildSettingItem({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required Widget trailing,
@@ -116,7 +120,7 @@ class SettingsSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
             ),

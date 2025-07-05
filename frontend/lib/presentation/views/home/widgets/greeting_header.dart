@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yefa/core/constants/app_colors.dart';
 
 class GreetingHeader extends StatelessWidget {
   final String userName;
@@ -30,7 +31,7 @@ class GreetingHeader extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 SizedBox(height: 4.h),

@@ -20,21 +20,21 @@ class RecentActivities extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: AppColors.textPrimary(context),
             ),
           ),
         ),
-        ...activities.map((activity) => _buildActivityItem(activity)),
+        ...activities.map((activity) => _buildActivityItem(context, activity)),
       ],
     );
   }
 
-  Widget _buildActivityItem(ActivityModel activity) {
+  Widget _buildActivityItem(BuildContext context, ActivityModel activity) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: AppColors.accentLight,
+        color: AppColors.accentLight(context),
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Column(
@@ -51,13 +51,14 @@ class RecentActivities extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
               ),
               Text(
                 activity.time,
-                style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
+                style: TextStyle(fontSize: 12.sp, color: AppColors.textSecondary(context)
+                ),
               ),
             ],
           ),

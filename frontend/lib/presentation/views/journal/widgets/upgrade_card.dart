@@ -29,7 +29,9 @@ class UpgradeCard extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                 color: AppColors.primary.withOpacity(
+                 color: AppColors.primary(
+                  context,
+                ).withOpacity(
                   0.97,
                 ), // Light overlay
                 borderRadius: BorderRadius.circular(16.r),
@@ -88,7 +90,7 @@ class UpgradeCard extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: onUpgrade,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryLight,
+                        backgroundColor: AppColors.primaryLight(context),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(22.r),
                         ),
@@ -98,7 +100,7 @@ class UpgradeCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                     ),

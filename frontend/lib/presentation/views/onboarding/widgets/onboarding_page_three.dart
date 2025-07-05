@@ -72,7 +72,7 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
                         width: 40.w,
                         height: 40.h,
                         decoration: BoxDecoration(
-                          color: AppColors.accentDark,
+                          color: AppColors.accentDark(context),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -99,7 +99,7 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: AppColors.accentDark,
+                        color: AppColors.accentDark(context),
                         borderRadius: BorderRadius.circular(20.r),
                         boxShadow: [
                           BoxShadow(
@@ -179,7 +179,7 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
                     onPressed: _isNavigating ? () {} : _handleSetReminder,
                     width: double.infinity,
                     height: 56.h,
-                    backgroundColor: AppColors.accentLight,
+                    backgroundColor: AppColors.accentLight(context),
                   ),
                 ),
                 SizedBox(height: 120.h),
@@ -203,7 +203,7 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.greyLight),
           borderRadius: BorderRadius.circular(40.r),
-          color: AppColors.backgroundLight,
+          color: AppColors.backgroundLight(context),
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 14.w),
@@ -250,17 +250,18 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
             timePickerTheme: TimePickerThemeData(
               backgroundColor: AppColors.white,
               hourMinuteTextColor: AppColors.black,
-              hourMinuteColor: AppColors.primaryLight,
+              hourMinuteColor: AppColors.primaryLight(context),
               dayPeriodTextColor: AppColors.black,
-              dayPeriodColor: AppColors.primaryLight,
-              dialHandColor: AppColors.primary,
-              dialBackgroundColor: AppColors.backgroundLight,
+              dayPeriodColor: AppColors.primaryLight(context),
+              dialHandColor: AppColors.primary(context),
+              dialBackgroundColor: AppColors.backgroundLight(context),
               dialTextColor: AppColors.black,
-              entryModeIconColor: AppColors.primary,
+              entryModeIconColor: AppColors.primary(context),
               helpTextStyle: TextStyle(color: AppColors.black, fontSize: 16.sp),
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary(context),
+              ),
             ),
           ),
           child: child!,

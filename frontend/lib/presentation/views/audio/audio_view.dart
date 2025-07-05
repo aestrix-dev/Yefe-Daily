@@ -30,7 +30,7 @@ class AudioView extends StackedView<AudioViewModel> {
         statusBarBrightness: isDarkMode ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: AppColors.accentDark,
+        backgroundColor: AppColors.accentDark(context),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -44,7 +44,7 @@ class AudioView extends StackedView<AudioViewModel> {
                     style: TextStyle(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                      color:  AppColors.textPrimary(context),
                     ),
                   ),
                 ),

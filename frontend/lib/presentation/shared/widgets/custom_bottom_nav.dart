@@ -13,7 +13,7 @@ class CustomBottomNav extends StatelessWidget {
     return Container(
       height: 80.h,
       decoration: BoxDecoration(
-        color: AppColors.accentLight,
+        color: AppColors.accentLight(context),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -89,7 +89,7 @@ Widget _buildNavItem(
               width: 24.w,
               height: 24.h,
               color: isActive
-                  ? AppColors.primary
+                  ? AppColors.primaryLight(context)
                   : null, 
             ),
           ),
@@ -100,7 +100,7 @@ Widget _buildNavItem(
             label,
             style: TextStyle(
               fontSize: 11.sp,
-              color: isActive ? Colors.black : Colors.grey[400],
+              color: isActive ? AppColors.textPrimary(context) : Colors.grey[400],
               fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
             ),
           ),

@@ -33,7 +33,7 @@ class HomeView extends StackedView<HomeViewModel> {
             : Brightness.light, 
       ),
       child: Scaffold(
-        backgroundColor: AppColors.accentDark,
+        backgroundColor: AppColors.accentDark(context),
         body: SafeArea(
           child: Column(
             children: [

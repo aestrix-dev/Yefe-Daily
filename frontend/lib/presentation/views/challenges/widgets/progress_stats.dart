@@ -14,7 +14,7 @@ class ProgressStats extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: AppColors.accentLight, 
+        color: AppColors.accentLight(context), 
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
@@ -25,7 +25,7 @@ class ProgressStats extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: AppColors.primary,
+              color: AppColors.textPrimary(context),
             ),
           ),
 
@@ -35,20 +35,21 @@ class ProgressStats extends StatelessWidget {
             children: [
               Text(
                 'Current Streak',
-                style: TextStyle(fontSize: 14.sp, color: Colors.black),
+                style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary(context),
+                ),
               ),
               Text(
                 '${stats.currentStreak} Days',
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
             ],
           ),
 
-          _buildProgressBar(),
+          _buildProgressBar(context),
 
           SizedBox(height: 20.h),
 
@@ -56,18 +57,21 @@ class ProgressStats extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildStatItem(
+                context: context,
                 iconPath:
                     'assets/icons/badge.png', 
                 count: stats.totalBadges,
                 label: 'Badges',
               ),
               _buildStatItem(
+                context: context,
                 iconPath:
                     'assets/icons/challenge.png',
                 count: stats.totalChallenges,
                 label: 'Challenges',
               ),
               _buildStatItem(
+                context: context,
                 iconPath:
                     'assets/icons/streak.png', 
                 count: stats.topStreak,
@@ -80,7 +84,7 @@ class ProgressStats extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressBar() {
+  Widget _buildProgressBar(BuildContext context) {
     
     double progress = stats.topStreak > 0
         ? stats.currentStreak / stats.topStreak
@@ -103,7 +107,7 @@ class ProgressStats extends StatelessWidget {
             widthFactor: progress,
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: AppColors.primary(context),
                 borderRadius: BorderRadius.circular(4.r),
               ),
             ),
@@ -119,34 +123,32 @@ class ProgressStats extends StatelessWidget {
   }
 
   Widget _buildStatItem({
+    required BuildContext context,
     required String iconPath,
     required int count,
     required String label,
   }) {
     return Column(
       children: [
-        
         Image.asset(
           iconPath,
           width: 29.w,
           height: 29.h,
-         
           errorBuilder: (context, error, stackTrace) {
             return Icon(
               Icons.emoji_events, 
               size: 16.sp,
-              color: AppColors.primary,
+              color: AppColors.primary(context),
             );
           },
         ),
         SizedBox(height: 8.h),
-      
         Text(
           '$count $label',
           style: TextStyle(
             fontSize: 12.sp,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: AppColors.textPrimary(context),
           ),
           textAlign: TextAlign.center,
         ),

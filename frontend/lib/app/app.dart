@@ -11,13 +11,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+     final themeService = locator<ThemeService>();
+
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
         return ValueListenableBuilder<ThemeMode>(
-          valueListenable: locator<ThemeService>().themeModeNotifier,
+          valueListenable: themeService.themeModeNotifier,
           builder: (context, themeMode, child) {
             return MaterialApp.router(
               title: 'Yefa',

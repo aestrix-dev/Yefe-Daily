@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:yefa/core/constants/app_colors.dart';
 
 class QuickActions extends StatelessWidget {
   const QuickActions({super.key});
@@ -47,7 +48,7 @@ class QuickActions extends StatelessWidget {
         width: 100.w, 
         height: 75.h, 
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: AppColors.accentLight(context),
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Column(
@@ -62,7 +63,7 @@ class QuickActions extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11.sp,
                 fontWeight: FontWeight.w500,
-                color: Colors.black,
+                color: AppColors.textPrimary(context),
               ),
               textAlign: TextAlign.center,
             ),

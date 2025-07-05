@@ -30,7 +30,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
         statusBarBrightness: isDarkMode ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: AppColors.accentDark,
+        backgroundColor: AppColors.accentDark(context),
         body: SafeArea(
           child: Column(
             children: [
@@ -44,7 +44,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
               ),
@@ -55,7 +55,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                 margin: EdgeInsets.symmetric(horizontal: 20.w),
                 height: 44.h,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: AppColors.accentLight(context),
                   borderRadius: BorderRadius.circular(25.r),
                 ),
                 child: Row(
@@ -67,7 +67,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                           margin: EdgeInsets.all(3.w),
                           decoration: BoxDecoration(
                             color: viewModel.isActiveTab
-                                ? AppColors.primary
+                                ? AppColors.primary(context)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(22.r),
                           ),
@@ -79,7 +79,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                                 fontWeight: FontWeight.w600,
                                 color: viewModel.isActiveTab
                                     ? Colors.white
-                                    : Colors.black,
+                                    : AppColors.textSecondary(context),
                               ),
                             ),
                           ),
@@ -93,7 +93,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                           margin: EdgeInsets.all(3.w),
                           decoration: BoxDecoration(
                             color: viewModel.isCompletedTab
-                                ? AppColors.primary
+                                ? AppColors.primary(context)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(22.r),
                           ),
@@ -105,7 +105,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                                 fontWeight: FontWeight.w600,
                                 color: viewModel.isCompletedTab
                                     ? Colors.white
-                                    : Colors.black,
+                                    : AppColors.textSecondary(context),
                               ),
                             ),
                           ),
@@ -159,7 +159,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w700,
-                              color: Colors.black,
+                              color: AppColors.textPrimary(context),
                             ),
                           ),
                         ),

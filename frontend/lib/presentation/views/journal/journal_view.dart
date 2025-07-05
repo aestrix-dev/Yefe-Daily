@@ -30,7 +30,7 @@ class JournalView extends StackedView<JournalViewModel> {
         statusBarBrightness: isDarkMode ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: AppColors.accentDark,
+        backgroundColor: AppColors.accentDark(context),
         body: SafeArea(
           child: Column(
             children: [
@@ -44,7 +44,7 @@ class JournalView extends StackedView<JournalViewModel> {
                   style: TextStyle(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
               ),
@@ -55,7 +55,7 @@ class JournalView extends StackedView<JournalViewModel> {
                 margin: EdgeInsets.symmetric(horizontal: 20.w),
                 height: 45.h,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: AppColors.accentLight(context),
                   borderRadius: BorderRadius.circular(25.r),
                 ),
                 child: Row(
@@ -68,7 +68,7 @@ class JournalView extends StackedView<JournalViewModel> {
                           margin: EdgeInsets.all(3.w),
                           decoration: BoxDecoration(
                             color: viewModel.selectedTabIndex == index
-                                ? AppColors.primary
+                                ? AppColors.primary(context)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(22.r),
                           ),
@@ -79,8 +79,8 @@ class JournalView extends StackedView<JournalViewModel> {
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w600,
                                 color: viewModel.selectedTabIndex == index
-                                    ? Colors.white
-                                    : Colors.black,
+                                    ? Colors.grey[300]
+                                    : AppColors.textPrimary(context),
                               ),
                             ),
                           ),

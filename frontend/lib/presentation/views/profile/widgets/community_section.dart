@@ -25,7 +25,7 @@ class CommunitySection extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: AppColors.textPrimary(context),
             ),
           ),
         ),
@@ -36,7 +36,7 @@ class CommunitySection extends StatelessWidget {
         Container(
           margin: EdgeInsets.symmetric(horizontal: 20.w),
           decoration: BoxDecoration(
-            color: AppColors.accentLight,
+            color: AppColors.accentLight(context),
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Column(
@@ -106,7 +106,7 @@ class CommunitySection extends StatelessWidget {
                       fallbackColor = Colors.green;
                     } else {
                       fallbackIcon = Icons.forum;
-                      fallbackColor = AppColors.primary;
+                      fallbackColor = Colors.blue;
                     }
 
                     return Icon(
@@ -128,7 +128,7 @@ class CommunitySection extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: Colors.grey[700],
                     ),
                   ),
                   SizedBox(height: 2.h),

@@ -31,7 +31,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
         statusBarBrightness: isDarkMode ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: AppColors.accentDark,
+        backgroundColor: AppColors.accentDark(context),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -45,7 +45,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                 ),
@@ -68,7 +68,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
                   ),
                   padding: EdgeInsets.all(20.w),
                   decoration: BoxDecoration(
-                    color: AppColors.accentLight,
+                    color: AppColors.accentLight(context),
                     borderRadius: BorderRadius.circular(16.r),
                   ),
                   child: Column(
@@ -79,7 +79,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       SizedBox(height: 16.h),
@@ -87,16 +87,19 @@ class ProfileView extends StackedView<ProfileViewModel> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _buildProgressItem(
+                            context: context,
                             iconPath: 'assets/icons/fire.png',
                             value: '7/365 day',
                             label: 'streak',
                           ),
                           _buildProgressItem(
+                            context: context,
                             iconPath: 'assets/icons/challenge.png',
                             value: '12',
                             label: 'Challenges',
                           ),
                           _buildProgressItem(
+                            context: context,
                             iconPath: 'assets/icons/badge.png',
                             value: '5',
                             label: 'Badges',
@@ -143,6 +146,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
   }
 
   Widget _buildProgressItem({
+    required BuildContext context,
     required String iconPath,
     required String value,
     required String label,
@@ -160,7 +164,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
           style: TextStyle(
             fontSize: 12.sp,
             fontWeight: FontWeight.w300,
-            color: Colors.black,
+            color: AppColors.textPrimary(context),
           ),
           textAlign: TextAlign.center,
         ),

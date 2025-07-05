@@ -17,7 +17,7 @@ class LoadingWidget extends StatelessWidget {
         children: [
           CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(
-              color ?? AppColors.primary,
+              color ?? AppColors.primary(context),
             ),
           ),
           if (message != null) ...[

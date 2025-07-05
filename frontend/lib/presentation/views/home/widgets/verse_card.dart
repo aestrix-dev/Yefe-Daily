@@ -32,7 +32,7 @@ class VerseCard extends StatelessWidget {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.secondaryDark.withOpacity(
+                color: AppColors.secondaryDark(context).withOpacity(
                   0.97,
                 ), 
                 borderRadius: BorderRadius.circular(12.r),

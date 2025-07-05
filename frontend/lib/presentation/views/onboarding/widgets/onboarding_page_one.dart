@@ -42,13 +42,15 @@ class OnboardingPageOne extends StatelessWidget {
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         decoration: BoxDecoration(
-                          color: AppColors.primaryLight.withOpacity(0.3),
+                          color: AppColors.primaryLight(
+                            context,
+                          ).withOpacity(0.3),
                           borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Icon(
                           Icons.task_alt,
                           size: 120.sp,
-                          color: AppColors.primary,
+                          color: AppColors.primary1,
                         ),
                       );
                     },
@@ -65,7 +67,7 @@ class OnboardingPageOne extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.secondary,
+                  color: AppColors.secondary(context),
                   height: 1.2,
                 ),
               ),

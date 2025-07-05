@@ -21,7 +21,7 @@ class ChallengeCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: AppColors.textPrimary(context),
             ),
           ),
 
@@ -32,7 +32,7 @@ class ChallengeCard extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.all(16.w),
             decoration: BoxDecoration(
-              color: AppColors.accentLight,
+              color: AppColors.accentLight(context),
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
@@ -50,7 +50,7 @@ class ChallengeCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -58,7 +58,7 @@ class ChallengeCard extends StatelessWidget {
                   challenge.description,
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: Colors.grey[600],
+                    color: AppColors.textSecondary(context),
                     height: 1.3,
                   ),
                 ),
