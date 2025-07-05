@@ -18,11 +18,9 @@ class LightTheme {
         primary: primaryColor,
         secondary: primaryLight,
         surface: surfaceColor,
-        background: backgroundColor,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: Colors.black,
-        onBackground: Colors.black,
       ),
       
       scaffoldBackgroundColor: backgroundColor,
@@ -57,14 +55,14 @@ class LightTheme {
      
       
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return primaryColor;
           }
           return Colors.grey[400];
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return primaryLight;
           }
           return Colors.grey[300];

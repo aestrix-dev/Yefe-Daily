@@ -32,7 +32,7 @@ class OnboardingPageOne extends StatelessWidget {
             children: [
               // Main image at center
               SizedBox(height: 70.h),
-              Container(
+              SizedBox(
                 width: 300.w,
                 height: 300.h,
                 child: ClipRRect(

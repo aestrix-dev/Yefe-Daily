@@ -54,7 +54,7 @@ class ProfileViewModel extends BaseViewModel {
 
     print('=== UPGRADED TO PREMIUM ===');
     print('User: $_userName');
-    print('New Plan: ${userPlan}');
+    print('New Plan: $userPlan');
     print('=========================');
 
     notifyListeners();

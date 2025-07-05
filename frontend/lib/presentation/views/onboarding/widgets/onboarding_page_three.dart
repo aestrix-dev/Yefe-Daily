@@ -300,9 +300,9 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
       print('Evening reminder set for: ${_formatTime(eveningTime!)}');
 
       // Save to storage directly here
-      final _storageService = locator<StorageService>();
-      await _storageService.setBool('hasSeenOnboarding', true);
-      await _storageService.setBool('isLoggedIn', true);
+      final storageService = locator<StorageService>();
+      await storageService.setBool('hasSeenOnboarding', true);
+      await storageService.setBool('isLoggedIn', true);
 
       print('OnboardingPageThree: Storage values set, navigating to home');
 

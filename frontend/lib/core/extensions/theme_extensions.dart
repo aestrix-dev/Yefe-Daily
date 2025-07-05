@@ -13,9 +13,9 @@ extension ThemeHelper on BuildContext {
 
   // Quick access to common colors
   Color get primaryColor => colorScheme.primary;
-  Color get backgroundColor => colorScheme.background;
+  Color get backgroundColor => colorScheme.surface;
   Color get surfaceColor => colorScheme.surface;
-  Color get textColor => colorScheme.onBackground;
+  Color get textColor => colorScheme.onSurface;
 
   // Your custom app colors
   Color get accentLight => appColors.accentLight;
