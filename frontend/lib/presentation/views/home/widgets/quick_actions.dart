@@ -22,15 +22,13 @@ class QuickActions extends StatelessWidget {
             context,
             iconPath: 'assets/icons/puzzle.png',
             label: 'Play Puzzles',
-            onTap: () {
-              // Handle puzzle tap
-            },
+            onTap: () => context.push('/challenges'),
           ),
           _buildActionItem(
             context,
             iconPath: 'assets/icons/devotional.png',
             label: 'Devotionals',
-            onTap: () => context.push('/devotionals'),
+            onTap: () => context.push('/audio'),
           ),
         ],
       ),

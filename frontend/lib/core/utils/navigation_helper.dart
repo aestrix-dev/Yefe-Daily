@@ -16,7 +16,7 @@ class NavigationHelper {
   }
 
   static void goToDevotionals(BuildContext context) {
-    context.go(AppRoutes.devotionals);
+    context.go(AppRoutes.audio);
   }
 
   static void pushToProfile(BuildContext context) {

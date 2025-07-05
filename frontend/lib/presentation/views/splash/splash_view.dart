@@ -31,7 +31,7 @@ class SplashView extends StackedView<SplashViewModel> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.primary1,
       body: Stack(
         children: [
         

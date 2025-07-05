@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:yefa/presentation/views/audio/audio_view.dart';
 import 'package:yefa/presentation/views/profile/profile_view.dart';
 
 import '../../core/constants/app_routes.dart';
@@ -39,6 +40,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.profile,
       builder: (context, state) => const ProfileView(),
+    ),
+    GoRoute(
+      path: AppRoutes.audio,
+      builder: (context, state) => const AudioView(),
     ),
   ],
 );

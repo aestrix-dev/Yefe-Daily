@@ -4,6 +4,6 @@ class AppRoutes {
   static const String home = '/home';
   static const String journal = '/journal';
   static const String challenges = '/challenges';
-  static const String devotionals = '/devotionals';
+  static const String audio = '/audio';
   static const String profile = '/profile';
 }
