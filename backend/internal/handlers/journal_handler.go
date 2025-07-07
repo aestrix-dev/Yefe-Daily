@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -283,9 +282,4 @@ func (h *journalHandler) SearchEntries(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(entries)
-}
-
-func getUserIDFromContext(ctx context.Context) string {
-	// Implementation depends on your auth middleware
-	return ctx.Value("user_id").(string)
 }

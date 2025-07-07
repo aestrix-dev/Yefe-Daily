@@ -21,7 +21,7 @@ func (a AuthHandler) LoginRoute(w http.ResponseWriter, r *http.Request) {
 	var req dto.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Log.WithError(err).Error("")
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
 
@@ -32,7 +32,7 @@ func (a AuthHandler) LoginRoute(w http.ResponseWriter, r *http.Request) {
 	// Validate request
 	if err := a.validator.Struct(&req); err != nil {
 		logger.Log.WithError(err).Error("")
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
 
@@ -56,7 +56,7 @@ func (a AuthHandler) LogoutRoute(w http.ResponseWriter, r *http.Request) {
 	// Validate request
 	if err := a.validator.Struct(&req); err != nil {
 		logger.Log.WithError(err).Error("")
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
 
@@ -73,7 +73,7 @@ func (a AuthHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 	var req dto.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Log.WithError(err).Error("")
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
 
@@ -84,7 +84,7 @@ func (a AuthHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 	// Validate request
 	if err := a.validator.Struct(&req); err != nil {
 		logger.Log.WithError(err).Error("")
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err.Error())
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
 
