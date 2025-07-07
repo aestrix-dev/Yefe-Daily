@@ -1,0 +1,604 @@
+{
+  "puzzles": [
+    {
+      "id": "P001",
+      "title": "Daily Puzzle",
+      "question": "Which parable is this: 'A man sold all he had to buy one pearl'?",
+      "options": {
+        "1": "The Talent",
+        "2": "The pearl of great price",
+        "3": "The lost coin"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Bible Parables",
+      "points": 10,
+      "explanation": "This parable, found in Matthew 13:45-46, illustrates the immense value of the Kingdom of Heaven."
+    },
+    {
+      "id": "P002",
+      "title": "Bible Trivia",
+      "question": "Who built the ark?",
+      "options": {
+        "1": "Moses",
+        "2": "Noah",
+        "3": "Abraham"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Bible History",
+      "points": 10,
+      "explanation": "Noah was instructed by God to build an ark to save his family and a pair of every living creature from the Great Flood (Genesis 6-9)."
+    },
+    {
+      "id": "P003",
+      "title": "Bible Trivia",
+      "question": "How many days and nights did it rain during the Great Flood?",
+      "options": {
+        "1": "7 days and 7 nights",
+        "2": "40 days and 40 nights",
+        "3": "3 days and 3 nights"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Medium",
+      "category": "Bible History",
+      "points": 15,
+      "explanation": "Genesis 7:12 states that the rain fell on the earth for forty days and forty nights."
+    },
+    {
+      "id": "P004",
+      "title": "Parable Challenge",
+      "question": "In the Parable of the Sower, what do the seeds represent?",
+      "options": {
+        "1": "Money",
+        "2": "People",
+        "3": "The Word of God"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Medium",
+      "category": "Bible Parables",
+      "points": 15,
+      "explanation": "In the Parable of the Sower (Matthew 13, Mark 4, Luke 8), Jesus explains that the seeds represent the Word of God."
+    },
+    {
+      "id": "P005",
+      "title": "Bible Characters",
+      "question": "Who was swallowed by a great fish?",
+      "options": {
+        "1": "David",
+        "2": "Jonah",
+        "3": "Elijah"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Bible Characters",
+      "points": 10,
+      "explanation": "The prophet Jonah was swallowed by a great fish after trying to flee from God's command to go to Nineveh (Book of Jonah)."
+    },
+    {
+      "id": "P006",
+      "title": "New Testament",
+      "question": "Which disciple denied Jesus three times?",
+      "options": {
+        "1": "John",
+        "2": "Peter",
+        "3": "James"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "New Testament",
+      "points": 10,
+      "explanation": "Before the rooster crowed, Peter denied knowing Jesus three times, as foretold by Jesus (Matthew 26:69-75)."
+    },
+    {
+      "id": "P007",
+      "title": "Old Testament",
+      "question": "Who led the Israelites out of Egypt?",
+      "options": {
+        "1": "Joshua",
+        "2": "Samuel",
+        "3": "Moses"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Easy",
+      "category": "Old Testament",
+      "points": 10,
+      "explanation": "Moses was chosen by God to lead the Israelites out of slavery in Egypt and through the wilderness to the promised land (Book of Exodus)."
+    },
+    {
+      "id": "P008",
+      "title": "Daily Puzzle",
+      "question": "What was the name of the garden where Adam and Eve lived?",
+      "options": {
+        "1": "Garden of Eden",
+        "2": "Garden of Gethsemane",
+        "3": "Garden of Babylon"
+      },
+      "correctAnswer": 1,
+      "difficulty": "Easy",
+      "category": "Bible History",
+      "points": 10,
+      "explanation": "The Garden of Eden is described in the Book of Genesis as the place where God placed Adam and Eve."
+    },
+    {
+      "id": "P009",
+      "title": "Bible Proverbs",
+      "question": "Complete the proverb: 'Pride goes before destruction, and a haughty spirit before a ____.'",
+      "options": {
+        "1": "Fall",
+        "2": "Victory",
+        "3": "Blessing"
+      },
+      "correctAnswer": 1,
+      "difficulty": "Medium",
+      "category": "Bible Proverbs",
+      "points": 15,
+      "explanation": "This proverb is found in Proverbs 16:18."
+    },
+    {
+      "id": "P010",
+      "title": "Miracles of Jesus",
+      "question": "Which miracle involved Jesus walking on water?",
+      "options": {
+        "1": "Feeding the 5000",
+        "2": "Calming the storm",
+        "3": "Walking on the Sea of Galilee"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Medium",
+      "category": "Miracles of Jesus",
+      "points": 15,
+      "explanation": "After feeding the five thousand, Jesus walked on the Sea of Galilee to meet his disciples who were in a boat (Matthew 14, Mark 6, John 6)."
+    },
+    {
+      "id": "P011",
+      "title": "Daily Puzzle",
+      "question": "What was the first plague God sent upon Egypt?",
+      "options": {
+        "1": "Frogs",
+        "2": "Water turned to blood",
+        "3": "Lice"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Medium",
+      "category": "Old Testament",
+      "points": 15,
+      "explanation": "The first plague was when God turned all the water in Egypt, including the Nile River, into blood (Exodus 7:14-25)."
+    },
+    {
+      "id": "P012",
+      "title": "Bible Geography",
+      "question": "Where was Jesus born?",
+      "options": {
+        "1": "Nazareth",
+        "2": "Jerusalem",
+        "3": "Bethlehem"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Easy",
+      "category": "Bible Geography",
+      "points": 10,
+      "explanation": "Jesus was born in Bethlehem of Judea, as prophesied in the Old Testament (Matthew 2:1, Micah 5:2)."
+    },
+    {
+      "id": "P013",
+      "title": "Apostles",
+      "question": "Who was known as the 'doubting' disciple?",
+      "options": {
+        "1": "Matthew",
+        "2": "Thomas",
+        "3": "Andrew"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Medium",
+      "category": "New Testament",
+      "points": 15,
+      "explanation": "Thomas famously doubted the resurrection of Jesus until he saw and touched Jesus' wounds (John 20:24-29)."
+    },
+    {
+      "id": "P014",
+      "title": "Book of Revelation",
+      "question": "What is the last book of the Bible?",
+      "options": {
+        "1": "Romans",
+        "2": "Revelation",
+        "3": "Malachi"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Bible Books",
+      "points": 10,
+      "explanation": "The Book of Revelation, also known as the Apocalypse of John, is the final book of the New Testament and thus the Christian Bible."
+    },
+    {
+      "id": "P015",
+      "title": "Daily Puzzle",
+      "question": "Who wrote most of the Psalms?",
+      "options": {
+        "1": "Solomon",
+        "2": "David",
+        "3": "Moses"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Medium",
+      "category": "Old Testament",
+      "points": 15,
+      "explanation": "King David is traditionally credited with writing many of the Psalms, though others contributed as well."
+    },
+    {
+      "id": "P016",
+      "title": "Bible Stories",
+      "question": "Who fought Goliath?",
+      "options": {
+        "1": "Saul",
+        "2": "David",
+        "3": "Samson"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Bible Stories",
+      "points": 10,
+      "explanation": "Young David, a shepherd boy, famously defeated the Philistine giant Goliath with a sling and a stone (1 Samuel 17)."
+    },
+    {
+      "id": "P017",
+      "title": "Parables",
+      "question": "What did the prodigal son demand from his father?",
+      "options": {
+        "1": "A new house",
+        "2": "His share of the inheritance",
+        "3": "More servants"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Medium",
+      "category": "Bible Parables",
+      "points": 15,
+      "explanation": "The prodigal son demanded his share of the inheritance before leaving home and squandering it (Luke 15:11-32)."
+    },
+    {
+      "id": "P018",
+      "title": "Bible Law",
+      "question": "How many commandments did God give to Moses on Mount Sinai?",
+      "options": {
+        "1": "7",
+        "2": "10",
+        "3": "12"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Old Testament",
+      "points": 10,
+      "explanation": "God gave Moses the Ten Commandments on Mount Sinai, which are foundational to Jewish and Christian law (Exodus 20)."
+    },
+    {
+      "id": "P019",
+      "title": "Daily Puzzle",
+      "question": "Who betrayed Jesus for 30 pieces of silver?",
+      "options": {
+        "1": "Peter",
+        "2": "Judas Iscariot",
+        "3": "Pontius Pilate"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "New Testament",
+      "points": 10,
+      "explanation": "Judas Iscariot, one of Jesus' twelve disciples, betrayed Him for thirty pieces of silver (Matthew 26:14-16)."
+    },
+    {
+      "id": "P020",
+      "title": "Prophets",
+      "question": "Which prophet was thrown into a lion's den?",
+      "options": {
+        "1": "Jeremiah",
+        "2": "Ezekiel",
+        "3": "Daniel"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Medium",
+      "category": "Old Testament",
+      "points": 15,
+      "explanation": "Daniel was thrown into a lion's den for praying to God instead of the king, but God protected him (Daniel 6)."
+    },
+    {
+      "id": "P021",
+      "title": "Bible Heroes",
+      "question": "Who was known for his great strength, derived from his hair?",
+      "options": {
+        "1": "Gideon",
+        "2": "Samson",
+        "3": "Joshua"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Bible Characters",
+      "points": 10,
+      "explanation": "Samson's strength was directly linked to his uncut hair, a Nazirite vow (Judges 16)."
+    },
+    {
+      "id": "P022",
+      "title": "Daily Puzzle",
+      "question": "What did Jesus turn water into at the wedding in Cana?",
+      "options": {
+        "1": "Oil",
+        "2": "Wine",
+        "3": "Honey"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Miracles of Jesus",
+      "points": 10,
+      "explanation": "This was Jesus' first public miracle, performed at a wedding feast in Cana of Galilee (John 2:1-11)."
+    },
+    {
+      "id": "P023",
+      "title": "New Testament Figures",
+      "question": "Who was the first martyr of the Christian church?",
+      "options": {
+        "1": "Paul",
+        "2": "Stephen",
+        "3": "Barnabas"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Hard",
+      "category": "New Testament",
+      "points": 20,
+      "explanation": "Stephen's martyrdom is recounted in Acts 7."
+    },
+    {
+      "id": "P024",
+      "title": "Genesis Stories",
+      "question": "Who was Abraham's wife?",
+      "options": {
+        "1": "Rebekah",
+        "2": "Rachel",
+        "3": "Sarah"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Easy",
+      "category": "Old Testament",
+      "points": 10,
+      "explanation": "Sarah was Abraham's wife and the mother of Isaac (Genesis 17:15-21)."
+    },
+    {
+      "id": "P025",
+      "title": "Daily Puzzle",
+      "question": "What animal spoke to Balaam?",
+      "options": {
+        "1": "A donkey",
+        "2": "A snake",
+        "3": "A camel"
+      },
+      "correctAnswer": 1,
+      "difficulty": "Medium",
+      "category": "Old Testament",
+      "points": 15,
+      "explanation": "Balaam's donkey miraculously spoke to him to prevent him from cursing the Israelites (Numbers 22:21-39)."
+    },
+    {
+      "id": "P026",
+      "title": "Beatitudes",
+      "question": "Complete the Beatitude: 'Blessed are the poor in spirit, for theirs is the ____.'",
+      "options": {
+        "1": "Kingdom of God",
+        "2": "Inheritance of the earth",
+        "3": "Comfort"
+      },
+      "correctAnswer": 1,
+      "difficulty": "Medium",
+      "category": "Sermon on the Mount",
+      "points": 15,
+      "explanation": "This is the first Beatitude from Matthew 5:3."
+    },
+    {
+      "id": "P027",
+      "title": "Bible History",
+      "question": "What city's walls fell after the Israelites marched around it for seven days?",
+      "options": {
+        "1": "Jerusalem",
+        "2": "Babylon",
+        "3": "Jericho"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Medium",
+      "category": "Old Testament",
+      "points": 15,
+      "explanation": "The walls of Jericho fell after the Israelites, led by Joshua, marched around the city as God commanded (Joshua 6)."
+    },
+    {
+      "id": "P028",
+      "title": "Daily Puzzle",
+      "question": "Who was the mother of Jesus?",
+      "options": {
+        "1": "Martha",
+        "2": "Mary",
+        "3": "Elizabeth"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "New Testament",
+      "points": 10,
+      "explanation": "Mary, the wife of Joseph, was the mother of Jesus (Matthew 1, Luke 1-2)."
+    },
+    {
+      "id": "P029",
+      "title": "Epistles",
+      "question": "Which apostle wrote the most books in the New Testament?",
+      "options": {
+        "1": "Peter",
+        "2": "John",
+        "3": "Paul"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Medium",
+      "category": "New Testament",
+      "points": 15,
+      "explanation": "The Apostle Paul wrote a significant portion of the New Testament, including many epistles (letters) to early Christian communities."
+    },
+    {
+      "id": "P030",
+      "title": "Biblical Events",
+      "question": "What event is celebrated during Passover?",
+      "options": {
+        "1": "The birth of Jesus",
+        "2": "The Exodus from Egypt",
+        "3": "The resurrection of Jesus"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Medium",
+      "category": "Bible History",
+      "points": 15,
+      "explanation": "Passover commemorates the liberation of the Israelite slaves from Egypt, specifically when the angel of death 'passed over' the homes of the Israelites (Exodus 12)."
+    },
+    {
+      "id": "P031",
+      "title": "Moral Dilemmas",
+      "question": "Is it ethical to lie to save a life?",
+      "options": {
+        "1": "Yes, always",
+        "2": "No, never",
+        "3": "It depends on the specific circumstances"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Hard",
+      "category": "Ethics & Philosophy",
+      "points": 20,
+      "explanation": "This is a classic ethical dilemma, often debated in moral philosophy, highlighting the complexities of consequentialism versus deontology."
+    },
+    {
+      "id": "P032",
+      "title": "Famous Quotes",
+      "question": "Who said, 'The unexamined life is not worth living'?",
+      "options": {
+        "1": "Aristotle",
+        "2": "Socrates",
+        "3": "Plato"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Medium",
+      "category": "Philosophy",
+      "points": 15,
+      "explanation": "This profound statement is attributed to Socrates, emphasizing the importance of self-reflection and critical inquiry in living a meaningful life."
+    },
+    {
+      "id": "P033",
+      "title": "Human Virtues",
+      "question": "Which of these is NOT traditionally considered one of the cardinal virtues?",
+      "options": {
+        "1": "Prudence",
+        "2": "Justice",
+        "3": "Humility"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Hard",
+      "category": "Ethics & Character",
+      "points": 20,
+      "explanation": "The four cardinal virtues are Prudence, Justice, Fortitude (Courage), and Temperance. Humility is often considered a theological virtue or a moral virtue, but not one of the cardinal four."
+    },
+    {
+      "id": "P034",
+      "title": "Leadership Principles",
+      "question": "What leadership style involves leaders making decisions without much input from group members?",
+      "options": {
+        "1": "Democratic",
+        "2": "Laissez-faire",
+        "3": "Autocratic"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Medium",
+      "category": "Leadership",
+      "points": 15,
+      "explanation": "An autocratic leadership style is characterized by individual control over all decisions and little input from group members."
+    },
+    {
+      "id": "P035",
+      "title": "Personal Growth",
+      "question": "Which term describes the process of becoming the best version of oneself?",
+      "options": {
+        "1": "Self-deception",
+        "2": "Self-actualization",
+        "3": "Self-pity"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Medium",
+      "category": "Psychology & Self-Improvement",
+      "points": 15,
+      "explanation": "Self-actualization is a concept in humanistic psychology, particularly associated with Abraham Maslow's hierarchy of needs."
+    },
+    {
+      "id": "P036",
+      "title": "Community & Society",
+      "question": "What is the concept of acting for the well-being of others, often without expectation of reward?",
+      "options": {
+        "1": "Altruism",
+        "2": "Egoism",
+        "3": "Hedonism"
+      },
+      "correctAnswer": 1,
+      "difficulty": "Medium",
+      "category": "Social Sciences",
+      "points": 15,
+      "explanation": "Altruism is the principle and moral practice of concern for happiness of other human beings or animals, resulting in a quality of life both material and spiritual."
+    },
+    {
+      "id": "P037",
+      "title": "Ancient Wisdom",
+      "question": "In which ancient civilization did the concept of 'karma' originate?",
+      "options": {
+        "1": "Ancient Greece",
+        "2": "Ancient Egypt",
+        "3": "Ancient India"
+      },
+      "correctAnswer": 3,
+      "difficulty": "Hard",
+      "category": "Philosophy & Religion",
+      "points": 20,
+      "explanation": "Karma is a central concept in Hinduism, Buddhism, Jainism, and Sikhism, all originating from the Indian subcontinent."
+    },
+    {
+      "id": "P038",
+      "title": "Decision Making",
+      "question": "What cognitive bias describes the tendency to search for, interpret, favor, and recall information in a way that confirms one's preexisting beliefs?",
+      "options": {
+        "1": "Anchoring bias",
+        "2": "Confirmation bias",
+        "3": "Availability heuristic"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Hard",
+      "category": "Psychology & Cognition",
+      "points": 20,
+      "explanation": "Confirmation bias leads individuals to seek out and interpret information in a way that supports their existing beliefs, often leading to a skewed perception of reality."
+    },
+    {
+      "id": "P039",
+      "title": "Ethical Principles",
+      "question": "The 'Golden Rule' is best summarized as:",
+      "options": {
+        "1": "Might makes right",
+        "2": "Treat others as you would like to be treated",
+        "3": "Look out for yourself first"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Ethics",
+      "points": 10,
+      "explanation": "The Golden Rule is a moral principle that asks individuals to treat others as they would like to be treated themselves, promoting empathy and reciprocal respect."
+    },
+    {
+      "id": "P040",
+      "title": "Daily Puzzle",
+      "question": "Which of these is a key component of effective communication?",
+      "options": {
+        "1": "Monopolizing the conversation",
+        "2": "Active listening",
+        "3": "Interrupting frequently"
+      },
+      "correctAnswer": 2,
+      "difficulty": "Easy",
+      "category": "Communication & Relationships",
+      "points": 10,
+      "explanation": "Active listening involves fully concentrating on what is being said rather than just passively hearing the message, which is crucial for effective communication."
+    }
+  ]
+}

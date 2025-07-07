@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"syscall"
 	"time"
 	"yefe_app/v1/internal/infrastructure"
@@ -15,6 +16,9 @@ import (
 )
 
 func main() {
+	basePath, _ := utils.GetBasePath()
+	pathToPuzzles := path.Join(basePath, "extras", "puzzles.json")
+
 	// Load configuration
 	config, err := utils.LoadConfig()
 	if err != nil {
@@ -46,13 +50,18 @@ func main() {
 	}
 	userRepo := repository.NewUserRepository(db, secEventRepo)
 	journalRepo := repository.NewJournalRepository(db)
+	userPuzzledRepo := repository.NewUserPuzzleRepository(db)
+	puzzleRepo := repository.NewPuzzleRepository(pathToPuzzles)
+
 	serverConfig := infrastructure.ServerConfig{
-		DB:           db,
-		JWT_SECRET:   config.Server.Secret,
-		UserRepo:     userRepo,
-		SessionRepo:  sessionRepo,
-		SecEventRepo: secEventRepo,
-		JournalRepo:  journalRepo,
+		DB:             db,
+		JWT_SECRET:     config.Server.Secret,
+		UserRepo:       userRepo,
+		SessionRepo:    sessionRepo,
+		SecEventRepo:   secEventRepo,
+		JournalRepo:    journalRepo,
+		UserPuzzleRepo: userPuzzledRepo,
+		PuzzleRepo:     puzzleRepo,
 	}
 
 	// Setup router and server
