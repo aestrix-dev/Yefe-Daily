@@ -9,7 +9,7 @@ type UserPrefsRequest struct {
 	MorningPrompt     bool            `json:"morning_prompt"`
 	EveningReflection bool            `json:"evening_reflection"`
 	Challenge         bool            `json:"challenge"`
-	Language          string          `validate:"required,oneof=English French Spanish Portuguese"`
+  Language          string          `json:"language" validate:"required,oneof=English French Spanish Portuguese"`
 	Reminders         ReminderRequest `json:"reminders"`
 }
 
