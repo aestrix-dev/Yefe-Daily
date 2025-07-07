@@ -86,7 +86,7 @@ type ChallengeStatsRepository interface {
 type ChallengeUseCase interface {
 	//GetTodaysChallenges() ([]*Challenge, error)
 
-	GetUserChallengesForToday(userID string) ([]*UserChallenge, error)
+	GetUserChallengesForToday(userID string) ([]UserChallenge, error)
 	GetUserChallengeHistory(userID string, limit int) ([]UserChallenge, error)
 
 	CompleteChallenge(userID, challengeID string) error

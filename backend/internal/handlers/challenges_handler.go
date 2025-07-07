@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 
@@ -26,16 +25,11 @@ func (h *challengesHandler) Handle() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/today", h.getTodaysChallenges)
 	router.Get("/history", h.getChallengeHistory)
-	router.Get("/date/{date}", h.getChallengesByDate)
-	router.Get("/type/{type}", h.getChallengesByType)  // TODO remove
-	router.Get("/types", h.getAvailableChallengeTypes) // TODO remove
 	router.Post("/{challengeID}/complete", h.completeChallenge)
-	router.Post("/{challengeID}/skip", h.skipChallenge) // TODO remove
 	router.Get("/dashboard", h.getDashboard)
 	router.Get("/stats", h.getUserStats)
 	router.Get("/progress", h.getUserProgress)
 	router.Get("/leaderboard", h.getLeaderboard)
-	router.Post("/", h.createChallenge)
 	router.Get("/range", h.getChallengeHistory)
 	return router
 }
@@ -80,67 +74,6 @@ func (h *challengesHandler) getChallengeHistory(w http.ResponseWriter, r *http.R
 	})
 }
 
-// getChallengesByDate gets challenges for a specific date
-func (h *challengesHandler) getChallengesByDate(w http.ResponseWriter, r *http.Request) {
-	dateStr := chi.URLParam(r, "date")
-	date, err := time.Parse("2006-01-02", dateStr)
-	if err != nil {
-		http.Error(w, "Invalid date format. Use YYYY-MM-DD", http.StatusBadRequest)
-		return
-	}
-
-	challenges, err := h.challengeUseCase.GetChallengesByDate(date)
-	if err != nil {
-		http.Error(w, "Failed to get challenges for date", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"challenges": convertChallengesToDTO(challenges),
-		"date":       dateStr,
-	})
-}
-
-// getChallengesByType gets challenges by type
-func (h *challengesHandler) getChallengesByType(w http.ResponseWriter, r *http.Request) {
-	challengeType := chi.URLParam(r, "type")
-
-	limitStr := r.URL.Query().Get("limit")
-	limit := 10 // default
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil {
-			limit = l
-		}
-	}
-
-	challenges, err := h.challengeUseCase.GetChallengesByType(challengeType, limit)
-	if err != nil {
-		http.Error(w, "Failed to get challenges by type", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"challenges": convertChallengesToDTO(challenges),
-		"type":       challengeType,
-	})
-}
-
-// getAvailableChallengeTypes gets all available challenge types
-func (h *challengesHandler) getAvailableChallengeTypes(w http.ResponseWriter, r *http.Request) {
-	types, err := h.challengeUseCase.GetAvailableChallengeTypes()
-	if err != nil {
-		http.Error(w, "Failed to get challenge types", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"types": types,
-	})
-}
-
 // completeChallenge marks a challenge as completed
 func (h *challengesHandler) completeChallenge(w http.ResponseWriter, r *http.Request) {
 	userID := getUserIDFromContext(r.Context())
@@ -156,24 +89,6 @@ func (h *challengesHandler) completeChallenge(w http.ResponseWriter, r *http.Req
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"message": "Challenge completed successfully",
 		"status":  "completed",
-	})
-}
-
-// skipChallenge marks a challenge as skipped
-func (h *challengesHandler) skipChallenge(w http.ResponseWriter, r *http.Request) {
-	userID := getUserIDFromContext(r.Context())
-	challengeID := chi.URLParam(r, "challengeID")
-
-	err := h.challengeUseCase.MarkChallengeAsSkipped(userID, challengeID)
-	if err != nil {
-		http.Error(w, "Failed to skip challenge", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Challenge skipped successfully",
-		"status":  "skipped",
 	})
 }
 
@@ -203,7 +118,7 @@ func (h *challengesHandler) getDashboard(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Filter recent completed to only show completed ones
-	var completed []*domain.UserChallenge
+	var completed []domain.UserChallenge
 	for _, challenge := range recentCompleted {
 		if challenge.Status == dto.StatusCompleted {
 			completed = append(completed, challenge)
@@ -280,40 +195,8 @@ func (h *challengesHandler) getLeaderboard(w http.ResponseWriter, r *http.Reques
 	})
 }
 
-// createChallenge creates a new challenge (admin function)
-func (h *challengesHandler) createChallenge(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Title       string    `json:"title"`
-		Description string    `json:"description"`
-		Type        string    `json:"type"`
-		Points      int       `json:"points"`
-		Date        time.Time `json:"date"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	challenge, err := h.challengeUseCase.CreateDailyChallenge(
-		req.Title,
-		req.Description,
-		req.Type,
-		req.Points,
-		req.Date,
-	)
-	if err != nil {
-		http.Error(w, "Failed to create challenge", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(convertChallengeToDTO(challenge))
-}
-
 // Helper function to convert UserChallenge to ChallengeResponse
-func convertToChallengeResponses(userChallenges []*domain.UserChallenge) []*dto.ChallengeResponse {
+func convertToChallengeResponses(userChallenges []domain.UserChallenge) []*dto.ChallengeResponse {
 	var responses []*dto.ChallengeResponse
 	for _, uc := range userChallenges {
 		response := &dto.ChallengeResponse{
@@ -327,10 +210,8 @@ func convertToChallengeResponses(userChallenges []*domain.UserChallenge) []*dto.
 }
 
 // Conversion functions from domain to DTOs
-func convertChallengeToDTO(challenge *domain.Challenge) *dto.ChallengeDTO {
-	if challenge == nil {
-		return nil
-	}
+func convertChallengeToDTO(challenge domain.Challenge) *dto.ChallengeDTO {
+
 	return &dto.ChallengeDTO{
 		ID:          challenge.ID,
 		Title:       challenge.Title,
@@ -343,7 +224,7 @@ func convertChallengeToDTO(challenge *domain.Challenge) *dto.ChallengeDTO {
 	}
 }
 
-func convertChallengesToDTO(challenges []*domain.Challenge) []*dto.ChallengeDTO {
+func convertChallengesToDTO(challenges []domain.Challenge) []*dto.ChallengeDTO {
 	var dtos []*dto.ChallengeDTO
 	for _, challenge := range challenges {
 		dtos = append(dtos, convertChallengeToDTO(challenge))
@@ -351,10 +232,8 @@ func convertChallengesToDTO(challenges []*domain.Challenge) []*dto.ChallengeDTO 
 	return dtos
 }
 
-func convertUserChallengeToDTO(userChallenge *domain.UserChallenge) *dto.UserChallengeDTO {
-	if userChallenge == nil {
-		return nil
-	}
+func convertUserChallengeToDTO(userChallenge domain.UserChallenge) *dto.UserChallengeDTO {
+
 	return &dto.UserChallengeDTO{
 		ID:          userChallenge.ID,
 		UserID:      userChallenge.UserID,
@@ -366,7 +245,7 @@ func convertUserChallengeToDTO(userChallenge *domain.UserChallenge) *dto.UserCha
 	}
 }
 
-func convertUserChallengesToDTO(userChallenges []*domain.UserChallenge) []*dto.UserChallengeDTO {
+func convertUserChallengesToDTO(userChallenges []domain.UserChallenge) []*dto.UserChallengeDTO {
 	var dtos []*dto.UserChallengeDTO
 	for _, uc := range userChallenges {
 		dtos = append(dtos, convertUserChallengeToDTO(uc))
@@ -374,10 +253,8 @@ func convertUserChallengesToDTO(userChallenges []*domain.UserChallenge) []*dto.U
 	return dtos
 }
 
-func convertChallengeStatsToDTO(stats *domain.ChallengeStats) *dto.ChallengeStatsDTO {
-	if stats == nil {
-		return nil
-	}
+func convertChallengeStatsToDTO(stats domain.ChallengeStats) *dto.ChallengeStatsDTO {
+
 	return &dto.ChallengeStatsDTO{
 		UserID:          stats.UserID,
 		TotalChallenges: stats.TotalChallenges,
@@ -388,7 +265,7 @@ func convertChallengeStatsToDTO(stats *domain.ChallengeStats) *dto.ChallengeStat
 	}
 }
 
-func convertChallengeStatsSliceToDTO(statsSlice []*domain.ChallengeStats) []*dto.ChallengeStatsDTO {
+func convertChallengeStatsSliceToDTO(statsSlice []domain.ChallengeStats) []*dto.ChallengeStatsDTO {
 	var dtos []*dto.ChallengeStatsDTO
 	for _, stats := range statsSlice {
 		dtos = append(dtos, convertChallengeStatsToDTO(stats))
