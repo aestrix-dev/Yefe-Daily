@@ -50,6 +50,7 @@ func (r *puzzleRepository) GetAllPuzzles() ([]domain.Puzzle, error) {
 	}
 	return r.puzzlesData.Puzzles, nil
 }
+
 func (r *puzzleRepository) GetPuzzleByID(id string) (*domain.Puzzle, error) {
 	puzzles, err := r.GetAllPuzzles()
 	if err != nil {
@@ -64,6 +65,7 @@ func (r *puzzleRepository) GetPuzzleByID(id string) (*domain.Puzzle, error) {
 
 	return nil, fmt.Errorf("puzzle with ID %s not found", id)
 }
+
 func (r *puzzleRepository) GetRandomPuzzle() (*domain.Puzzle, error) {
 	puzzles, err := r.GetAllPuzzles()
 	if err != nil {

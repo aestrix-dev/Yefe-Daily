@@ -52,16 +52,22 @@ func main() {
 	journalRepo := repository.NewJournalRepository(db)
 	userPuzzledRepo := repository.NewUserPuzzleRepository(db)
 	puzzleRepo := repository.NewPuzzleRepository(pathToPuzzles)
+	challengeRepo := repository.NewChallengeRepository(db)
+	userChallengeRepo := repository.NewUserChallengeRepository(db)
+	statsRepo := repository.NewChallengeStatsRepository(db)
 
 	serverConfig := infrastructure.ServerConfig{
-		DB:             db,
-		JWT_SECRET:     config.Server.Secret,
-		UserRepo:       userRepo,
-		SessionRepo:    sessionRepo,
-		SecEventRepo:   secEventRepo,
-		JournalRepo:    journalRepo,
-		UserPuzzleRepo: userPuzzledRepo,
-		PuzzleRepo:     puzzleRepo,
+		DB:                db,
+		JWT_SECRET:        config.Server.Secret,
+		UserRepo:          userRepo,
+		SessionRepo:       sessionRepo,
+		SecEventRepo:      secEventRepo,
+		JournalRepo:       journalRepo,
+		UserPuzzleRepo:    userPuzzledRepo,
+		PuzzleRepo:        puzzleRepo,
+		ChallengeRepo:     challengeRepo,
+		UserChallengeRepo: userChallengeRepo,
+		StatsRepo:         statsRepo,
 	}
 
 	// Setup router and server
