@@ -13,12 +13,14 @@ import (
 )
 
 type ServerConfig struct {
-	DB           *gorm.DB
-	JWT_SECRET   string
-	UserRepo     domain.UserRepository
-	SessionRepo  domain.SessionRepository
-	SecEventRepo domain.SecurityEventRepository
-	JournalRepo  domain.JournalRepository
+	DB             *gorm.DB
+	JWT_SECRET     string
+	UserRepo       domain.UserRepository
+	SessionRepo    domain.SessionRepository
+	SecEventRepo   domain.SecurityEventRepository
+	JournalRepo    domain.JournalRepository
+	PuzzleRepo     domain.PuzzleRepository
+	UserPuzzleRepo domain.UserPuzzleRepository
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
@@ -27,6 +29,10 @@ func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
 
 func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
 	return usecase.NewJournalUseCase(conf.JournalRepo, conf.UserRepo)
+}
+
+func (conf ServerConfig) puzzle_usecase() domain.PuzzleUseCase {
+	return usecase.NewPuzzleUseCase(conf.PuzzleRepo, conf.UserPuzzleRepo)
 }
 
 func (conf ServerConfig) auth_middleware() *middlewares.AuthMiddleware {
@@ -40,10 +46,12 @@ func NewRouter(config ServerConfig) http.Handler {
 
 	auth_handlers := handlers.NewAuthHandler(config.auth_usecase())
 	journal_handlers := handlers.NewJournalHandler(config.journal_usecase())
+	puzzle_handler := handlers.NewPuzzleHandler(config.puzzle_usecase())
 	r.Group(func(r chi.Router) {
 		r.Use(config.auth_middleware().RequireAuth)
 		r.Post("/auth/logout", auth_handlers.LogoutRoute)
 		r.Mount("/journal", journal_handlers.Handle())
+		r.Mount("/puzzle", puzzle_handler.Handle())
 	})
 
 	// auth routes

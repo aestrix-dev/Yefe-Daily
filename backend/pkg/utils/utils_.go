@@ -11,7 +11,7 @@ import (
 )
 
 // Returns the root dir
-func getBasePath() (string, error) {
+func GetBasePath() (string, error) {
 	_, basePath, _, ok := runtime.Caller(0)
 	if !ok {
 		return "", errors.New("Could not get file path")

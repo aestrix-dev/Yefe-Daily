@@ -19,7 +19,7 @@ import (
 
 var (
 	once        sync.Once
-	basePath, _ = getBasePath()
+	basePath, _ = GetBasePath()
 	LogDir      = path.Join(basePath, "logs")
 )
 
@@ -49,7 +49,7 @@ type (
 )
 
 func LoadEnv() error {
-	pathStr, err := getBasePath()
+	pathStr, err := GetBasePath()
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func LoadConfig() (AppSettings, error) {
 	if err != nil {
 		return AppSettings{}, err
 	}
-	pathStr, err := getBasePath()
+	pathStr, err := GetBasePath()
 	if err != nil {
 		return AppSettings{}, err
 	}

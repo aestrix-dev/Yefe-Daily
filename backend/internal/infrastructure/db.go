@@ -74,6 +74,7 @@ func autoMigrate(db *gorm.DB) error {
 		&models.Session{},
 		&models.SecurityEvent{},
 		&models.JournalEntry{},
+		&models.UserPuzzleProgress{},
 	)
 }
 

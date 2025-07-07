@@ -46,7 +46,7 @@ func (uc *journalUseCase) CreateEntry(ctx context.Context, userID string, req dt
 
 	// Create entry
 	entry := &domain.JournalEntry{
-		ID:        utils.GenerateID(), // You'll need to implement this
+		ID:        utils.GenerateID(),
 		UserID:    userID,
 		Content:   strings.TrimSpace(req.Content),
 		Type:      req.Type,
@@ -268,10 +268,10 @@ func (uc *journalUseCase) GetStats(ctx context.Context, userID string) (*dto.Jou
 		recentActivity[i] = res
 	}
 
-	// Calculate streaks (simplified - you might want to implement more sophisticated logic)
+	// Calculate streaks
 	currentStreak, longestStreak := uc.calculateStreaks(ctx, userID)
 
-	// Get tags usage (simplified - you might want to implement this in repository)
+	// Get tags usage 
 	tagsUsage := uc.calculateTagsUsage(recentEntries)
 
 	// Get monthly progress (last 6 months)
@@ -458,8 +458,7 @@ func (uc *journalUseCase) calculateMonthlyProgress(ctx context.Context, userID s
 
 		count, err := uc.journalRepo.CountEntriesByUserIDAndDateRange(ctx, userID, firstDayOfMonth, lastDayOfMonth)
 		if err != nil {
-			// Log the error and potentially return partial data or an error for the whole operation
-			// For now, continue with 0 count on error
+			logger.Log.WithError(err).Error("Could not get count")
 			count = 0
 		}
 

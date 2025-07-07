@@ -92,6 +92,20 @@ type SecurityEvent struct {
 	ResolvedAt *time.Time              `json:"resolved_at"`
 	CreatedAt  time.Time               `gorm:"index" json:"created_at"`
 }
+type UserPuzzleProgress struct {
+	ID             string     `json:"id" gorm:"primaryKey"`
+	UserID         string     `json:"userId" gorm:"not null;index"`
+	User           *User      `gorm:"foreignKey:UserID" json:"-"`
+	PuzzleID       string     `json:"puzzleId" gorm:"not null;index"`
+	IsCompleted    bool       `json:"isCompleted" gorm:"default:false"`
+	SelectedAnswer *int       `json:"selectedAnswer,omitempty"`
+	IsCorrect      *bool      `json:"isCorrect,omitempty"`
+	CompletedAt    *time.Time `json:"completedAt,omitempty"`
+	AttemptsCount  int        `json:"attemptsCount" gorm:"default:0"`
+	PointsEarned   int        `json:"pointsEarned" gorm:"default:0"`
+	CreatedAt      time.Time  `json:"createdAt"`
+	UpdatedAt      time.Time  `json:"updatedAt"`
+}
 
 // Table name overrides
 func (User) TableName() string {
