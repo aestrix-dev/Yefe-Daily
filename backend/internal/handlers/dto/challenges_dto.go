@@ -44,8 +44,8 @@ type ChallengeResponse struct {
 
 // DashboardResponse represents the user's dashboard data
 type DashboardResponse struct {
-	TodaysChallenges  []*ChallengeResponse `json:"todays_challenges"`
-	RecentlyCompleted []*ChallengeResponse `json:"recently_completed"`
+	TodaysChallenges  ChallengeResponse    `json:"todays_challenges"`
+	RecentlyCompleted []ChallengeResponse `json:"recently_completed"`
 	Stats             *ChallengeStatsDTO   `json:"stats"`
 	CurrentStreak     int                  `json:"current_streak"`
 	TotalPoints       int                  `json:"total_points"`

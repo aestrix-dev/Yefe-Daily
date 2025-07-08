@@ -46,10 +46,13 @@ type ChallengeStats struct {
 // ChallengeRepository defines the interface for challenge data operations
 type ChallengeRepository interface {
 	// Challenge CRUD operations
+	CreateChallenge(challenge *Challenge) error
 	GetChallengeByID(id string) (Challenge, error)
-	GetChallengesByType(challengeType string, limit int) ([]Challenge, error)
-	GetAllChallenges() ([]Challenge, error)
-	GetRandomChallange() Challenge
+	GetChallengesByDate(date time.Time) ([]Challenge, error)
+	DeleteChallenge(id string) error
+
+	// Get today's challenges
+	GetTodaysChallenge() (Challenge, error)
 }
 
 // UserChallengeRepository defines the interface for user challenge operations
@@ -58,6 +61,7 @@ type UserChallengeRepository interface {
 	CreateUserChallenge(userChallenge UserChallenge) error
 	GetUserChallengeByID(id string) (UserChallenge, error)
 	GetUserChallengesByUserID(userID string) ([]UserChallenge, error)
+	GetUserChallengesByDate(userID string, date time.Time) ([]UserChallenge, error)
 	UpdateUserChallenge(userChallenge UserChallenge) error
 
 	// Get user's challenges by status
@@ -70,13 +74,13 @@ type UserChallengeRepository interface {
 	GetPendingChallenges(userID string) ([]UserChallenge, error)
 
 	// Get user's challenges for today
-	GetTodaysUserChallenges(userID string) ([]UserChallenge, error)
+	GetTodaysUserChallenge(userID string) (UserChallenge, error)
 }
 
 // ChallengeStatsRepository defines the interface for challenge statistics operations
 type ChallengeStatsRepository interface {
 	GetUserStats(userID string) (ChallengeStats, error)
-	UpdateUserStats(stats ChallengeStats) error
+	UpdateUserStats(string, int) error
 	GetLeaderboard(limit int) ([]ChallengeStats, error)
 }
 
@@ -84,19 +88,21 @@ type ChallengeStatsRepository interface {
 
 // ChallengeUseCase defines the business logic interface for challenges
 type ChallengeUseCase interface {
-	//GetTodaysChallenges() ([]*Challenge, error)
+	// Challenge management
+	CreateDailyChallenge(Challenge) (Challenge, error)
+	GetChallengesByDate(date time.Time) ([]Challenge, error)
 
-	GetUserChallengesForToday(userID string) ([]UserChallenge, error)
+	// User challenge interactions
+	AssignChallengesToUser(userID string, date time.Time) error
+	GetUserChallengeForToday(userID string) (UserChallenge, error)
 	GetUserChallengeHistory(userID string, limit int) ([]UserChallenge, error)
 
+	// Challenge completion
 	CompleteChallenge(userID, challengeID string) error
-	MarkChallengeAsSkipped(userID, challengeID string) error
 
+	// Statistics and progress
 	GetUserStats(userID string) (ChallengeStats, error)
-	GetUserProgress(userID string, period string) (map[string]any, error)
 	GetLeaderboard(limit int) ([]ChallengeStats, error)
-
-	GetAvailableChallengeTypes() ([]string, error)
 }
 
 const (

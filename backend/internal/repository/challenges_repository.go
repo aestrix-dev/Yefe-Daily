@@ -50,52 +50,79 @@ func (r *challengeRepositoryImpl) loadChallengesFromJSON() error {
 
 	return nil
 }
+
+func (r *challengeRepositoryImpl) CreateChallenge(challenge *domain.Challenge) error {
+	modelChallenge := &models.Challenge{
+		ID:          challenge.ID,
+		Title:       challenge.Title,
+		Description: challenge.Description,
+		Type:        challenge.Type,
+		Points:      challenge.Points,
+		Date:        challenge.Date,
+		IsActive:    true,
+		CreatedAt:   challenge.CreatedAt,
+		UpdatedAt:   challenge.UpdatedAt,
+	}
+
+	if err := r.db.Create(modelChallenge).Error; err != nil {
+		return err
+	}
+
+	// Update the domain object with any auto-generated values
+	challenge.CreatedAt = modelChallenge.CreatedAt
+	challenge.UpdatedAt = modelChallenge.UpdatedAt
+	return nil
+}
+
+func (r *challengeRepositoryImpl) DeleteChallenge(id string) error {
+	return r.db.Where("id = ?", id).Delete(&models.Challenge{}).Error
+}
+
+// GetChallengeByID retrieves a challenge by ID
 func (r *challengeRepositoryImpl) GetChallengeByID(id string) (domain.Challenge, error) {
-
-	for _, challenge := range r.challengesData.Challenges {
-		if challenge.ID == id {
-			return challenge, nil
-		}
+	var dbchallenge models.Challenge
+	var challenge domain.Challenge
+	if err := r.db.Where("id = ? AND is_active = ?", id, true).First(&dbchallenge).Error; err != nil {
+		return domain.Challenge{}, err
 	}
-	return domain.Challenge{}, fmt.Errorf("challenge with ID %s not found or is inactive", id)
+	err := utils.TypeConverter(dbchallenge, &challenge)
+	if err != nil {
+		return domain.Challenge{}, err
+	}
+
+	return challenge, nil
 }
 
-func (r *challengeRepositoryImpl) GetAllChallenges() ([]domain.Challenge, error) {
-	if r.challengesData == nil || len(r.challengesData.Challenges) == 0 {
-		if err := r.loadChallengesFromJSON(); err != nil {
-			return nil, err
-		}
+// GetChallengesByDate retrieves challenges for a specific date
+func (r *challengeRepositoryImpl) GetChallengesByDate(date time.Time) ([]domain.Challenge, error) {
+	var dbchallenge []models.Challenge
+	var challenge []domain.Challenge
+	if err := r.db.Where("date = ? AND is_active = ?", date.Format("2006-01-02"), true).Find(&dbchallenge).Error; err != nil {
+		return nil, err
 	}
-	return r.challengesData.Challenges, nil
+
+	err := utils.TypeConverter(dbchallenge, &challenge)
+	if err != nil {
+		return nil, err
+	}
+
+	return challenge, nil
 }
 
-// GetChallengesByType retrieves challenges by type from the JSON file.
-func (r *challengeRepositoryImpl) GetChallengesByType(challengeType string, limit int) ([]domain.Challenge, error) {
-
-	var filteredChallenges []domain.Challenge
-	for _, challenge := range r.challengesData.Challenges {
-		// Filter by challenge type and ensure it's active
-		if challenge.Type == challengeType {
-			// Append a pointer to the challenge
-			tempChallenge := challenge
-			filteredChallenges = append(filteredChallenges, tempChallenge)
-		}
+// GetTodaysChallenges retrieves today's challenges
+func (r *challengeRepositoryImpl) GetTodaysChallenge() (domain.Challenge, error) {
+	today := time.Now().Format("2006-01-02")
+	var dbchallenge models.Challenge
+	var challenge domain.Challenge
+	if err := r.db.Where("date = ? AND is_active = ?", today, true).Find(&dbchallenge).Error; err != nil {
+		return domain.Challenge{}, err
+	}
+	err := utils.TypeConverter(dbchallenge, &challenge)
+	if err != nil {
+		return domain.Challenge{}, err
 	}
 
-	for i := 0; i < len(filteredChallenges)-1; i++ {
-		for j := i + 1; j < len(filteredChallenges); j++ {
-			if filteredChallenges[i].Date.Before(filteredChallenges[j].Date) {
-				filteredChallenges[i], filteredChallenges[j] = filteredChallenges[j], filteredChallenges[i]
-			}
-		}
-	}
-
-	// Apply the limit if specified and if there are enough challenges
-	if limit > 0 && len(filteredChallenges) > limit {
-		return filteredChallenges[:limit], nil
-	}
-
-	return filteredChallenges, nil
+	return challenge, nil
 }
 
 func (r *challengeRepositoryImpl) GetRandomChallange() domain.Challenge {
@@ -104,18 +131,18 @@ func (r *challengeRepositoryImpl) GetRandomChallange() domain.Challenge {
 	return r.challengesData.Challenges[index]
 }
 
-// UserchallengeRepositoryImpl implements the UserChallengeRepository interface
-type UserchallengeRepositoryImpl struct {
+// userChallengeRepositoryImpl implements the UserChallengeRepository interface
+type userChallengeRepositoryImpl struct {
 	db *gorm.DB
 }
 
-// NewUserChallengeRepository creates a new instance of UserchallengeRepositoryImpl
+// NewUserChallengeRepository creates a new instance of userChallengeRepositoryImpl
 func NewUserChallengeRepository(db *gorm.DB) domain.UserChallengeRepository {
-	return &UserchallengeRepositoryImpl{db: db}
+	return &userChallengeRepositoryImpl{db: db}
 }
 
 // CreateUserChallenge creates a new user challenge
-func (r *UserchallengeRepositoryImpl) CreateUserChallenge(userChallenge domain.UserChallenge) error {
+func (r *userChallengeRepositoryImpl) CreateUserChallenge(userChallenge domain.UserChallenge) error {
 	modelUserChallenge := &models.UserChallenge{
 		ID:          userChallenge.ID,
 		UserID:      userChallenge.UserID,
@@ -136,8 +163,26 @@ func (r *UserchallengeRepositoryImpl) CreateUserChallenge(userChallenge domain.U
 	return nil
 }
 
+func (r *userChallengeRepositoryImpl) GetTodaysUserChallenge(userID string) (domain.UserChallenge, error) {
+	today := time.Now().Format("2006-01-02")
+	var dbuserChallenge models.UserChallenge
+	var userChallenge domain.UserChallenge
+	if err := r.db.Preload("Challenge").
+		Joins("JOIN challenges ON challenges.id = user_challenges.challenge_id").
+		Where("user_challenges.user_id = ? AND challenges.date = ?", userID, today).
+		Find(&dbuserChallenge).Error; err != nil {
+		return domain.UserChallenge{}, err
+	}
+	err := utils.TypeConverter(dbuserChallenge, &userChallenge)
+	if err != nil {
+		return domain.UserChallenge{}, err
+	}
+
+	return userChallenge, nil
+}
+
 // GetUserChallengeByID retrieves a user challenge by ID
-func (r *UserchallengeRepositoryImpl) GetUserChallengeByID(id string) (domain.UserChallenge, error) {
+func (r *userChallengeRepositoryImpl) GetUserChallengeByID(id string) (domain.UserChallenge, error) {
 	var dbuserChallenges models.UserChallenge
 	var userChallenges domain.UserChallenge
 	if err := r.db.Preload("Challenge").Where("id = ?", id).First(&dbuserChallenges).Error; err != nil {
@@ -152,7 +197,7 @@ func (r *UserchallengeRepositoryImpl) GetUserChallengeByID(id string) (domain.Us
 }
 
 // GetUserChallengesByUserID retrieves all user challenges for a specific user
-func (r *UserchallengeRepositoryImpl) GetUserChallengesByUserID(userID string) ([]domain.UserChallenge, error) {
+func (r *userChallengeRepositoryImpl) GetUserChallengesByUserID(userID string) ([]domain.UserChallenge, error) {
 	var dbuserChallenges []models.UserChallenge
 	var userChallenges []domain.UserChallenge
 	if err := r.db.Preload("Challenge").Where("user_id = ?", userID).
@@ -168,7 +213,7 @@ func (r *UserchallengeRepositoryImpl) GetUserChallengesByUserID(userID string) (
 }
 
 // GetUserChallengesByDate retrieves user challenges for a specific date
-func (r *UserchallengeRepositoryImpl) GetUserChallengesByDate(userID string, date time.Time) ([]domain.UserChallenge, error) {
+func (r *userChallengeRepositoryImpl) GetUserChallengesByDate(userID string, date time.Time) ([]domain.UserChallenge, error) {
 	var dbuserChallenges []models.UserChallenge
 	var userChallenges []domain.UserChallenge
 	if err := r.db.Preload("Challenge").
@@ -186,7 +231,7 @@ func (r *UserchallengeRepositoryImpl) GetUserChallengesByDate(userID string, dat
 }
 
 // UpdateUserChallenge updates an existing user challenge
-func (r *UserchallengeRepositoryImpl) UpdateUserChallenge(userChallenge domain.UserChallenge) error {
+func (r *userChallengeRepositoryImpl) UpdateUserChallenge(userChallenge domain.UserChallenge) error {
 	modelUserChallenge := &models.UserChallenge{
 		ID:          userChallenge.ID,
 		UserID:      userChallenge.UserID,
@@ -205,7 +250,7 @@ func (r *UserchallengeRepositoryImpl) UpdateUserChallenge(userChallenge domain.U
 }
 
 // GetUserChallengesByStatus retrieves user challenges by status
-func (r *UserchallengeRepositoryImpl) GetUserChallengesByStatus(userID string, status string) ([]domain.UserChallenge, error) {
+func (r *userChallengeRepositoryImpl) GetUserChallengesByStatus(userID string, status string) ([]domain.UserChallenge, error) {
 	var dbuserChallenges []models.UserChallenge
 	var userChallenges []domain.UserChallenge
 	if err := r.db.Preload("Challenge").Where("user_id = ? AND status = ?", userID, status).
@@ -221,7 +266,7 @@ func (r *UserchallengeRepositoryImpl) GetUserChallengesByStatus(userID string, s
 }
 
 // GetCompletedChallenges retrieves completed challenges for a user
-func (r *UserchallengeRepositoryImpl) GetCompletedChallenges(userID string, limit int) ([]domain.UserChallenge, error) {
+func (r *userChallengeRepositoryImpl) GetCompletedChallenges(userID string, limit int) ([]domain.UserChallenge, error) {
 	var dbuserChallenges []models.UserChallenge
 	var userChallenges []domain.UserChallenge
 	query := r.db.Preload("Challenge").Where("user_id = ? AND status = ?", userID, dto.StatusCompleted).
@@ -243,30 +288,11 @@ func (r *UserchallengeRepositoryImpl) GetCompletedChallenges(userID string, limi
 }
 
 // GetPendingChallenges retrieves pending challenges for a user
-func (r *UserchallengeRepositoryImpl) GetPendingChallenges(userID string) ([]domain.UserChallenge, error) {
+func (r *userChallengeRepositoryImpl) GetPendingChallenges(userID string) ([]domain.UserChallenge, error) {
 	var dbuserChallenges []models.UserChallenge
 	var userChallenge []domain.UserChallenge
 	if err := r.db.Preload("Challenge").Where("user_id = ? AND status = ?", userID, dto.StatusPending).
 		Order("created_at ASC").Find(&dbuserChallenges).Error; err != nil {
-		return nil, err
-	}
-
-	err := utils.TypeConverter(dbuserChallenges, &userChallenge)
-	if err != nil {
-		return nil, err
-	}
-	return userChallenge, nil
-}
-
-// GetTodaysUserChallenges retrieves today's challenges for a user
-func (r *UserchallengeRepositoryImpl) GetTodaysUserChallenges(userID string) ([]domain.UserChallenge, error) {
-	today := time.Now().Format("2006-01-02")
-	var dbuserChallenges []models.UserChallenge
-	var userChallenge []domain.UserChallenge
-	if err := r.db.Preload("Challenge").
-		Joins("JOIN challenges ON challenges.id = user_challenges.challenge_id").
-		Where("user_challenges.user_id = ? AND challenges.date = ?", userID, today).
-		Find(&dbuserChallenges).Error; err != nil {
 		return nil, err
 	}
 
@@ -317,18 +343,16 @@ func (r *ChallengeStatsRepositoryImpl) GetUserStats(userID string) (domain.Chall
 }
 
 // UpdateUserStats updates user statistics
-func (r *ChallengeStatsRepositoryImpl) UpdateUserStats(stats domain.ChallengeStats) error {
-	modelStats := &models.ChallengeStats{
-		UserID:          stats.UserID,
-		TotalChallenges: stats.TotalChallenges,
-		CompletedCount:  stats.CompletedCount,
-		TotalPoints:     stats.TotalPoints,
-		CurrentStreak:   stats.CurrentStreak,
-		LongestStreak:   stats.LongestStreak,
-		UpdatedAt:       time.Now(),
-	}
+func (r *ChallengeStatsRepositoryImpl) UpdateUserStats(userId string, points int) error {
 
-	if err := r.db.Model(modelStats).Where("user_id = ?", stats.UserID).Updates(modelStats).Error; err != nil {
+	stats, err := r.GetUserStats(userId)
+	if err != nil {
+		return err
+	}
+	stats.TotalPoints += points
+	stats.TotalChallenges += 1
+
+	if err := r.db.Model(stats).Where("user_id = ?", stats.UserID).Updates(stats).Error; err != nil {
 		return err
 	}
 

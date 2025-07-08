@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/utils"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -28,7 +29,6 @@ func (h *challengesHandler) Handle() *chi.Mux {
 	router.Post("/{challengeID}/complete", h.completeChallenge)
 	router.Get("/dashboard", h.getDashboard)
 	router.Get("/stats", h.getUserStats)
-	router.Get("/progress", h.getUserProgress)
 	router.Get("/leaderboard", h.getLeaderboard)
 	router.Get("/range", h.getChallengeHistory)
 	return router
@@ -36,22 +36,30 @@ func (h *challengesHandler) Handle() *chi.Mux {
 
 // getTodaysChallenges gets today's challenges for the authenticated user
 func (h *challengesHandler) getTodaysChallenges(w http.ResponseWriter, r *http.Request) {
+	var dto dto.UserChallengeDTO
 	userID := getUserIDFromContext(r.Context())
 
-	challenges, err := h.challengeUseCase.GetUserChallengesForToday(userID)
+	challenges, err := h.challengeUseCase.GetUserChallengeForToday(userID)
 	if err != nil {
 		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
 		return
 	}
 
+	err = utils.TypeConverter(challenges, &dto)
+
+	if err != nil {
+		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"challenges": convertUserChallengesToDTO(challenges),
+		"challenge": dto,
 	})
 }
 
 // getChallengeHistory gets user's challenge history
 func (h *challengesHandler) getChallengeHistory(w http.ResponseWriter, r *http.Request) {
+	var dto dto.UserChallengeDTO
 	userID := getUserIDFromContext(r.Context())
 
 	limitStr := r.URL.Query().Get("limit")
@@ -67,10 +75,15 @@ func (h *challengesHandler) getChallengeHistory(w http.ResponseWriter, r *http.R
 		http.Error(w, "Failed to get challenge history", http.StatusInternalServerError)
 		return
 	}
+	err = utils.TypeConverter(challenges, &dto)
 
+	if err != nil {
+		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"challenges": convertUserChallengesToDTO(challenges),
+		"challenge": dto,
 	})
 }
 
@@ -94,10 +107,11 @@ func (h *challengesHandler) completeChallenge(w http.ResponseWriter, r *http.Req
 
 // getDashboard gets user's dashboard data
 func (h *challengesHandler) getDashboard(w http.ResponseWriter, r *http.Request) {
+	var Challengedto dto.UserChallengeDTO
 	userID := getUserIDFromContext(r.Context())
 
 	// Get today's challenges
-	todaysChallenges, err := h.challengeUseCase.GetUserChallengesForToday(userID)
+	todaysChallenge, err := h.challengeUseCase.GetUserChallengeForToday(userID)
 	if err != nil {
 		http.Error(w, "Failed to get dashboard data", http.StatusInternalServerError)
 		return
@@ -124,9 +138,14 @@ func (h *challengesHandler) getDashboard(w http.ResponseWriter, r *http.Request)
 			completed = append(completed, challenge)
 		}
 	}
+	err = utils.TypeConverter(todaysChallenge, &Challengedto)
 
+	if err != nil {
+		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
+		return
+	}
 	dashboard := &dto.DashboardResponse{
-		TodaysChallenges:  convertToChallengeResponses(todaysChallenges),
+		TodaysChallenges:  convertToChallengeResponse(todaysChallenge),
 		RecentlyCompleted: convertToChallengeResponses(completed),
 		Stats:             convertChallengeStatsToDTO(stats),
 		CurrentStreak:     stats.CurrentStreak,
@@ -151,28 +170,6 @@ func (h *challengesHandler) getUserStats(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(convertChallengeStatsToDTO(stats))
 }
 
-// getUserProgress gets user's progress for a specific period
-func (h *challengesHandler) getUserProgress(w http.ResponseWriter, r *http.Request) {
-	userID := getUserIDFromContext(r.Context())
-	period := r.URL.Query().Get("period")
-
-	if period == "" {
-		period = "weekly" // default
-	}
-
-	progress, err := h.challengeUseCase.GetUserProgress(userID, period)
-	if err != nil {
-		http.Error(w, "Failed to get user progress", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"progress": progress,
-		"period":   period,
-	})
-}
-
 // getLeaderboard gets the leaderboard
 func (h *challengesHandler) getLeaderboard(w http.ResponseWriter, r *http.Request) {
 	limitStr := r.URL.Query().Get("limit")
@@ -194,16 +191,20 @@ func (h *challengesHandler) getLeaderboard(w http.ResponseWriter, r *http.Reques
 		"leaderboard": convertChallengeStatsSliceToDTO(leaderboard),
 	})
 }
+func convertToChallengeResponse(uc domain.UserChallenge) dto.ChallengeResponse {
+	response := dto.ChallengeResponse{
+		UserChallenge: convertUserChallengeToDTO(uc),
+		IsCompleted:   uc.Status == dto.StatusCompleted,
+		CanComplete:   uc.Status == dto.StatusPending,
+	}
+	return response
+}
 
 // Helper function to convert UserChallenge to ChallengeResponse
-func convertToChallengeResponses(userChallenges []domain.UserChallenge) []*dto.ChallengeResponse {
-	var responses []*dto.ChallengeResponse
+func convertToChallengeResponses(userChallenges []domain.UserChallenge) []dto.ChallengeResponse {
+	var responses []dto.ChallengeResponse
 	for _, uc := range userChallenges {
-		response := &dto.ChallengeResponse{
-			UserChallenge: convertUserChallengeToDTO(uc),
-			IsCompleted:   uc.Status == dto.StatusCompleted,
-			CanComplete:   uc.Status == dto.StatusPending,
-		}
+		response := convertToChallengeResponse(uc)
 		responses = append(responses, response)
 	}
 	return responses
