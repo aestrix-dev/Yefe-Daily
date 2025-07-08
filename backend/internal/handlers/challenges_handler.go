@@ -52,7 +52,7 @@ func (h *challengesHandler) getTodaysChallenges(w http.ResponseWriter, r *http.R
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"challenge": dto,
 	})
 }
@@ -82,7 +82,7 @@ func (h *challengesHandler) getChallengeHistory(w http.ResponseWriter, r *http.R
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"challenge": dto,
 	})
 }
@@ -99,7 +99,7 @@ func (h *challengesHandler) completeChallenge(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"message": "Challenge completed successfully",
 		"status":  "completed",
 	})
@@ -187,7 +187,7 @@ func (h *challengesHandler) getLeaderboard(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"leaderboard": convertChallengeStatsSliceToDTO(leaderboard),
 	})
 }
@@ -210,29 +210,6 @@ func convertToChallengeResponses(userChallenges []domain.UserChallenge) []dto.Ch
 	return responses
 }
 
-// Conversion functions from domain to DTOs
-func convertChallengeToDTO(challenge domain.Challenge) *dto.ChallengeDTO {
-
-	return &dto.ChallengeDTO{
-		ID:          challenge.ID,
-		Title:       challenge.Title,
-		Description: challenge.Description,
-		Type:        challenge.Type,
-		Points:      challenge.Points,
-		Date:        challenge.Date,
-		CreatedAt:   challenge.CreatedAt,
-		UpdatedAt:   challenge.UpdatedAt,
-	}
-}
-
-func convertChallengesToDTO(challenges []domain.Challenge) []*dto.ChallengeDTO {
-	var dtos []*dto.ChallengeDTO
-	for _, challenge := range challenges {
-		dtos = append(dtos, convertChallengeToDTO(challenge))
-	}
-	return dtos
-}
-
 func convertUserChallengeToDTO(userChallenge domain.UserChallenge) *dto.UserChallengeDTO {
 
 	return &dto.UserChallengeDTO{
@@ -244,14 +221,6 @@ func convertUserChallengeToDTO(userChallenge domain.UserChallenge) *dto.UserChal
 		CreatedAt:   userChallenge.CreatedAt,
 		UpdatedAt:   userChallenge.UpdatedAt,
 	}
-}
-
-func convertUserChallengesToDTO(userChallenges []domain.UserChallenge) []*dto.UserChallengeDTO {
-	var dtos []*dto.UserChallengeDTO
-	for _, uc := range userChallenges {
-		dtos = append(dtos, convertUserChallengeToDTO(uc))
-	}
-	return dtos
 }
 
 func convertChallengeStatsToDTO(stats domain.ChallengeStats) *dto.ChallengeStatsDTO {

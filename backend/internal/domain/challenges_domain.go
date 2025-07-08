@@ -6,14 +6,11 @@ import (
 
 // Challenge represents a daily challenge for users
 type Challenge struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Type        string    `json:"type"`
-	Points      int       `json:"points"`
-	Date        time.Time `json:"date"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+	Points      int    `json:"points"`
 }
 
 type ChallengesData struct {
@@ -48,8 +45,9 @@ type ChallengeRepository interface {
 	// Challenge CRUD operations
 	CreateChallenge(challenge *Challenge) error
 	GetChallengeByID(id string) (Challenge, error)
-	GetChallengesByDate(date time.Time) ([]Challenge, error)
+	GetChallengeByDate(date time.Time) (Challenge, error)
 	DeleteChallenge(id string) error
+	GetRandomChallange() Challenge
 
 	// Get today's challenges
 	GetTodaysChallenge() (Challenge, error)
@@ -90,10 +88,10 @@ type ChallengeStatsRepository interface {
 type ChallengeUseCase interface {
 	// Challenge management
 	CreateDailyChallenge(Challenge) (Challenge, error)
-	GetChallengesByDate(date time.Time) ([]Challenge, error)
+	GetChallengeByDate(date time.Time) (Challenge, error)
 
 	// User challenge interactions
-	AssignChallengesToUser(userID string, date time.Time) error
+	AssignChallengeToUser(userID string, date time.Time) error
 	GetUserChallengeForToday(userID string) (UserChallenge, error)
 	GetUserChallengeHistory(userID string, limit int) ([]UserChallenge, error)
 

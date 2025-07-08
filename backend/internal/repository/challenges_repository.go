@@ -17,7 +17,7 @@ import (
 // challengeRepositoryImpl implements the ChallengeRepository interface
 type challengeRepositoryImpl struct {
 	db             *gorm.DB
-	challengesData *domain.ChallengesData
+	challengesData domain.ChallengesData
 	jsonPath       string
 }
 
@@ -43,7 +43,7 @@ func (r *challengeRepositoryImpl) loadChallengesFromJSON() error {
 		return fmt.Errorf("failed to read challenges file: %w", err)
 	}
 
-	err = json.Unmarshal(data, r.challengesData)
+	err = json.Unmarshal(data, &r.challengesData)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal challenges data: %w", err)
 	}
@@ -58,19 +58,12 @@ func (r *challengeRepositoryImpl) CreateChallenge(challenge *domain.Challenge) e
 		Description: challenge.Description,
 		Type:        challenge.Type,
 		Points:      challenge.Points,
-		Date:        challenge.Date,
 		IsActive:    true,
-		CreatedAt:   challenge.CreatedAt,
-		UpdatedAt:   challenge.UpdatedAt,
 	}
 
 	if err := r.db.Create(modelChallenge).Error; err != nil {
 		return err
 	}
-
-	// Update the domain object with any auto-generated values
-	challenge.CreatedAt = modelChallenge.CreatedAt
-	challenge.UpdatedAt = modelChallenge.UpdatedAt
 	return nil
 }
 
@@ -94,16 +87,16 @@ func (r *challengeRepositoryImpl) GetChallengeByID(id string) (domain.Challenge,
 }
 
 // GetChallengesByDate retrieves challenges for a specific date
-func (r *challengeRepositoryImpl) GetChallengesByDate(date time.Time) ([]domain.Challenge, error) {
-	var dbchallenge []models.Challenge
-	var challenge []domain.Challenge
+func (r *challengeRepositoryImpl) GetChallengeByDate(date time.Time) (domain.Challenge, error) {
+	var dbchallenge models.Challenge
+	var challenge domain.Challenge
 	if err := r.db.Where("date = ? AND is_active = ?", date.Format("2006-01-02"), true).Find(&dbchallenge).Error; err != nil {
-		return nil, err
+		return domain.Challenge{}, err
 	}
 
 	err := utils.TypeConverter(dbchallenge, &challenge)
 	if err != nil {
-		return nil, err
+		return domain.Challenge{}, err
 	}
 
 	return challenge, nil

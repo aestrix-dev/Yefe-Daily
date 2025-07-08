@@ -1,1002 +1,1004 @@
-[
-  {
-    "id": "a53919f5-476e-454b-8208-3a75f2514d09",
-    "title": "Read a Bible chapter",
-    "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-07-08T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "16456505-e928-4e7f-ba23-0d71ad0a7584",
-    "title": "Help a neighbor",
-    "description": "Offer assistance to a neighbor with chores or errands.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-07-09T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "59a3088b-b7a5-443f-a89a-901deccbaf86",
-    "title": "Call a male family member",
-    "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-10T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "279c1c19-acfc-41be-a33d-8a5262d06e30",
-    "title": "Pray with a loved one",
-    "description": "Set aside 10 minutes to pray with a family member or friend.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-07-11T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "c1da180a-605e-4ce2-a78f-037368bd404d",
-    "title": "Speak life today",
-    "description": "Compliment at least three people genuinely.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-12T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "a87c90bb-d5e6-4975-8218-9a3096fa51de",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-07-13T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "aa6bde1e-8055-4f65-9455-dd48d64b97b2",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-07-14T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "e0767569-a350-49f9-be2d-6c8dcddaf85d",
-    "title": "Call a male family member",
-    "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-15T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "2c5c547e-27ce-48a2-b685-473585a5df7a",
-    "title": "Help a neighbor",
-    "description": "Offer assistance to a neighbor with chores or errands.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-16T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "c4acb794-7412-4541-965b-fbe2e76bda51",
-    "title": "Pray with a loved one",
-    "description": "Set aside 10 minutes to pray with a family member or friend.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-17T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "46eb4a9e-67ce-49d4-8a62-64a279350ece",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-18T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "310e383b-dd57-4373-b997-4820a6e01da4",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-19T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "d2bdaa9f-d24c-4cbb-bd46-9d93d18f293c",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-20T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "6af9b340-1000-4ab4-9cf0-4ffaf20f418d",
-    "title": "Help a neighbor",
-    "description": "Offer assistance to a neighbor with chores or errands.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-07-21T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "15b98aa4-4d1c-4a8c-8b8a-fb39b68c054f",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-07-22T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "309e715e-ce24-4c09-8271-9ddcc6e34e63",
-    "title": "Pray with a loved one",
-    "description": "Set aside 10 minutes to pray with a family member or friend.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-07-23T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "163a9559-c7d6-4ac4-91ef-e56c25d1909c",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-24T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "b27034b2-8e96-4bda-aa70-593b1a937612",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-07-25T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "fcc025a1-6d9c-467d-8206-b0824c4abb90",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-07-26T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "bfd59a09-b7e8-482b-9996-21f4baf28ded",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-07-27T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "306c2cf6-ab8b-4c8f-9d41-0c287d546c65",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-07-28T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "78689e44-0457-403b-b3ff-283277a57f24",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-07-29T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "d65e7f44-0a3f-448d-9625-b2ae2e831b0a",
-    "title": "Call a male family member",
-    "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-07-30T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "65dc6870-a958-41ea-aced-797332c475dc",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-07-31T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "b8e8e4b3-2f86-4240-aefd-44a12d02b2d1",
-    "title": "Speak life today",
-    "description": "Compliment at least three people genuinely.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-01T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "9e11e4a0-ea6d-4fad-9029-51aa63492bd0",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-08-02T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "d5d3d94e-db0c-43f8-8c2c-b99e0c23f774",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-03T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "30e33ac7-b9e0-4a88-a311-381a65701083",
-    "title": "Call a male family member",
-    "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-04T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "c1115fdf-be74-4fec-b315-845ea00912b9",
-    "title": "Call a male family member",
-    "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-05T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "8eafcdcb-99cb-4116-956a-7adf294b1240",
-    "title": "Call a male family member",
-    "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-08-06T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "6ba64541-d28a-4fec-adbc-a162eaf204a7",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-07T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "5eb7995d-3efa-4559-82f3-2268f13f6cb8",
-    "title": "Speak life today",
-    "description": "Compliment at least three people genuinely.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-08T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "c7d37f5b-9bce-4d71-a1de-f99dc8c7f92a",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-09T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "a315af0c-48a5-4c03-9593-bfaa21cc77a6",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-08-10T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "30428e01-261a-40d8-ad3c-998258b10f1c",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-08-11T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "7c6b9526-c65f-4e87-bf29-4899105aa63d",
-    "title": "Speak life today",
-    "description": "Compliment at least three people genuinely.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-12T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "36e0bb40-316d-4032-8cd7-5d15cf860810",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-13T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "8c81216e-a1b3-490b-b8be-f86aa62996c9",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-08-14T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "c4569334-9aa3-42d6-8dfb-3fadf2f42715",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-15T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "a587fd3d-b7d4-4030-b37d-928fadf4a567",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-16T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "64d388a7-e514-4fe9-bf89-a90fb0f44c37",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-08-17T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "9bd752d7-d8b0-4c28-aaa7-c6df20aaba53",
-    "title": "Pray with a loved one",
-    "description": "Set aside 10 minutes to pray with a family member or friend.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-18T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "32a6b3a7-ac8d-4094-8738-796a014e5a1c",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-08-19T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "db71ecbc-e82d-4adb-8a7c-78bab49567cd",
-    "title": "Speak life today",
-    "description": "Compliment at least three people genuinely.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-20T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "ca726537-b1f7-4aef-821f-7f2c849bf377",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-08-21T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "53c4a1b3-312d-458a-9fe3-76f562345981",
-    "title": "Read a Bible chapter",
-    "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-22T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "2b10539c-63c9-4fe0-9e1b-c84b41b8cdb9",
-    "title": "Read a Bible chapter",
-    "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-23T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "a6136d95-8f24-4ff7-a620-3d29b898e23c",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-24T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "21180f7e-0dfe-46ca-86fd-f5ab57bd4fc2",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-25T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "99d7a3cb-0d54-4045-aa26-c66cccff93b7",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-08-26T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "e75d41bd-b2ea-4850-b317-acf4ae60b4b4",
-    "title": "Help a neighbor",
-    "description": "Offer assistance to a neighbor with chores or errands.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-27T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "f8425ba5-f987-4d41-8562-d4617e20e8b6",
-    "title": "Call a male family member",
-    "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-08-28T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "6a3515f7-779f-4701-89f6-a0daeb45d3d9",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-29T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "b72cdac2-58c0-4207-8a00-7bdaebb679f0",
-    "title": "Call a male family member",
-    "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-08-30T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "9f006a97-c368-47fb-afb1-1702ae678c3e",
-    "title": "Pray with a loved one",
-    "description": "Set aside 10 minutes to pray with a family member or friend.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-08-31T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "8984c79a-f8c1-4219-83b8-935f723b8f73",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-01T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "e265a1d4-e52f-4a2e-a492-dbcfe621e507",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-09-02T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "12691dbf-45f3-4969-8ddd-0eaf2175741b",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-09-03T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "ceb93386-7244-4be6-84a9-8b506899fea3",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-04T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "9cef1874-f904-427e-81d1-f3c67ef4c98c",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-09-05T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "ea9ec002-994d-47a4-b524-b0fa17790f74",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-09-06T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "9b9793b1-d43b-4c75-920e-375e8efe6813",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-09-07T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "9d4334b8-41f3-4155-9749-b0a45868fbab",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-09-08T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "51b3b725-f6b2-45f8-95e9-c891758ced7e",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-09-09T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "baf0b839-074f-48b9-936e-87d65d83c8e4",
-    "title": "Read a Bible chapter",
-    "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-10T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "f2ed0ad6-d7f4-41b4-bd8f-02f92dd2c065",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-11T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "0c7c50f4-e7df-4378-8ea2-4a23efb34886",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-12T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "9ee996e3-e74e-43a7-8c98-c944d8d30420",
-    "title": "Pray with a loved one",
-    "description": "Set aside 10 minutes to pray with a family member or friend.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-09-13T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "475cae18-966c-4c37-b0dc-9464c6268b7b",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-14T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "02aee3aa-5f43-424e-a14f-5b176d9ed79b",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-09-15T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "abcf5dd4-2f9a-4328-b64d-c2e46460deca",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-09-16T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "a54a3d34-6dc3-4be6-ab53-e8849e9bf663",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-09-17T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "4198c1c5-a0b3-40d4-aeef-229e778b795c",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-18T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "f16b0104-085c-4177-adb6-23a430af6635",
-    "title": "Help a neighbor",
-    "description": "Offer assistance to a neighbor with chores or errands.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-09-19T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "0e880333-e724-4537-96ee-bcaa98a25968",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-20T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "641faad4-d5d4-4784-a2fb-c936858073b2",
-    "title": "Help a neighbor",
-    "description": "Offer assistance to a neighbor with chores or errands.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-09-21T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "3606ca24-3349-4e14-b3cd-57e83194f2a3",
-    "title": "Read a Bible chapter",
-    "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-09-22T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "18be497b-947b-4754-93ce-af8e126e389d",
-    "title": "Pray with a loved one",
-    "description": "Set aside 10 minutes to pray with a family member or friend.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-09-23T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "82f6f1f1-61e6-438e-bcca-427fe3262cf2",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-09-24T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "cebb573b-29e5-468f-a1e6-ca8c1f1be34e",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-25T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "e4209e6e-b631-4a64-b254-d556b36c4a7d",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-09-26T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "f286b313-fab4-4c52-bb1a-1486f3e269dd",
-    "title": "Read a Bible chapter",
-    "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-27T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "9149d63d-d330-4966-b982-5c7b22686a1b",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-09-28T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "2d43c72d-83b6-4e64-a0ff-f89178cc0050",
-    "title": "Help a neighbor",
-    "description": "Offer assistance to a neighbor with chores or errands.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-09-29T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "39b89896-ff0b-4cbe-a7bf-67d391f436c0",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-09-30T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "355c0f97-fa0d-4bbb-94ce-1414924caa28",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-10-01T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "4319df2b-fac1-452f-99d0-2bf6fbf8eb38",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-10-02T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "ea164ade-1965-4009-8081-aa1fa56c2ad9",
-    "title": "Help a neighbor",
-    "description": "Offer assistance to a neighbor with chores or errands.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-10-03T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "c26dc902-8137-4f10-bd08-b8f9d4f6bf95",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 10,
-    "date": "2025-10-04T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "17ce809a-1659-48b1-b958-d3f827084d94",
-    "title": "Attend a midweek church service",
-    "description": "Go to a Wednesday or midweek church event.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-10-05T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "5631ed91-b70c-452e-8ae7-210e920d2659",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-10-06T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "bf77db1d-d3b4-41a0-98a9-4c7641bb9784",
-    "title": "Read a Bible chapter",
-    "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-10-07T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "0c805ed9-81e9-446a-9005-23ac98433840",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-10-08T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "a10713ed-3457-42af-8345-215c068e6216",
-    "title": "Encourage your spouse",
-    "description": "Write a note or send a message to your spouse with words of appreciation.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-10-09T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "940bb198-1218-436c-a18b-e61dae30a450",
-    "title": "Plan a family devotion",
-    "description": "Lead a 15-minute devotion with your household.",
-    "type": "manhood_challenge",
-    "points": 3,
-    "date": "2025-10-10T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "38e8a66c-5095-4ece-8aae-1374e406ceca",
-    "title": "Fast for half a day",
-    "description": "Skip a meal and use the time to pray and read scripture.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-10-11T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "8f63f8f3-8953-4833-91ca-4caec7907f2e",
-    "title": "Help a neighbor",
-    "description": "Offer assistance to a neighbor with chores or errands.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-10-12T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "c680dc77-dc94-4d0b-a24d-9a1d44bbdfc2",
-    "title": "Speak life today",
-    "description": "Compliment at least three people genuinely.",
-    "type": "manhood_challenge",
-    "points": 5,
-    "date": "2025-10-13T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "354fc33d-8b0f-49f4-ac0d-b51906eea385",
-    "title": "Family dinner night",
-    "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-10-14T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  },
-  {
-    "id": "bff06014-4ae2-46d4-8903-f20d88ad5012",
-    "title": "Speak life today",
-    "description": "Compliment at least three people genuinely.",
-    "type": "manhood_challenge",
-    "points": 7,
-    "date": "2025-10-15T11:28:26.244648",
-    "created_at": "2025-07-08T11:28:26.244648",
-    "updated_at": "2025-07-08T11:28:26.244648"
-  }
-]
+{
+  "challenges": [
+    {
+      "id": "a53919f5-476e-454b-8208-3a75f2514d09",
+      "title": "Read a Bible chapter",
+      "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-07-08T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "16456505-e928-4e7f-ba23-0d71ad0a7584",
+      "title": "Help a neighbor",
+      "description": "Offer assistance to a neighbor with chores or errands.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-07-09T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "59a3088b-b7a5-443f-a89a-901deccbaf86",
+      "title": "Call a male family member",
+      "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-10T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "279c1c19-acfc-41be-a33d-8a5262d06e30",
+      "title": "Pray with a loved one",
+      "description": "Set aside 10 minutes to pray with a family member or friend.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-07-11T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "c1da180a-605e-4ce2-a78f-037368bd404d",
+      "title": "Speak life today",
+      "description": "Compliment at least three people genuinely.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-12T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "a87c90bb-d5e6-4975-8218-9a3096fa51de",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-07-13T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "aa6bde1e-8055-4f65-9455-dd48d64b97b2",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-07-14T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "e0767569-a350-49f9-be2d-6c8dcddaf85d",
+      "title": "Call a male family member",
+      "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-15T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "2c5c547e-27ce-48a2-b685-473585a5df7a",
+      "title": "Help a neighbor",
+      "description": "Offer assistance to a neighbor with chores or errands.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-16T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "c4acb794-7412-4541-965b-fbe2e76bda51",
+      "title": "Pray with a loved one",
+      "description": "Set aside 10 minutes to pray with a family member or friend.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-17T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "46eb4a9e-67ce-49d4-8a62-64a279350ece",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-18T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "310e383b-dd57-4373-b997-4820a6e01da4",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-19T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "d2bdaa9f-d24c-4cbb-bd46-9d93d18f293c",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-20T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "6af9b340-1000-4ab4-9cf0-4ffaf20f418d",
+      "title": "Help a neighbor",
+      "description": "Offer assistance to a neighbor with chores or errands.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-07-21T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "15b98aa4-4d1c-4a8c-8b8a-fb39b68c054f",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-07-22T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "309e715e-ce24-4c09-8271-9ddcc6e34e63",
+      "title": "Pray with a loved one",
+      "description": "Set aside 10 minutes to pray with a family member or friend.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-07-23T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "163a9559-c7d6-4ac4-91ef-e56c25d1909c",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-24T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "b27034b2-8e96-4bda-aa70-593b1a937612",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-07-25T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "fcc025a1-6d9c-467d-8206-b0824c4abb90",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-07-26T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "bfd59a09-b7e8-482b-9996-21f4baf28ded",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-07-27T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "306c2cf6-ab8b-4c8f-9d41-0c287d546c65",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-07-28T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "78689e44-0457-403b-b3ff-283277a57f24",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-07-29T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "d65e7f44-0a3f-448d-9625-b2ae2e831b0a",
+      "title": "Call a male family member",
+      "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-07-30T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "65dc6870-a958-41ea-aced-797332c475dc",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-07-31T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "b8e8e4b3-2f86-4240-aefd-44a12d02b2d1",
+      "title": "Speak life today",
+      "description": "Compliment at least three people genuinely.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-01T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "9e11e4a0-ea6d-4fad-9029-51aa63492bd0",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-08-02T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "d5d3d94e-db0c-43f8-8c2c-b99e0c23f774",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-03T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "30e33ac7-b9e0-4a88-a311-381a65701083",
+      "title": "Call a male family member",
+      "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-04T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "c1115fdf-be74-4fec-b315-845ea00912b9",
+      "title": "Call a male family member",
+      "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-05T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "8eafcdcb-99cb-4116-956a-7adf294b1240",
+      "title": "Call a male family member",
+      "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-08-06T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "6ba64541-d28a-4fec-adbc-a162eaf204a7",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-07T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "5eb7995d-3efa-4559-82f3-2268f13f6cb8",
+      "title": "Speak life today",
+      "description": "Compliment at least three people genuinely.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-08T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "c7d37f5b-9bce-4d71-a1de-f99dc8c7f92a",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-09T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "a315af0c-48a5-4c03-9593-bfaa21cc77a6",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-08-10T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "30428e01-261a-40d8-ad3c-998258b10f1c",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-08-11T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "7c6b9526-c65f-4e87-bf29-4899105aa63d",
+      "title": "Speak life today",
+      "description": "Compliment at least three people genuinely.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-12T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "36e0bb40-316d-4032-8cd7-5d15cf860810",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-13T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "8c81216e-a1b3-490b-b8be-f86aa62996c9",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-08-14T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "c4569334-9aa3-42d6-8dfb-3fadf2f42715",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-15T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "a587fd3d-b7d4-4030-b37d-928fadf4a567",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-16T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "64d388a7-e514-4fe9-bf89-a90fb0f44c37",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-08-17T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "9bd752d7-d8b0-4c28-aaa7-c6df20aaba53",
+      "title": "Pray with a loved one",
+      "description": "Set aside 10 minutes to pray with a family member or friend.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-18T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "32a6b3a7-ac8d-4094-8738-796a014e5a1c",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-08-19T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "db71ecbc-e82d-4adb-8a7c-78bab49567cd",
+      "title": "Speak life today",
+      "description": "Compliment at least three people genuinely.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-20T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "ca726537-b1f7-4aef-821f-7f2c849bf377",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-08-21T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "53c4a1b3-312d-458a-9fe3-76f562345981",
+      "title": "Read a Bible chapter",
+      "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-22T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "2b10539c-63c9-4fe0-9e1b-c84b41b8cdb9",
+      "title": "Read a Bible chapter",
+      "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-23T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "a6136d95-8f24-4ff7-a620-3d29b898e23c",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-24T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "21180f7e-0dfe-46ca-86fd-f5ab57bd4fc2",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-25T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "99d7a3cb-0d54-4045-aa26-c66cccff93b7",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-08-26T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "e75d41bd-b2ea-4850-b317-acf4ae60b4b4",
+      "title": "Help a neighbor",
+      "description": "Offer assistance to a neighbor with chores or errands.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-27T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "f8425ba5-f987-4d41-8562-d4617e20e8b6",
+      "title": "Call a male family member",
+      "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-08-28T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "6a3515f7-779f-4701-89f6-a0daeb45d3d9",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-29T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "b72cdac2-58c0-4207-8a00-7bdaebb679f0",
+      "title": "Call a male family member",
+      "description": "Call or message a male family member you haven't spoken to in a while. Ask how they\u2019re doing and offer encouragement.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-08-30T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "9f006a97-c368-47fb-afb1-1702ae678c3e",
+      "title": "Pray with a loved one",
+      "description": "Set aside 10 minutes to pray with a family member or friend.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-08-31T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "8984c79a-f8c1-4219-83b8-935f723b8f73",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-01T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "e265a1d4-e52f-4a2e-a492-dbcfe621e507",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-09-02T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "12691dbf-45f3-4969-8ddd-0eaf2175741b",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-09-03T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "ceb93386-7244-4be6-84a9-8b506899fea3",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-04T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "9cef1874-f904-427e-81d1-f3c67ef4c98c",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-09-05T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "ea9ec002-994d-47a4-b524-b0fa17790f74",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-09-06T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "9b9793b1-d43b-4c75-920e-375e8efe6813",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-09-07T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "9d4334b8-41f3-4155-9749-b0a45868fbab",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-09-08T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "51b3b725-f6b2-45f8-95e9-c891758ced7e",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-09-09T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "baf0b839-074f-48b9-936e-87d65d83c8e4",
+      "title": "Read a Bible chapter",
+      "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-10T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "f2ed0ad6-d7f4-41b4-bd8f-02f92dd2c065",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-11T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "0c7c50f4-e7df-4378-8ea2-4a23efb34886",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-12T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "9ee996e3-e74e-43a7-8c98-c944d8d30420",
+      "title": "Pray with a loved one",
+      "description": "Set aside 10 minutes to pray with a family member or friend.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-09-13T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "475cae18-966c-4c37-b0dc-9464c6268b7b",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-14T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "02aee3aa-5f43-424e-a14f-5b176d9ed79b",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-09-15T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "abcf5dd4-2f9a-4328-b64d-c2e46460deca",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-09-16T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "a54a3d34-6dc3-4be6-ab53-e8849e9bf663",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-09-17T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "4198c1c5-a0b3-40d4-aeef-229e778b795c",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-18T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "f16b0104-085c-4177-adb6-23a430af6635",
+      "title": "Help a neighbor",
+      "description": "Offer assistance to a neighbor with chores or errands.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-09-19T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "0e880333-e724-4537-96ee-bcaa98a25968",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-20T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "641faad4-d5d4-4784-a2fb-c936858073b2",
+      "title": "Help a neighbor",
+      "description": "Offer assistance to a neighbor with chores or errands.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-09-21T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "3606ca24-3349-4e14-b3cd-57e83194f2a3",
+      "title": "Read a Bible chapter",
+      "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-09-22T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "18be497b-947b-4754-93ce-af8e126e389d",
+      "title": "Pray with a loved one",
+      "description": "Set aside 10 minutes to pray with a family member or friend.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-09-23T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "82f6f1f1-61e6-438e-bcca-427fe3262cf2",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-09-24T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "cebb573b-29e5-468f-a1e6-ca8c1f1be34e",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-25T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "e4209e6e-b631-4a64-b254-d556b36c4a7d",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-09-26T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "f286b313-fab4-4c52-bb1a-1486f3e269dd",
+      "title": "Read a Bible chapter",
+      "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-27T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "9149d63d-d330-4966-b982-5c7b22686a1b",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-09-28T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "2d43c72d-83b6-4e64-a0ff-f89178cc0050",
+      "title": "Help a neighbor",
+      "description": "Offer assistance to a neighbor with chores or errands.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-09-29T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "39b89896-ff0b-4cbe-a7bf-67d391f436c0",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-09-30T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "355c0f97-fa0d-4bbb-94ce-1414924caa28",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-10-01T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "4319df2b-fac1-452f-99d0-2bf6fbf8eb38",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-10-02T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "ea164ade-1965-4009-8081-aa1fa56c2ad9",
+      "title": "Help a neighbor",
+      "description": "Offer assistance to a neighbor with chores or errands.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-10-03T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "c26dc902-8137-4f10-bd08-b8f9d4f6bf95",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 10,
+      "date": "2025-10-04T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "17ce809a-1659-48b1-b958-d3f827084d94",
+      "title": "Attend a midweek church service",
+      "description": "Go to a Wednesday or midweek church event.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-10-05T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "5631ed91-b70c-452e-8ae7-210e920d2659",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-10-06T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "bf77db1d-d3b4-41a0-98a9-4c7641bb9784",
+      "title": "Read a Bible chapter",
+      "description": "Read a chapter from Proverbs and reflect on how it applies to your life.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-10-07T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "0c805ed9-81e9-446a-9005-23ac98433840",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-10-08T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "a10713ed-3457-42af-8345-215c068e6216",
+      "title": "Encourage your spouse",
+      "description": "Write a note or send a message to your spouse with words of appreciation.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-10-09T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "940bb198-1218-436c-a18b-e61dae30a450",
+      "title": "Plan a family devotion",
+      "description": "Lead a 15-minute devotion with your household.",
+      "type": "manhood_challenge",
+      "points": 3,
+      "date": "2025-10-10T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "38e8a66c-5095-4ece-8aae-1374e406ceca",
+      "title": "Fast for half a day",
+      "description": "Skip a meal and use the time to pray and read scripture.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-10-11T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "8f63f8f3-8953-4833-91ca-4caec7907f2e",
+      "title": "Help a neighbor",
+      "description": "Offer assistance to a neighbor with chores or errands.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-10-12T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "c680dc77-dc94-4d0b-a24d-9a1d44bbdfc2",
+      "title": "Speak life today",
+      "description": "Compliment at least three people genuinely.",
+      "type": "manhood_challenge",
+      "points": 5,
+      "date": "2025-10-13T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "354fc33d-8b0f-49f4-ac0d-b51906eea385",
+      "title": "Family dinner night",
+      "description": "Organize and lead a family dinner. Share one thing you're thankful for.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-10-14T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    },
+    {
+      "id": "bff06014-4ae2-46d4-8903-f20d88ad5012",
+      "title": "Speak life today",
+      "description": "Compliment at least three people genuinely.",
+      "type": "manhood_challenge",
+      "points": 7,
+      "date": "2025-10-15T11:28:26.244648",
+      "created_at": "2025-07-08T11:28:26.244648",
+      "updated_at": "2025-07-08T11:28:26.244648"
+    }
+  ]
+}

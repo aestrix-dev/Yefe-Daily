@@ -11,13 +11,19 @@ import (
 	"time"
 	"yefe_app/v1/internal/infrastructure"
 	"yefe_app/v1/internal/repository"
+	"yefe_app/v1/pkg/cache"
 	"yefe_app/v1/pkg/logger"
+	service "yefe_app/v1/pkg/services"
 	"yefe_app/v1/pkg/utils"
 )
 
 func main() {
+
+	logger.Init()
+
 	basePath, _ := utils.GetBasePath()
 	pathToPuzzles := path.Join(basePath, "extras", "puzzles.json")
+	pathToChallenges := path.Join(basePath, "extras", "challenges.json")
 
 	// Load configuration
 	config, err := utils.LoadConfig()
@@ -26,10 +32,24 @@ func main() {
 		return
 	}
 
-	// Init logger
-	logger.Init()
+	serverCtx, serverStopCtx := context.WithCancel(context.Background())
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
-	logger.Log.WithFields(map[string]interface{}{
+	inmemeoryCache := cache.NewCache(cache.CacheOptions{
+		MaxSize:         500,
+		DefaultTTL:      24 * time.Hour,
+		CleanupInterval: 24 * time.Hour,
+		EnableStats:     true,
+	})
+
+	scheduler := service.NewScheduler(logger.Log, serverCtx, serverStopCtx)
+	scheduler.Start()
+	defer scheduler.Stop()
+
+	// Init logger
+
+	logger.Log.WithFields(map[string]any{
 		"host": config.Server.Host,
 		"port": config.Server.Port,
 	}).Debug("Configuration loaded")
@@ -40,8 +60,8 @@ func main() {
 		logger.Log.WithError(err).Fatal("Failed to initialize database")
 		return
 	}
-
 	logger.Log.Info("Database initialized")
+
 	secEventRepo := repository.NewPostgresSecurityEventRepository(db)
 	sessionRepo, err := repository.NewRedisSessionRepository(config.Persistence.Redis)
 	if err != nil {
@@ -52,9 +72,48 @@ func main() {
 	journalRepo := repository.NewJournalRepository(db)
 	userPuzzledRepo := repository.NewUserPuzzleRepository(db)
 	puzzleRepo := repository.NewPuzzleRepository(pathToPuzzles)
-	challengeRepo := repository.NewChallengeRepository(db)
+	challengeRepo, err := repository.NewChallengeRepository(db, pathToChallenges)
+	if err != nil {
+		logger.Log.WithError(err).Fatal("Failed to load challenges")
+		return
+
+	}
 	userChallengeRepo := repository.NewUserChallengeRepository(db)
 	statsRepo := repository.NewChallengeStatsRepository(db)
+
+	scheduler.AddJob("set-daily-puzzle", "Daily Puzzly", utils.DAILY, func(ctx context.Context) error {
+		_, ok := inmemeoryCache.Get("daily-puzzle")
+		if !ok {
+			puzzle, err := puzzleRepo.GetRandomPuzzle()
+			if err != nil {
+				logger.Log.WithError(err).Error("Could not generate daily puzzle")
+				return err
+			}
+			logger.Log.WithFields(map[string]any{
+				"ID":   puzzle.ID,
+				"date": time.Now().String(),
+			}).Debug("Created new daily puzzle")
+			inmemeoryCache.SetWithTTLAndContext(serverCtx, "daily-puzzle", puzzle, 24*time.Hour)
+		}
+		return nil
+	})
+
+	scheduler.AddJob("set-daily-challenges", "Daily Challenges", utils.DAILY, func(ctx context.Context) error {
+		_, ok := inmemeoryCache.Get("daily-challenge")
+		if !ok {
+			challenge := challengeRepo.GetRandomChallange() // TODO this should also return an error
+			logger.Log.WithFields(map[string]any{
+				"ID":   challenge.ID,
+				"date": time.Now().String(),
+			}).Debug("Created new daily challenge")
+			err := challengeRepo.CreateChallenge(&challenge)
+			if err != nil {
+				logger.Log.WithError(err).Error("Could not create challenge puzzle")
+			}
+			inmemeoryCache.SetWithTTLAndContext(serverCtx, "daily-challenge", challenge, 24*time.Hour)
+		}
+		return nil
+	})
 
 	serverConfig := infrastructure.ServerConfig{
 		DB:                db,
@@ -78,9 +137,6 @@ func main() {
 	logger.Log.WithField("address", address).Info("Starting server")
 
 	// Graceful shutdown setup
-	serverCtx, serverStopCtx := context.WithCancel(context.Background())
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	go func() {
 		<-sig

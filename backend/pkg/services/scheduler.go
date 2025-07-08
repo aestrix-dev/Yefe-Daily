@@ -63,10 +63,6 @@ type Scheduler struct {
 // NewScheduler creates a new scheduler instance
 func NewScheduler(logger *logrus.Logger, ctx context.Context, cancel context.CancelFunc) *Scheduler {
 
-	if logger == nil {
-		logger = logrus.New()
-	}
-
 	scheduler := &Scheduler{
 		cron:    cron.New(cron.WithSeconds()),
 		jobs:    make(map[string]*Job),
