@@ -2,32 +2,11 @@ package models
 
 import (
 	"time"
+	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 
 	"gorm.io/gorm"
 )
-
-// Challenge represents a daily challenge for users
-type Challenge struct {
-	ID          string         `gorm:"primaryKey;type:varchar(36)" json:"id"`
-	Title       string         `gorm:"type:varchar(255);not null" json:"title"`
-	Description string         `gorm:"type:text" json:"description"`
-	Type        string         `gorm:"type:varchar(50);not null;index" json:"type"`
-	Points      int            `gorm:"default:0" json:"points"`
-	Date        time.Time      `gorm:"type:date;not null;index" json:"date"`
-	IsActive    bool           `gorm:"default:true" json:"is_active"`
-	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
-
-	// Relationships
-	UserChallenges []UserChallenge `gorm:"foreignKey:ChallengeID;constraint:OnDelete:CASCADE" json:"user_challenges,omitempty"`
-}
-
-// TableName overrides the table name used by Challenge to `challenges`
-func (Challenge) TableName() string {
-	return "challenges"
-}
 
 // UserChallenge represents a user's interaction with a challenge
 type UserChallenge struct {
@@ -42,8 +21,8 @@ type UserChallenge struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 
 	// Relationships
-	Challenge Challenge `gorm:"foreignKey:ChallengeID;constraint:OnDelete:CASCADE" json:"challenge,omitempty"`
-	User      User      `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user,omitempty"`
+	Challenge domain.Challenge `gorm:"foreignKey:ChallengeID;constraint:OnDelete:CASCADE" json:"challenge,omitempty"`
+	User      User             `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user,omitempty"`
 }
 
 // TableName overrides the table name used by UserChallenge to `user_challenges`
@@ -67,79 +46,12 @@ type ChallengeStats struct {
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 
 	// Relationships
-	User User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user,omitempty"`
+	User User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user"`
 }
 
 // TableName overrides the table name used by ChallengeStats to `challenge_stats`
 func (ChallengeStats) TableName() string {
 	return "challenge_stats"
-}
-
-// ChallengeType represents different types of challenges
-type ChallengeType struct {
-	ID          string         `gorm:"primaryKey;type:varchar(36)" json:"id"`
-	Name        string         `gorm:"type:varchar(100);uniqueIndex;not null" json:"name"`
-	Code        string         `gorm:"type:varchar(50);uniqueIndex;not null" json:"code"`
-	Description string         `gorm:"type:text" json:"description"`
-	IconName    string         `gorm:"type:varchar(100)" json:"icon_name"`
-	Color       string         `gorm:"type:varchar(7)" json:"color"` // Hex color code
-	IsActive    bool           `gorm:"default:true" json:"is_active"`
-	SortOrder   int            `gorm:"default:0" json:"sort_order"`
-	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
-
-	// Relationships
-	Challenges []Challenge `gorm:"foreignKey:Type;references:Code;constraint:OnDelete:RESTRICT" json:"challenges,omitempty"`
-}
-
-// TableName overrides the table name used by ChallengeType to `challenge_types`
-func (ChallengeType) TableName() string {
-	return "challenge_types"
-}
-
-// UserAchievement represents achievements earned by users
-type UserAchievement struct {
-	ID            string         `gorm:"primaryKey;type:varchar(36)" json:"id"`
-	UserID        string         `gorm:"type:varchar(36);not null;index" json:"user_id"`
-	AchievementID string         `gorm:"type:varchar(36);not null;index" json:"achievement_id"`
-	EarnedAt      time.Time      `gorm:"not null" json:"earned_at"`
-	CreatedAt     time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt     time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt     gorm.DeletedAt `gorm:"index" json:"deleted_at"`
-
-	// Relationships
-	User        User        `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user,omitempty"`
-	Achievement Achievement `gorm:"foreignKey:AchievementID;constraint:OnDelete:CASCADE" json:"achievement,omitempty"`
-}
-
-// TableName overrides the table name used by UserAchievement to `user_achievements`
-func (UserAchievement) TableName() string {
-	return "user_achievements"
-}
-
-// Achievement represents achievements that users can earn
-type Achievement struct {
-	ID          string         `gorm:"primaryKey;type:varchar(36)" json:"id"`
-	Name        string         `gorm:"type:varchar(255);not null" json:"name"`
-	Description string         `gorm:"type:text" json:"description"`
-	IconName    string         `gorm:"type:varchar(100)" json:"icon_name"`
-	BadgeColor  string         `gorm:"type:varchar(7)" json:"badge_color"`
-	Points      int            `gorm:"default:0" json:"points"`
-	Criteria    string         `gorm:"type:text" json:"criteria"` // JSON string with criteria
-	IsActive    bool           `gorm:"default:true" json:"is_active"`
-	SortOrder   int            `gorm:"default:0" json:"sort_order"`
-	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
-
-	// Relationships
-	UserAchievements []UserAchievement `gorm:"foreignKey:AchievementID;constraint:OnDelete:CASCADE" json:"user_achievements,omitempty"`
-}
-
-// TableName overrides the table name used by Achievement to `achievements`
-func (Achievement) TableName() string {
-	return "achievements"
 }
 
 // Helper methods for UserChallenge
