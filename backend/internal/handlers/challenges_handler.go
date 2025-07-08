@@ -40,6 +40,7 @@ func (h *challengesHandler) getTodaysChallenges(w http.ResponseWriter, r *http.R
 	userID := getUserIDFromContext(r.Context())
 
 	challenges, err := h.challengeUseCase.GetUserChallengeForToday(userID)
+
 	if err != nil {
 		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
 		return

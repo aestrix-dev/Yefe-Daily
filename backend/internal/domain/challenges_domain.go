@@ -91,7 +91,7 @@ type ChallengeUseCase interface {
 	GetChallengeByDate(date time.Time) (Challenge, error)
 
 	// User challenge interactions
-	AssignChallengeToUser(userID string, date time.Time) error
+	AssignChallengeToUser(userID string) error
 	GetUserChallengeForToday(userID string) (UserChallenge, error)
 	GetUserChallengeHistory(userID string, limit int) ([]UserChallenge, error)
 

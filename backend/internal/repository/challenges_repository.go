@@ -105,12 +105,15 @@ func (r *challengeRepositoryImpl) GetChallengeByDate(date time.Time) (domain.Cha
 // GetTodaysChallenges retrieves today's challenges
 func (r *challengeRepositoryImpl) GetTodaysChallenge() (domain.Challenge, error) {
 	today := time.Now().Format("2006-01-02")
-	var dbchallenge models.Challenge
+	var dbChallenge models.Challenge
 	var challenge domain.Challenge
-	if err := r.db.Where("date = ? AND is_active = ?", today, true).Find(&dbchallenge).Error; err != nil {
+	if err := r.db.
+		Where("DATE(created_at) = ? AND is_active = ?", today, true).
+		First(&dbChallenge).Error; err != nil {
 		return domain.Challenge{}, err
 	}
-	err := utils.TypeConverter(dbchallenge, &challenge)
+
+	err := utils.TypeConverter(dbChallenge, &challenge)
 	if err != nil {
 		return domain.Challenge{}, err
 	}
@@ -149,10 +152,6 @@ func (r *userChallengeRepositoryImpl) CreateUserChallenge(userChallenge domain.U
 	if err := r.db.Create(modelUserChallenge).Error; err != nil {
 		return err
 	}
-
-	// Update the domain object with any auto-generated values
-	userChallenge.CreatedAt = modelUserChallenge.CreatedAt
-	userChallenge.UpdatedAt = modelUserChallenge.UpdatedAt
 	return nil
 }
 
@@ -162,7 +161,7 @@ func (r *userChallengeRepositoryImpl) GetTodaysUserChallenge(userID string) (dom
 	var userChallenge domain.UserChallenge
 	if err := r.db.Preload("Challenge").
 		Joins("JOIN challenges ON challenges.id = user_challenges.challenge_id").
-		Where("user_challenges.user_id = ? AND challenges.date = ?", userID, today).
+		Where("user_challenges.user_id = ? AND DATE(challenges.created_at) = ?", userID, today).
 		Find(&dbuserChallenge).Error; err != nil {
 		return domain.UserChallenge{}, err
 	}

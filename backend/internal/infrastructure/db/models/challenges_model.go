@@ -8,16 +8,15 @@ import (
 
 // Challenge represents a daily challenge for users
 type Challenge struct {
-	ID          string         `gorm:"primaryKey;type:varchar(36)" json:"id"`
-	Title       string         `gorm:"type:varchar(255);not null" json:"title"`
-	Description string         `gorm:"type:text" json:"description"`
-	Type        string         `gorm:"type:varchar(50);not null;index" json:"type"`
-	Points      int            `gorm:"default:0" json:"points"`
-	Date        time.Time      `gorm:"type:date;not null;index" json:"date"`
-	IsActive    bool           `gorm:"default:true" json:"is_active"`
-	CreatedAt   time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt   time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	ID          string    `gorm:"primaryKey;type:varchar(36)" json:"id"`
+	Title       string    `gorm:"type:varchar(255);not null" json:"title"`
+	Description string    `gorm:"type:text" json:"description"`
+	Type        string    `gorm:"type:varchar(50);not null;index" json:"type"`
+	Points      int       `gorm:"default:0" json:"points"`
+	Date        time.Time `gorm:"type:date;not null;index" json:"date"`
+	IsActive    bool      `gorm:"default:true" json:"is_active"`
+	CreatedAt   time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 
 	// Relationships
 	UserChallenges []UserChallenge `gorm:"foreignKey:ChallengeID;constraint:OnDelete:CASCADE" json:"user_challenges,omitempty"`

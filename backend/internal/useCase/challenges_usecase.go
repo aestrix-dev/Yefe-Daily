@@ -6,8 +6,7 @@ import (
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
-
-	"github.com/google/uuid"
+	"yefe_app/v1/pkg/utils"
 )
 
 // ChallengeUseCaseImpl implements the ChallengeUseCase interface
@@ -50,14 +49,6 @@ func (c *ChallengeUseCaseImpl) GetChallengeByDate(date time.Time) (domain.Challe
 	return c.challengeRepo.GetChallengeByDate(date)
 }
 
-func (c *ChallengeUseCaseImpl) GetUserChallengeForToday(userId string) (domain.UserChallenge, error) {
-	if userId == "" {
-		return domain.UserChallenge{}, errors.New("UserID cannnot be empty")
-	}
-
-	return c.userChallengeRepo.GetTodaysUserChallenge(userId)
-}
-
 func (c *ChallengeUseCaseImpl) GetUserStats(userId string) (domain.ChallengeStats, error) {
 	if userId == "" {
 		return domain.ChallengeStats{}, errors.New("UserID cannnot be empty")
@@ -67,32 +58,22 @@ func (c *ChallengeUseCaseImpl) GetUserStats(userId string) (domain.ChallengeStat
 }
 
 // AssignChallengeToUser assigns all challenges for a specific date to a user
-func (c *ChallengeUseCaseImpl) AssignChallengeToUser(userID string, date time.Time) error {
+func (c *ChallengeUseCaseImpl) AssignChallengeToUser(userID string) error {
 	if userID == "" {
 		return errors.New("user ID cannot be empty")
 	}
-
-	// Get challenges for the date
-	challenge, err := c.challengeRepo.GetChallengeByDate(date)
+	challenge, err := c.GetTodaysChallenges()
 	if err != nil {
-		return fmt.Errorf("error getting challenges for date: %w", err)
+		return err
 	}
 
-	// Check if user already has challenges assigned for this date
-	existingUserChallenges, err := c.userChallengeRepo.GetUserChallengesByDate(userID, date)
-	if err != nil {
-		return fmt.Errorf("error checking existing user challenges: %w", err)
-	}
-
-	// Create a map of existing challenge IDs for quick lookup
-	existingChallengeIDs := make(map[string]bool)
-	for _, uc := range existingUserChallenges {
-		existingChallengeIDs[uc.ChallengeID] = true
+	if _, err := c.userChallengeRepo.GetTodaysUserChallenge(userID); err == nil {
+		return nil
 	}
 
 	// Assign challenges that don't already exist
 	userChallenge := domain.UserChallenge{
-		ID:          uuid.New().String(),
+		ID:          utils.GenerateID(),
 		UserID:      userID,
 		ChallengeID: challenge.ID,
 		Status:      dto.StatusPending,
@@ -108,14 +89,13 @@ func (c *ChallengeUseCaseImpl) AssignChallengeToUser(userID string, date time.Ti
 }
 
 // GetUserChallengesForToday retrieves user's challenges for today
-func (c *ChallengeUseCaseImpl) GetUserChallengesForToday(userID string) (domain.UserChallenge, error) {
+func (c *ChallengeUseCaseImpl) GetUserChallengeForToday(userID string) (domain.UserChallenge, error) {
 	if userID == "" {
 		return domain.UserChallenge{}, errors.New("user ID cannot be empty")
 	}
 
 	// First, ensure challenges are assigned for today
-	today := time.Now().Truncate(24 * time.Hour)
-	if err := c.AssignChallengeToUser(userID, today); err != nil {
+	if err := c.AssignChallengeToUser(userID); err != nil {
 		return domain.UserChallenge{}, fmt.Errorf("error assigning today's challenges: %w", err)
 	}
 
@@ -143,34 +123,23 @@ func (c *ChallengeUseCaseImpl) CompleteChallenge(userID, challengeID string) err
 		return errors.New("challenge ID cannot be empty")
 	}
 
-	// Get the user challenge
-	challenges, err := c.userChallengeRepo.GetUserChallengesByUserID(userID)
+	challenge, err := c.challengeRepo.GetTodaysChallenge()
 	if err != nil {
-		return fmt.Errorf("error getting user challenges: %w", err)
-	}
-
-	var userChallenge domain.UserChallenge
-	for _, uc_ := range challenges {
-		if uc_.ChallengeID == challengeID {
-			userChallenge = uc_
-			break
-		}
-	}
-
-	if challenges == nil {
-		return errors.New("user challenge not found")
-	}
-
-	if userChallenge.Status == dto.StatusCompleted {
-		return errors.New("challenge is already completed")
+		return err
 	}
 
 	// Get the challenge to get points
-	challenge, err := c.challengeRepo.GetChallengeByID(challengeID)
+	userChallenge, err := c.userChallengeRepo.GetUserChallengeByID(challengeID)
 	if err != nil {
 		return fmt.Errorf("error getting challenge: %w", err)
 	}
 
+	if challenge.ID != userChallenge.ChallengeID {
+		return errors.New("Challenge not found")
+	}
+	if userChallenge.Status == dto.StatusCompleted {
+		return errors.New("challenge is already completed")
+	}
 	// Update user challenge status
 	completedAt := time.Now()
 	userChallenge.Status = dto.StatusCompleted
