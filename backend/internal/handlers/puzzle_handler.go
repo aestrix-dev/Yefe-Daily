@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/logger"
@@ -51,9 +52,16 @@ func (h *puzzleHandler) GetDailyPuzzle(w http.ResponseWriter, r *http.Request) {
 
 // SubmitDailyPuzzleAnswer submits answer for today's puzzle
 func (h *puzzleHandler) SubmitDailyPuzzleAnswer(w http.ResponseWriter, r *http.Request) {
+	today := time.Now().Format("2006-01-02")
 	userID := getUserIDFromContext(r.Context())
 	if userID == "" {
 		utils.ErrorResponse(w, http.StatusUnauthorized, "Unauthorized", nil)
+		return
+	}
+
+	_, err := h.puzzleUseCase.GetUserPuzzleProgressForDate(userID, today)
+	if err == nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "User already submitted", nil)
 		return
 	}
 

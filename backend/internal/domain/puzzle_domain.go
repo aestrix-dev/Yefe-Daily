@@ -57,17 +57,15 @@ type UserPuzzleRepository interface {
 	UpdateUserPuzzleProgress(progress *UserPuzzleProgress) error
 	GetUserPuzzleProgressByUserID(userID string) ([]UserPuzzleProgress, error)
 	GetUserPuzzleStats(userID string) (*PuzzleStats, error)
-	HasUserCompletedDailyPuzzle(userID string) (bool, error)
 	GetUserStreakCount(userID string) (int, error)
-	DeleteUserPuzzleProgress(userID, puzzleID string) error
 }
 
 type PuzzleUseCase interface {
 	GetAllPuzzles() ([]Puzzle, error)
 	GetRandomPuzzle() (*Puzzle, error)
+	GetUserPuzzleProgressForDate(userID, date string) (*UserPuzzleProgress, error)
 	GetUserPuzzleProgress(userID, puzzleID string) (*UserPuzzleProgress, error)
 	GetUserPuzzleStats(userID string) (*PuzzleStats, error)
 	GetUserCompletedPuzzles(userID string) ([]UserPuzzleProgress, error)
-	ResetUserPuzzleProgress(userID, puzzleID string) error
 	SubmitPuzzleAnswer(userID, puzzleID string, selectedAnswer int) (*dto.PuzzleSubmissionResult, error)
 }

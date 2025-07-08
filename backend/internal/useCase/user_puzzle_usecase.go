@@ -131,6 +131,6 @@ func (uc *puzzleUseCase) GetUserCompletedPuzzles(userID string) ([]domain.UserPu
 	return completedPuzzles, nil
 }
 
-func (uc *puzzleUseCase) ResetUserPuzzleProgress(userID, puzzleID string) error {
-	return uc.userPuzzleRepo.DeleteUserPuzzleProgress(userID, puzzleID)
+func (uc *puzzleUseCase) GetUserPuzzleProgressForDate(userID, date string) (*domain.UserPuzzleProgress, error) {
+	return uc.userPuzzleRepo.GetUserPuzzleProgressForDate(userID, date)
 }

@@ -32,7 +32,7 @@ func (r *userPuzzleRepository) CreateUserPuzzleProgress(progress *domain.UserPuz
 
 func (r *userPuzzleRepository) GetUserPuzzleProgressForDate(userID, date string) (*domain.UserPuzzleProgress, error) {
 	var progress domain.UserPuzzleProgress
-	err := r.db.Where("user_id = ? AND date = ?", userID, date).First(&progress).Error
+	err := r.db.Where("user_id = ? AND DATE(created_at) = ?", userID, date).First(&progress).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -125,18 +125,6 @@ func (r *userPuzzleRepository) GetUserPuzzleStats(userID string) (*domain.Puzzle
 	return &stats, nil
 }
 
-func (r *userPuzzleRepository) HasUserCompletedDailyPuzzle(userID string) (bool, error) {
-	var count int64
-	today := time.Now().Format("2006-01-02") // Example: "2025-07-02"
-	err := r.db.Model(&domain.UserPuzzleProgress{}).
-  Where("user_id = ? AND date = ? AND is_completed = ?", userID, today, true).
-		Count(&count).Error
-	if err != nil {
-		return false, fmt.Errorf("failed to check if user completed daily puzzle: %w", err)
-	}
-	return count > 0, nil
-}
-
 func (r *userPuzzleRepository) GetUserStreakCount(userID string) (int, error) {
 	// Get the most recent puzzle completions ordered by completion date
 	var progressList []domain.UserPuzzleProgress
@@ -181,13 +169,4 @@ func (r *userPuzzleRepository) GetUserStreakCount(userID string) (int, error) {
 	}
 
 	return streak, nil
-}
-
-func (r *userPuzzleRepository) DeleteUserPuzzleProgress(userID, puzzleID string) error {
-	err := r.db.Where("user_id = ? AND puzzle_id = ?", userID, puzzleID).
-		Delete(&domain.UserPuzzleProgress{}).Error
-	if err != nil {
-		return fmt.Errorf("failed to delete user puzzle progress: %w", err)
-	}
-	return nil
 }
