@@ -24,6 +24,7 @@ func main() {
 	basePath, _ := utils.GetBasePath()
 	pathToPuzzles := path.Join(basePath, "extras", "puzzles.json")
 	pathToChallenges := path.Join(basePath, "extras", "challenges.json")
+	pathToSongs := path.Join(basePath, "extras", "mood_music_catalog.json")
 
 	// Load configuration
 	config, err := utils.LoadConfig()
@@ -74,13 +75,20 @@ func main() {
 	puzzleRepo := repository.NewPuzzleRepository(pathToPuzzles)
 	adminRepo := repository.NewAdminUserRepository(db, userRepo)
 	challengeRepo, err := repository.NewChallengeRepository(db, pathToChallenges)
+
 	if err != nil {
 		logger.Log.WithError(err).Fatal("Failed to load challenges")
 		return
-
 	}
 	userChallengeRepo := repository.NewUserChallengeRepository(db)
 	statsRepo := repository.NewChallengeStatsRepository(db)
+	songRepo, err := repository.NewJSONMusicRepository(pathToSongs)
+
+	if err != nil {
+		logger.Log.WithError(err).Fatal("Failed to load songs")
+		return
+
+	}
 
 	scheduler.AddJob("set-daily-puzzle", "Daily Puzzly", utils.DAILY, func(ctx context.Context) error {
 		_, ok := inmemeoryCache.Get("daily-puzzle")
@@ -129,6 +137,7 @@ func main() {
 		UserChallengeRepo: userChallengeRepo,
 		StatsRepo:         statsRepo,
 		AdminRepo:         adminRepo,
+		SongRepo:          songRepo,
 	}
 
 	// Setup router and server

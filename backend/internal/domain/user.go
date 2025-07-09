@@ -7,6 +7,13 @@ import (
 	"yefe_app/v1/pkg/types"
 )
 
+type UserType string
+
+const (
+	FreeUser UserType = "free"
+	ProUser  UserType = "pro"
+)
+
 type User struct {
 	ID                 string       `json:"id"`
 	Email              string       `json:"email"`

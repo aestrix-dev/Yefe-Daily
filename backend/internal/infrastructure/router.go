@@ -25,6 +25,7 @@ type ServerConfig struct {
 	UserChallengeRepo domain.UserChallengeRepository
 	StatsRepo         domain.ChallengeStatsRepository
 	AdminRepo         domain.AdminUserRepository
+	SongRepo          domain.SongRepository
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
@@ -41,6 +42,9 @@ func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
 
 func (conf ServerConfig) puzzle_usecase() domain.PuzzleUseCase {
 	return usecase.NewPuzzleUseCase(conf.PuzzleRepo, conf.UserPuzzleRepo)
+}
+func (conf ServerConfig) song_usecase() domain.SongUseCase {
+	return usecase.NewMusicUseCase(conf.SongRepo)
 }
 
 func (conf ServerConfig) challenges_usecase() domain.ChallengeUseCase {
@@ -59,6 +63,7 @@ func NewRouter(config ServerConfig) http.Handler {
 	puzzle_handler := handlers.NewPuzzleHandler(config.puzzle_usecase())
 	challenges_handler := handlers.NewChallengesHandler(config.challenges_usecase())
 	admin_user_handelrs := handlers.NewAdminUserHandler(config.admin_user_usecase())
+	song_handler := handlers.NewMusicHandler(config.song_usecase())
 
 	r.Group(func(r chi.Router) {
 		r.Use(config.auth_middleware().RequireAuth)
@@ -66,6 +71,7 @@ func NewRouter(config ServerConfig) http.Handler {
 		r.Mount("/journal", journal_handlers.Handle())
 		r.Mount("/puzzle", puzzle_handler.Handle())
 		r.Mount("/challenges", challenges_handler.Handle())
+		r.Mount("/songs", song_handler.Handle())
 	})
 
 	r.Group(func(r chi.Router) {

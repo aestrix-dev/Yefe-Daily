@@ -173,3 +173,4 @@ func (m *AuthMiddleware) handleAuthError(w http.ResponseWriter, err error) {
 		w.Write([]byte(`{"error": "internal server error"}`))
 	}
 }
+
