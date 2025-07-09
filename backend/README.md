@@ -138,8 +138,8 @@ Requires `session_id` in request context (e.g. from auth middleware).
 
 ```json
 {
-  "morning_reminder": "string (required)",
-  "evening_reminder": "string (required)"
+  "morning_reminder": "string (required, HH:MM)",
+  "evening_reminder": "string (required HH:MM)"
 }
 ```
 
