@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -40,23 +41,48 @@ func GetClientIP(r *http.Request) string {
 }
 
 func HandleDomainError(w http.ResponseWriter, err error) {
-	switch err {
-	case domain.ErrUserNotFound, domain.ErrInvalidCredentials:
-		ErrorResponse(w, http.StatusUnauthorized, err.Error(), nil)
-	case domain.ErrAccountLocked:
-		ErrorResponse(w, http.StatusLocked, err.Error(), nil)
-	case domain.ErrAccountInactive:
-		ErrorResponse(w, http.StatusForbidden, err.Error(), nil)
-	case domain.ErrEmailNotVerified:
-		ErrorResponse(w, http.StatusForbidden, err.Error(), nil)
-	case domain.ErrWeakPassword:
+	switch {
+	case errors.Is(err, domain.ErrUserNotFound):
+		ErrorResponse(w, http.StatusNotFound, "User not found", nil)
+
+	case errors.Is(err, domain.ErrInvalidPlanType),
+		errors.Is(err, domain.ErrInvalidUserStatus),
+		errors.Is(err, domain.ErrInvalidPlanTransition):
 		ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
-	case domain.ErrEmailAlreadyExists, domain.ErrUsernameAlreadyExists:
+
+	case errors.Is(err, domain.ErrUserAlreadyHasPlan):
 		ErrorResponse(w, http.StatusConflict, err.Error(), nil)
-	case domain.ErrInvalidToken, domain.ErrInvalidEntryType:
-		ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
-	case domain.ErrRateLimitExceeded:
-		ErrorResponse(w, http.StatusTooManyRequests, err.Error(), nil)
+
+	case errors.Is(err, domain.ErrPlanUpdateConflict):
+		ErrorResponse(w, http.StatusConflict, "Plan update in progress", nil)
+
+	case errors.Is(err, domain.ErrPremiumPlanRequired):
+		ErrorResponse(w, http.StatusForbidden, "Premium plan required", nil)
+
+	// Existing cases
+	case errors.Is(err, domain.ErrUserInactive),
+		errors.Is(err, domain.ErrAccountInactive):
+		ErrorResponse(w, http.StatusForbidden, "Account is inactive", nil)
+
+	case errors.Is(err, domain.ErrAccountLocked):
+		ErrorResponse(w, http.StatusLocked, "Account is locked", nil)
+
+	case errors.Is(err, domain.ErrEmailNotVerified):
+		ErrorResponse(w, http.StatusForbidden, "Email not verified", nil)
+
+	case errors.Is(err, domain.ErrWeakPassword):
+		ErrorResponse(w, http.StatusBadRequest, "Password too weak", nil)
+
+	case errors.Is(err, domain.ErrEmailAlreadyExists),
+		errors.Is(err, domain.ErrUsernameAlreadyExists):
+		ErrorResponse(w, http.StatusConflict, "Resource already exists", nil)
+
+	case errors.Is(err, domain.ErrInvalidToken):
+		ErrorResponse(w, http.StatusUnauthorized, "Invalid token", nil)
+
+	case errors.Is(err, domain.ErrRateLimitExceeded):
+		ErrorResponse(w, http.StatusTooManyRequests, "Too many requests", nil)
+
 	default:
 		ErrorResponse(w, http.StatusInternalServerError, "Internal server error", nil)
 	}

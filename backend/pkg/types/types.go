@@ -34,6 +34,7 @@ const (
 	EventAccountUnlocked    SecurityEventType = "account_unlocked"
 	EventSuspiciousActivity SecurityEventType = "suspicious_activity"
 	EventAuthFailed         SecurityEventType = "authentication_faield"
+	EventUnauthorizedAccess                   = "unauthorized_access"
 )
 
 type EventSeverity string

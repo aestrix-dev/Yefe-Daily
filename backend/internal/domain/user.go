@@ -68,6 +68,22 @@ type UserProfileRepository interface {
 	Exists(ctx context.Context, userID string) (bool, error)
 }
 
+type AdminUserRepository interface {
+	GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error)
+	GetUserStats(ctx context.Context) (dto.UserStats, error)
+	UpdateUserStatus(ctx context.Context, userID string, status string) error
+	UpdateUserPlan(ctx context.Context, userID string, plan string) error
+}
+
+type AdminUserUseCase interface {
+
+	// Admin-specific operations
+	GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error)
+	//GetUserStats(ctx context.Context) (dto.UserStats, error)
+	UpdateUserStatus(ctx context.Context, userID string, status string) error
+	UpdateUserPlan(ctx context.Context, userID string, plan string) error
+	//GetDashboardData(ctx context.Context) (*DashboardData, error)
+}
 type AuthUseCase interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*User, error)
 	Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error)
