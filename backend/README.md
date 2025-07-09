@@ -107,9 +107,9 @@ Registers a new user.
 
 Logs out the current user session.
 
-**Context Only:**
+**Header:**
 
-* `session_id`: required from context (middleware)
+* `Authorization`: `Bearer {token}` 
 
 **Response:**
 
