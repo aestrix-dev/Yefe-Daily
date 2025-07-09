@@ -174,8 +174,8 @@ Logs out the current user session.
 
 ```json
 {
-  "morning_reminder": "string (required)",
-  "evening_reminder": "string (required)"
+  "morning_reminder": "string (required HH:MM)",
+  "evening_reminder": "string (required HH:MM)"
 }
 ```
 
