@@ -24,10 +24,15 @@ type ServerConfig struct {
 	ChallengeRepo     domain.ChallengeRepository
 	UserChallengeRepo domain.UserChallengeRepository
 	StatsRepo         domain.ChallengeStatsRepository
+	AdminRepo         domain.AdminUserRepository
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
 	return usecase.NewAuthUseCase(conf.UserRepo, conf.SessionRepo, conf.SecEventRepo, conf.JWT_SECRET)
+}
+
+func (conf ServerConfig) admin_user_usecase() domain.AdminUserUseCase {
+	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo)
 }
 
 func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
@@ -53,12 +58,20 @@ func NewRouter(config ServerConfig) http.Handler {
 	journal_handlers := handlers.NewJournalHandler(config.journal_usecase())
 	puzzle_handler := handlers.NewPuzzleHandler(config.puzzle_usecase())
 	challenges_handler := handlers.NewChallengesHandler(config.challenges_usecase())
+	admin_user_handelrs := handlers.NewAdminUserHandler(config.admin_user_usecase())
+
 	r.Group(func(r chi.Router) {
 		r.Use(config.auth_middleware().RequireAuth)
 		r.Post("/auth/logout", auth_handlers.LogoutRoute)
 		r.Mount("/journal", journal_handlers.Handle())
 		r.Mount("/puzzle", puzzle_handler.Handle())
 		r.Mount("/challenges", challenges_handler.Handle())
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(config.auth_middleware().RequireAuth)
+		r.Use(config.auth_middleware().AdminOnly)
+		r.Mount("/user", admin_user_handelrs.Handle())
 	})
 
 	// auth routes

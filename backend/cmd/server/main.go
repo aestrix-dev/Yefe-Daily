@@ -72,6 +72,7 @@ func main() {
 	journalRepo := repository.NewJournalRepository(db)
 	userPuzzledRepo := repository.NewUserPuzzleRepository(db)
 	puzzleRepo := repository.NewPuzzleRepository(pathToPuzzles)
+	adminRepo := repository.NewAdminUserRepository(db, userRepo)
 	challengeRepo, err := repository.NewChallengeRepository(db, pathToChallenges)
 	if err != nil {
 		logger.Log.WithError(err).Fatal("Failed to load challenges")
@@ -127,6 +128,7 @@ func main() {
 		ChallengeRepo:     challengeRepo,
 		UserChallengeRepo: userChallengeRepo,
 		StatsRepo:         statsRepo,
+		AdminRepo:         adminRepo,
 	}
 
 	// Setup router and server
@@ -168,3 +170,5 @@ func main() {
 	<-serverCtx.Done()
 	logger.Log.Info("Server context closed. Exiting.")
 }
+
+//TODO set daily puzzles and challenges on startup,
