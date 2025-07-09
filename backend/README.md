@@ -1,21 +1,26 @@
 # Yefe App – API Documentation
 
 Backend API for the **Yefe App**, a journaling and self-growth application.  
-This API handles authentication, user preferences, and more.
+This API handles authentication, journaling, puzzles, challenges, songs, and user management.
 
 ---
 
-## 📌 Routes
+## 📌 Routes Overview
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | [**/auth/login**](#post-authlogin) | Log in a user |
-| POST | [**/auth/register**](#post-authregister) | Register a new user |
-| POST | [**/auth/logout**](#post-authlogout) | Log out a user |
+| Method | Path         | Description                  | Anchor |
+|--------|--------------|------------------------------|--------|
+| POST   | `/auth/login`       | User login                     | [→](#post-authlogin) |
+| POST   | `/auth/register`    | User registration              | [→](#post-authregister) |
+| POST   | `/auth/logout`      | User logout (auth required)    | [→](#post-authlogout) |
+| MOUNT  | `/journal`          | Journal operations             | [→](#journal-routes) |
+| MOUNT  | `/puzzle`           | Puzzle interactions            | [→](#puzzle-routes) |
+| MOUNT  | `/challenges`       | Daily/weekly challenges        | [→](#challenges-routes) |
+| MOUNT  | `/songs`            | Song preferences and mood      | [→](#songs-routes) |
+| MOUNT  | `/user`             | Admin-only user management     | [→](#user-routes) |
 
 ---
 
-## 🔐 POST `/auth/login`
+## 🔐 POST `/auth/login` <a name="post-authlogin"></a>
 
 Logs a user into the system.
 
@@ -40,7 +45,7 @@ Logs a user into the system.
 
 ---
 
-## 📝 POST `/auth/register`
+## 📝 POST `/auth/register` <a name="post-authregister"></a>
 
 Registers a new user.
 
@@ -76,12 +81,13 @@ Registers a new user.
 
 ---
 
-## 🚪 POST `/auth/logout`
+## 🚪 POST `/auth/logout` <a name="post-authlogout"></a>
 
 Logs out the current user session.
 
-**Context:**
-Requires `session_id` in request context (e.g. from auth middleware).
+**Context Only:**
+
+* `session_id`: required from context (middleware)
 
 **Response:**
 
@@ -90,6 +96,36 @@ Requires `session_id` in request context (e.g. from auth middleware).
   "message": "User loggedout"
 }
 ```
+
+---
+
+## 📓 Journal Routes <a name="journal-routes"></a>
+
+***\[Details coming soon]***
+
+---
+
+## 🧩 Puzzle Routes <a name="puzzle-routes"></a>
+
+***\[Details coming soon]***
+
+---
+
+## 🏆 Challenges Routes <a name="challenges-routes"></a>
+
+***\[Details coming soon]***
+
+---
+
+## 🎵 Songs Routes <a name="songs-routes"></a>
+
+***\[Details coming soon]***
+
+---
+
+## 👤 User Routes (Admin Only) <a name="user-routes"></a>
+
+***\[Details coming soon]***
 
 ---
 
