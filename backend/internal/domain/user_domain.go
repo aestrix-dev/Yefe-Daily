@@ -103,7 +103,7 @@ type AdminUserUseCase interface {
 	UpdateUserPlan(ctx context.Context, userID string, plan string) error
 	//GetDashboardData(ctx context.Context) (*DashboardData, error)
 	// New methods for admin invitation
-	InviteNewAdmin(ctx context.Context, req dto.AdminInvitationEmailRequest) error
+	InviteNewAdmin(ctx context.Context, req dto.AdminInvitationEmailRequest, invitedBy string) error
 	GetPendingInvitations(ctx context.Context) ([]AdminInvitation, error)
 	AcceptInvitation(ctx context.Context, invitationToken string) error
 }

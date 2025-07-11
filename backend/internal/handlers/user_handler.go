@@ -28,7 +28,7 @@ func (h *adminUserHandler) Handle() *chi.Mux {
 	router.Patch("/{userID}/plan", h.updateUserPlan)
 	router.Post("/invitations", h.inviteNewAdmin)
 	router.Get("/invitations", h.getPendingInvitations)
-	router.Get("accept-invitation", h.acceptInvitation)
+	router.Get("/accept-invitation", h.acceptInvitation)
 	return router
 }
 
@@ -185,12 +185,14 @@ func (h *adminUserHandler) updateUserPlan(w http.ResponseWriter, r *http.Request
 // @Router /admin/invitations [post]
 func (h *adminUserHandler) inviteNewAdmin(w http.ResponseWriter, r *http.Request) {
 	var req dto.AdminInvitationEmailRequest
+	userID := getUserIDFromContext(r.Context())
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
 
-	if err := h.adminUC.InviteNewAdmin(r.Context(), req); err != nil {
+	if err := h.adminUC.InviteNewAdmin(r.Context(), req, userID); err != nil {
 		utils.HandleDomainError(w, err)
 		return
 	}
