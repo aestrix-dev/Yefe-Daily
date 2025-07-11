@@ -19,10 +19,12 @@ type adminUserUseCase struct {
 func NewAdminUserUseCase(
 	adminRepo domain.AdminUserRepository,
 	userRepo domain.UserRepository,
+	emailService domain.EmailService,
 ) domain.AdminUserUseCase {
 	return &adminUserUseCase{
-		adminRepo: adminRepo,
-		userRepo:  userRepo,
+		adminRepo:    adminRepo,
+		userRepo:     userRepo,
+		emailService: emailService,
 	}
 }
 

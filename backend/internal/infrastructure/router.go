@@ -26,6 +26,7 @@ type ServerConfig struct {
 	StatsRepo         domain.ChallengeStatsRepository
 	AdminRepo         domain.AdminUserRepository
 	SongRepo          domain.SongRepository
+	EmailService      domain.EmailService
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
@@ -33,7 +34,7 @@ func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
 }
 
 func (conf ServerConfig) admin_user_usecase() domain.AdminUserUseCase {
-	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo)
+	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo, conf.EmailService)
 }
 
 func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
@@ -77,7 +78,7 @@ func NewRouter(config ServerConfig) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(config.auth_middleware().RequireAuth)
 		r.Use(config.auth_middleware().AdminOnly)
-		r.Mount("/user", admin_user_handelrs.Handle())
+		r.Mount("/admin", admin_user_handelrs.Handle())
 	})
 
 	// auth routes
