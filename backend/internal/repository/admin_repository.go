@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
@@ -11,22 +12,22 @@ import (
 	"gorm.io/gorm"
 )
 
-// AdminUserRepositoryImpl implements AdminUserRepository using GORM
-type AdminUserRepositoryImpl struct {
+// adminUserRepository implements AdminUserRepository using GORM
+type adminUserRepository struct {
 	db       *gorm.DB
 	userRepo domain.UserRepository
 }
 
 // NewAdminUserRepository creates a new admin user repository
 func NewAdminUserRepository(db *gorm.DB, userRepo domain.UserRepository) domain.AdminUserRepository {
-	return &AdminUserRepositoryImpl{
+	return &adminUserRepository{
 		db:       db,
 		userRepo: userRepo,
 	}
 }
 
 // GetAllUsers retrieves all users with filtering and pagination
-func (r *AdminUserRepositoryImpl) GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error) {
+func (r *adminUserRepository) GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error) {
 	var dbusers []models.User
 	var users []dto.User
 	var total int64
@@ -106,7 +107,7 @@ func (r *AdminUserRepositoryImpl) GetAllUsers(ctx context.Context, filter dto.Us
 }
 
 // GetUserStats retrieves user statistics for the admin dashboard
-func (r *AdminUserRepositoryImpl) GetUserStats(ctx context.Context) (dto.UserStats, error) {
+func (r *adminUserRepository) GetUserStats(ctx context.Context) (dto.UserStats, error) {
 	var stats dto.UserStats
 
 	// Get total users
@@ -150,7 +151,7 @@ func (r *AdminUserRepositoryImpl) GetUserStats(ctx context.Context) (dto.UserSta
 }
 
 // UpdateUserStatus updates a user's status
-func (r *AdminUserRepositoryImpl) UpdateUserStatus(ctx context.Context, userID string, status string) error {
+func (r *adminUserRepository) UpdateUserStatus(ctx context.Context, userID string, status string) error {
 	result := r.db.WithContext(ctx).Model(models.User{}).Where("id = ?", userID).Update("status", status)
 	if result.Error != nil {
 		return result.Error
@@ -164,7 +165,7 @@ func (r *AdminUserRepositoryImpl) UpdateUserStatus(ctx context.Context, userID s
 }
 
 // UpdateUserPlan updates a user's subscription plan
-func (r *AdminUserRepositoryImpl) UpdateUserPlan(ctx context.Context, userID string, plan string) error {
+func (r *adminUserRepository) UpdateUserPlan(ctx context.Context, userID string, plan string) error {
 	result := r.db.WithContext(ctx).Model(models.User{}).Where("id = ?", userID).Update("plan", plan)
 	if result.Error != nil {
 		return result.Error
@@ -174,5 +175,50 @@ func (r *AdminUserRepositoryImpl) UpdateUserPlan(ctx context.Context, userID str
 		return gorm.ErrRecordNotFound
 	}
 
+	return nil
+}
+
+func (r *adminUserRepository) InviteAdmin(ctx context.Context, invitation domain.AdminInvitation) error {
+
+	if err := r.db.WithContext(ctx).Create(&models.AdminInvitation{}).Error; err != nil {
+		return fmt.Errorf("failed to create admin invitation: %w", err)
+	}
+
+	return nil
+}
+
+func (r *adminUserRepository) GetAdminInvitations(ctx context.Context) ([]domain.AdminInvitation, error) {
+	var dbinvitations []models.AdminInvitation
+	var invitations []domain.AdminInvitation
+	// TODO need model here
+
+	if err := r.db.WithContext(ctx).Find(&dbinvitations).Error; err != nil {
+		return nil, fmt.Errorf("failed to get admin invitations: %w", err)
+	}
+	err := utils.TypeConverter(dbinvitations, &invitations)
+	if err != nil {
+		return nil, err
+	}
+
+	return invitations, nil
+}
+
+func (r *adminUserRepository) UpdateInvitationStatus(ctx context.Context, invitationID string, status string) error {
+	updates := map[string]interface{}{
+		"status": status,
+	}
+
+	if status == "accepted" {
+		now := time.Now()
+		updates["accepted_at"] = &now
+	}
+
+	result := r.db.WithContext(ctx).Model(&dto.AdminInvitation{}).Where("id = ?", invitationID).Updates(updates)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update invitation status: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("invitation not found")
+	}
 	return nil
 }

@@ -3,14 +3,17 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/utils"
 )
 
 type adminUserUseCase struct {
-	adminRepo domain.AdminUserRepository
-	userRepo  domain.UserRepository
+	adminRepo    domain.AdminUserRepository
+	userRepo     domain.UserRepository
+	emailService domain.EmailService
 }
 
 func NewAdminUserUseCase(
@@ -124,6 +127,123 @@ func (uc *adminUserUseCase) UpdateUserPlan(
 	// Persist changes
 	if err := uc.userRepo.Update(ctx, user); err != nil {
 		return errors.New("failed to update user plan")
+	}
+
+	return nil
+}
+
+func (uc *adminUserUseCase) InviteNewAdmin(ctx context.Context, invitation dto.AdminInvitationEmailRequest, invitedBy string) error {
+
+	// Check if user already exists
+	existingUser, err := uc.userRepo.GetByEmail(ctx, invitation.Email)
+	if err == nil && existingUser != nil {
+		return fmt.Errorf("user with email %s already exists", invitation.Email)
+	}
+
+	// Generate invitation token
+	token := utils.GenerateSecureToken()
+
+	invitaionDomain := domain.AdminInvitation{
+		ID:              utils.GenerateID(),
+		Email:           invitation.Email,
+		Role:            "admin",
+		InvitationToken: token,
+		Status:          "pending",
+		InvitedBy:       invitedBy,
+		ExpiresAt:       time.Now().Add(3 * 24 * time.Hour),
+	}
+
+	// Create invitation in database
+	err = uc.adminRepo.InviteAdmin(ctx, invitaionDomain)
+	if err != nil {
+		return fmt.Errorf("failed to create admin invitation: %w", err)
+	}
+
+	// Send invitation email
+	invitationLink := fmt.Sprintf("https://yourapp.com/admin/accept-invitation?token=%s", token)
+	emailReq := dto.AdminInvitationEmailResponse{
+		AdminInvitationEmailRequest: invitation,
+		InvitationLink:              invitationLink,
+	}
+
+	err = uc.emailService.SendAdminInvitation(ctx, emailReq)
+	if err != nil {
+		// If email fails, we should consider rolling back the invitation
+		return fmt.Errorf("failed to send invitation email: %w", err)
+	}
+
+	return nil
+}
+
+func (uc *adminUserUseCase) GetPendingInvitations(ctx context.Context) ([]domain.AdminInvitation, error) {
+	invitations, err := uc.adminRepo.GetAdminInvitations(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get admin invitations: %w", err)
+	}
+
+	// Filter only pending invitations
+	var pendingInvitations []domain.AdminInvitation
+	for _, inv := range invitations {
+		if inv.Status == "pending" && inv.ExpiresAt.After(time.Now()) {
+			pendingInvitations = append(pendingInvitations, inv)
+		}
+	}
+
+	return pendingInvitations, nil
+}
+
+func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationToken string) error {
+	// Get all invitations and find the one with matching token
+	invitations, err := uc.adminRepo.GetAdminInvitations(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get invitations: %w", err)
+	}
+
+	var invitation *domain.AdminInvitation
+	for _, inv := range invitations {
+		if inv.InvitationToken == invitationToken {
+			invitation = &inv
+			break
+		}
+	}
+
+	if invitation == nil {
+		return fmt.Errorf("invitation not found")
+	}
+
+	// Check if invitation is still valid
+	if invitation.Status != "pending" {
+		return fmt.Errorf("invitation has already been %s", invitation.Status)
+	}
+
+	if invitation.ExpiresAt.Before(time.Now()) {
+		// Update status to expired
+		uc.adminRepo.UpdateInvitationStatus(ctx, invitation.ID, "expired")
+		return fmt.Errorf("invitation has expired")
+	}
+
+	// Check if user already exists
+	existingUser, err := uc.userRepo.GetByEmail(ctx, invitation.Email)
+	if err == nil && existingUser != nil {
+		return fmt.Errorf("user with email %s already exists", invitation.Email)
+	}
+
+	// Create the admin user
+	newUser := &domain.User{
+		Email:    invitation.Email,
+		Role:     invitation.Role,
+		IsActive: true,
+	}
+
+	err = uc.userRepo.CreateAdminUser(ctx, newUser, invitation.Role)
+	if err != nil {
+		return fmt.Errorf("failed to create admin user: %w", err)
+	}
+
+	// Update invitation status to accepted
+	err = uc.adminRepo.UpdateInvitationStatus(ctx, invitation.ID, "accepted")
+	if err != nil {
+		return fmt.Errorf("failed to update invitation status: %w", err)
 	}
 
 	return nil

@@ -8,6 +8,18 @@ import (
 	"gorm.io/gorm"
 )
 
+type AdminInvitation struct {
+	ID              uint      `gorm:"primaryKey;autoIncrement"`
+	Email           string    `gorm:"type:varchar(255);not null;index"`
+	Role            string    `gorm:"type:varchar(100);not null"`
+	InvitedBy       string    `gorm:"type:varchar(100)"`
+	InvitationToken string    `gorm:"type:varchar(255);not null;uniqueIndex"`
+	InvitationLink  string    `gorm:"type:text;not null"`
+	ExpiresAt       time.Time `gorm:"autoCreateTime" json:"expires_at"`
+	CreatedAt       time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt       time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+}
+
 type User struct {
 	ID                 string     `gorm:"type:varchar(36);primaryKey" json:"id"`
 	Email              string     `gorm:"type:varchar(255);uniqueIndex;not null" json:"email"`

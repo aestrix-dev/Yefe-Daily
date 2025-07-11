@@ -327,6 +327,33 @@ func (r *userRepository) IncrementFailedLogin(ctx context.Context, userID string
 	})
 }
 
+func (r *userRepository) CreateAdminUser(ctx context.Context, user *domain.User, role string) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// Set admin-specific fields
+		user.Role = role
+		user.IsActive = true
+		user.IsEmailVerified = true // Admins are pre-verified
+
+		// Create the user
+		if err := tx.Create(user).Error; err != nil {
+			return fmt.Errorf("failed to create admin user: %w", err)
+		}
+
+		return nil
+	})
+}
+
+func (r *userRepository) UpdateUserRole(ctx context.Context, userID string, role string) error {
+	result := r.db.WithContext(ctx).Model(&domain.User{}).Where("id = ?", userID).Update("role", role)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update user role: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("user not found")
+	}
+	return nil
+}
+
 // IsEmailTaken checks if an email is already taken
 func (r *userRepository) IsEmailTaken(ctx context.Context, email string, excludeUserID ...string) (bool, error) {
 	if email == "" {
