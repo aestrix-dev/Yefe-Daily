@@ -379,12 +379,11 @@ func (e *EmailServiceImpl) buildAdminInvitationHTML(req dto.AdminInvitationEmail
         <div class="content">
             <p>Hello,</p>
             <p>You have been invited to join as an admin with the role of <strong>%s</strong>.</p>
-            <p>Invited by: <strong>%s</strong></p>
             <p>Please click the button below to accept your invitation:</p>
             <a href="%s" class="button">Accept Invitation</a>
             <p>Or copy and paste this link into your browser:</p>
             <p><a href="%s">%s</a></p>
-            <p>This invitation will expire on <strong>%s</strong>.</p>
+            <p>This link is only valid for 3 days </p>
             <p>If you didn't expect this invitation, please ignore this email.</p>
         </div>
         <div class="footer">
@@ -394,16 +393,14 @@ func (e *EmailServiceImpl) buildAdminInvitationHTML(req dto.AdminInvitationEmail
 </body>
 </html>`,
 		req.Role,
-		req.InvitedBy,
 		req.InvitationLink,
 		req.InvitationLink,
 		req.InvitationLink,
-		req.ExpiresAt.Format("January 2, 2006 at 3:04 PM"),
 	)
 }
 
 // buildAdminInvitationText creates the plain text content for admin invitation
-func (e *EmailServiceImpl) buildAdminInvitationText(req dto.AdminInvitationEmailRequest) string {
+func (e *EmailServiceImpl) buildAdminInvitationText(req dto.AdminInvitationEmailResponse) string {
 	return fmt.Sprintf(`
 Admin Invitation
 
@@ -411,12 +408,9 @@ Hello,
 
 You have been invited to join as an admin with the role of %s.
 
-Invited by: %s
+Please click the link below to accept your invitation: %s.
 
-Please click the link below to accept your invitation:
-%s
-
-This invitation will expire on %s.
+This invitation is only active for 3 days.
 
 If you didn't expect this invitation, please ignore this email.
 
@@ -424,9 +418,7 @@ If you didn't expect this invitation, please ignore this email.
 This is an automated message. Please do not reply to this email.
 `,
 		req.Role,
-		req.InvitedBy,
 		req.InvitationLink,
-		req.ExpiresAt.Format("January 2, 2006 at 3:04 PM"),
 	)
 }
 
