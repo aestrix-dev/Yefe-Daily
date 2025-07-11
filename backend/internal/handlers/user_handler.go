@@ -23,9 +23,12 @@ func NewAdminUserHandler(adminUC domain.AdminUserUseCase) *adminUserHandler {
 func (h *adminUserHandler) Handle() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/", h.listUsers)
-	router.Get("/admin", h.listAdminUsers)
+	router.Get("/admins", h.listAdminUsers)
 	router.Patch("/{userID}/status", h.updateUserStatus)
 	router.Patch("/{userID}/plan", h.updateUserPlan)
+	router.Post("/invitations", h.inviteNewAdmin)
+	router.Get("/invitations", h.getPendingInvitations)
+	router.Get("accept-invitation", h.acceptInvitation)
 	return router
 }
 
@@ -170,4 +173,67 @@ func (h *adminUserHandler) updateUserPlan(w http.ResponseWriter, r *http.Request
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// @Summary Invite new admin
+// @Description Send invitation to a new admin user
+// @Tags Admin
+// @Param request body dto.AdminInvitationRequest true "Invitation details"
+// @Success 201
+// @Failure 400 {object} web.ErrorResponse
+// @Failure 500 {object} web.ErrorResponse
+// @Router /admin/invitations [post]
+func (h *adminUserHandler) inviteNewAdmin(w http.ResponseWriter, r *http.Request) {
+	var req dto.AdminInvitationEmailRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		return
+	}
+
+	if err := h.adminUC.InviteNewAdmin(r.Context(), req); err != nil {
+		utils.HandleDomainError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+// @Summary Get pending invitations
+// @Description Get list of pending admin invitations
+// @Tags Admin
+// @Success 200 {array} dto.AdminInvitation
+// @Failure 500 {object} web.ErrorResponse
+// @Router /admin/invitations [get]
+func (h *adminUserHandler) getPendingInvitations(w http.ResponseWriter, r *http.Request) {
+	invitations, err := h.adminUC.GetPendingInvitations(r.Context())
+	if err != nil {
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get pending invitations", nil)
+		return
+	}
+
+	utils.SuccessResponse(w, http.StatusOK, "invitations", invitations)
+}
+
+// @Summary Accept invitation
+// @Description Accept admin invitation and complete registration
+// @Tags Admin
+// @Param token query string true "Invitation token"
+// @Success 200
+// @Failure 400 {object} web.ErrorResponse
+// @Failure 404 {object} web.ErrorResponse
+// @Failure 500 {object} web.ErrorResponse
+// @Router /admin/invitations/accept [post]
+func (h *adminUserHandler) acceptInvitation(w http.ResponseWriter, r *http.Request) {
+	token := r.URL.Query().Get("token")
+	if token == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invitation token is required", nil)
+		return
+	}
+
+	if err := h.adminUC.AcceptInvitation(r.Context(), token); err != nil {
+		utils.HandleDomainError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

@@ -44,6 +44,13 @@ func main() {
 		EnableStats:     true,
 	})
 
+	_ = service.NewServiceManager(nil)
+	emailService := service.NewEmailService(config.EmailConfig, nil)
+	if err := emailService.Start(); err != nil {
+		logger.Log.Error("Failed to start email service: %v", err)
+		return
+	}
+
 	scheduler := service.NewScheduler(logger.Log, serverCtx, serverStopCtx)
 	scheduler.Start()
 	defer scheduler.Stop()
