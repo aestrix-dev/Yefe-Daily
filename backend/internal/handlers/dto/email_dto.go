@@ -1,7 +1,5 @@
 package dto
 
-import "time"
-
 type EmailRequest struct {
 	To       []string `json:"to"`
 	CC       []string `json:"cc,omitempty"`
@@ -12,10 +10,11 @@ type EmailRequest struct {
 }
 
 type AdminInvitationEmailRequest struct {
-	Email           string    `json:"email"`
-	Role            string    `json:"role"`
-	InvitedBy       string    `json:"invited_by"`
-	InvitationToken string    `json:"invitation_token"`
-	InvitationLink  string    `json:"invitation_link"`
-	ExpiresAt       time.Time `json:"expires_at"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
+}
+
+type AdminInvitationEmailResponse struct {
+	AdminInvitationEmailRequest
+	InvitationLink string `json:"invitation_link"`
 }

@@ -7,10 +7,10 @@ import (
 
 type EmailService interface {
 	// Admin invitation emails
-	SendAdminInvitation(ctx context.Context, req dto.AdminInvitationEmailRequest) error
+	SendAdminInvitation(ctx context.Context, req dto.AdminInvitationEmailResponse) error
 
 	// General email operations
-	//SendEmail(ctx context.Context, req EmailRequest) error
+	SendEmail(ctx context.Context, req dto.EmailRequest) error
 	//SendBulkEmail(ctx context.Context, requests []EmailRequest) error
 
 	// Template-based emails

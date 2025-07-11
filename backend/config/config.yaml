@@ -24,3 +24,8 @@ email:
   from_name: ${FROM_NAME}
   use_tls: ${USE_TLS}
 
+  worker_count: 2 
+  queue_size: 100 
+  retry_attempts: 2 
+  retry_delay: 10s 
+
