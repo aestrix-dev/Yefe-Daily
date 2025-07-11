@@ -7,6 +7,7 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/internal/infrastructure/db/models"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
 	"gorm.io/gorm"
@@ -179,8 +180,14 @@ func (r *adminUserRepository) UpdateUserPlan(ctx context.Context, userID string,
 }
 
 func (r *adminUserRepository) InviteAdmin(ctx context.Context, invitation domain.AdminInvitation) error {
+	var dbInvitation models.AdminInvitation
+	err := utils.TypeConverter(invitation, &dbInvitation)
+	if err != nil {
+		logger.Log.WithError(err).Error("user domain to model error")
+		return err
+	}
 
-	if err := r.db.WithContext(ctx).Create(&models.AdminInvitation{}).Error; err != nil {
+	if err := r.db.WithContext(ctx).Create(&dbInvitation).Error; err != nil {
 		return fmt.Errorf("failed to create admin invitation: %w", err)
 	}
 
@@ -213,7 +220,7 @@ func (r *adminUserRepository) UpdateInvitationStatus(ctx context.Context, invita
 		updates["accepted_at"] = &now
 	}
 
-	result := r.db.WithContext(ctx).Model(&dto.AdminInvitation{}).Where("id = ?", invitationID).Updates(updates)
+	result := r.db.WithContext(ctx).Model(&models.AdminInvitation{}).Where("id = ?", invitationID).Updates(updates)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update invitation status: %w", result.Error)
 	}
