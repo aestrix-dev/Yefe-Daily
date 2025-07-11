@@ -9,6 +9,7 @@ import (
 	"path"
 	"slices"
 	"sync"
+	"time"
 	"yefe_app/v1/pkg/types"
 
 	envsubt "github.com/emperorsixpacks/envsubst"
@@ -47,15 +48,18 @@ type (
 		Password      string `yaml:"password"`
 		DataBase      string `yaml:"database"`
 	}
-
 	EmailConfig struct {
-		SMTPHost     string `yaml:"smtp_host"`
-		SMTPPort     int    `yaml:"smtp_port"`
-		SMTPUsername string `yaml:"smtp_username"`
-		SMTPPassword string `yaml:"smtp_password"`
-		FromEmail    string `yaml:"from_email"`
-		FromName     string `yaml:"from_name"`
-		UseTLS       bool   `yaml:"use_tls"`
+		SMTPHost      string        `yaml:"smtp_host"`
+		SMTPPort      int           `yaml:"smtp_port"`
+		SMTPUsername  string        `yaml:"smtp_username"`
+		SMTPPassword  string        `yaml:"smtp_password"`
+		FromEmail     string        `yaml:"from_email"`
+		FromName      string        `yaml:"from_name"`
+		UseTLS        bool          `yaml:"use_tls"`
+		WorkerCount   int           `yaml:"worker_count"`
+		QueueSize     int           `yaml:"queue_size"`
+		RetryAttempts int           `yaml:"retry_attempts"`
+		RetryDelay    time.Duration `yaml:"retry_delay"`
 	}
 )
 
