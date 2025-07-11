@@ -14,6 +14,16 @@ const (
 	ProUser  UserType = "pro"
 )
 
+type AdminInvitation struct {
+	ID              string    `json:"id"`
+	Email           string    `json:"email"`
+	Role            string    `json:"role"`
+	InvitedBy       string    `json:"invited_by"`
+	InvitationToken string    `json:"invitation_token"`
+	Status          string    `json:"status"`
+	ExpiresAt       time.Time `json:"expires_at"`
+}
+
 type User struct {
 	ID                 string       `json:"id"`
 	Email              string       `json:"email"`
@@ -81,8 +91,8 @@ type AdminUserRepository interface {
 	UpdateUserStatus(ctx context.Context, userID string, status string) error
 	UpdateUserPlan(ctx context.Context, userID string, plan string) error
 	// New methods for admin invitation
-	InviteAdmin(ctx context.Context, email string, role string, invitedBy string) error
-	GetAdminInvitations(ctx context.Context) ([]dto.AdminInvitation, error)
+	InviteAdmin(ctx context.Context, invitation AdminInvitation) error
+	GetAdminInvitations(ctx context.Context) ([]AdminInvitation, error)
 	UpdateInvitationStatus(ctx context.Context, invitationID string, status string) error
 }
 type AdminUserUseCase interface {
@@ -93,8 +103,8 @@ type AdminUserUseCase interface {
 	UpdateUserPlan(ctx context.Context, userID string, plan string) error
 	//GetDashboardData(ctx context.Context) (*DashboardData, error)
 	// New methods for admin invitation
-	InviteNewAdmin(ctx context.Context, email string, role string) error
-	GetPendingInvitations(ctx context.Context) ([]dto.AdminInvitation, error)
+	InviteNewAdmin(ctx context.Context, req dto.AdminInvitationEmailRequest) error
+	GetPendingInvitations(ctx context.Context) ([]AdminInvitation, error)
 	AcceptInvitation(ctx context.Context, invitationToken string) error
 }
 type AuthUseCase interface {
