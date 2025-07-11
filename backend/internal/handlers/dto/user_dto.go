@@ -95,3 +95,14 @@ type UpdateStatusRequest struct {
 type UpdatePlanRequest struct {
 	Plan string `json:"plan" validate:"required,oneof=free yefe_plus"`
 }
+
+type AdminInvitation struct {
+	ID        string    `json:"id"`
+	Email     string    `json:"email"`
+	Role      string    `json:"role"`
+	InvitedBy string    `json:"invited_by"`
+	Status    string    `json:"status"` // pending, accepted, expired
+	InvitedAt time.Time `json:"invited_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+	Token     string    `json:"token,omitempty"`
+}

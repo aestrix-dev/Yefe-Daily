@@ -52,7 +52,6 @@ type UserProfile struct {
 	CreatedAt               time.Time               `json:"created_at"`
 	UpdatedAt               time.Time               `json:"updated_at"`
 }
-
 type UserRepository interface {
 	Create(ctx context.Context, user *User, notificationsPrefs types.NotificationsPref) error
 	GetByID(ctx context.Context, id string) (*User, error)
@@ -60,6 +59,8 @@ type UserRepository interface {
 	Update(ctx context.Context, user *User) error
 	Delete(ctx context.Context, id string) error
 	UpdateLastLogin(ctx context.Context, userID string) error
+	CreateAdminUser(ctx context.Context, user *User, role string) error
+	UpdateUserRole(ctx context.Context, userID string, role string) error
 }
 
 type UserProfileRepository interface {
@@ -74,22 +75,27 @@ type UserProfileRepository interface {
 	Count(ctx context.Context) (int64, error)
 	Exists(ctx context.Context, userID string) (bool, error)
 }
-
 type AdminUserRepository interface {
 	GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error)
 	GetUserStats(ctx context.Context) (dto.UserStats, error)
 	UpdateUserStatus(ctx context.Context, userID string, status string) error
 	UpdateUserPlan(ctx context.Context, userID string, plan string) error
+	// New methods for admin invitation
+	InviteAdmin(ctx context.Context, email string, role string, invitedBy string) error
+	GetAdminInvitations(ctx context.Context) ([]dto.AdminInvitation, error)
+	UpdateInvitationStatus(ctx context.Context, invitationID string, status string) error
 }
-
 type AdminUserUseCase interface {
-
 	// Admin-specific operations
 	GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error)
 	//GetUserStats(ctx context.Context) (dto.UserStats, error)
 	UpdateUserStatus(ctx context.Context, userID string, status string) error
 	UpdateUserPlan(ctx context.Context, userID string, plan string) error
 	//GetDashboardData(ctx context.Context) (*DashboardData, error)
+	// New methods for admin invitation
+	InviteNewAdmin(ctx context.Context, email string, role string) error
+	GetPendingInvitations(ctx context.Context) ([]dto.AdminInvitation, error)
+	AcceptInvitation(ctx context.Context, invitationToken string) error
 }
 type AuthUseCase interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*User, error)
