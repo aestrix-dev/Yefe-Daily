@@ -15,15 +15,14 @@ persistence:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
 
-email:
+email_config:
   smtp_host: ${SMTP_HOST}
   smtp_port: ${SMTP_PORT}
   smtp_username: ${SMTP_USERNAME}
   smtp_password: ${SMTP_PASSWORD}
   from_email: ${FROM_EMAIL}
   from_name: ${FROM_NAME}
-  use_tls: ${USE_TLS}
-
+  use_tls: false
   worker_count: 2 
   queue_size: 100 
   retry_attempts: 2 

@@ -50,7 +50,7 @@ type (
 	}
 	EmailConfig struct {
 		SMTPHost      string        `yaml:"smtp_host"`
-		SMTPPort      int           `yaml:"smtp_port"`
+		SMTPPort      string        `yaml:"smtp_port"`
 		SMTPUsername  string        `yaml:"smtp_username"`
 		SMTPPassword  string        `yaml:"smtp_password"`
 		FromEmail     string        `yaml:"from_email"`
