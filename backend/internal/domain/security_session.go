@@ -49,11 +49,6 @@ type SecurityEventRepository interface {
 	LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details types.JSONMap) error
 }
 
-// Additional security services
-type EmailService interface {
-	SendVerificationEmail(user User, token string) error
-	SendPasswordResetEmail(user User, token string) error
-}
 type SessionRepository interface {
 	Create(ctx context.Context, session *Session) error
 	GetByID(ctx context.Context, sessionID string) (*Session, error)

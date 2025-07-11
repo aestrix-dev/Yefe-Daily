@@ -27,6 +27,7 @@ type (
 	AppSettings struct {
 		Server      ServerSettings      `yaml:"server"`
 		Persistence PersistenceSettings `yaml:"persistence"`
+		EmailConfig EmailConfig         `yaml:"email_config"`
 	}
 	ServerSettings struct {
 		Name   string `yaml:"name"`
@@ -45,6 +46,16 @@ type (
 		UserName      string `yaml:"username"`
 		Password      string `yaml:"password"`
 		DataBase      string `yaml:"database"`
+	}
+
+	EmailConfig struct {
+		SMTPHost     string `yaml:"smtp_host"`
+		SMTPPort     int    `yaml:"smtp_port"`
+		SMTPUsername string `yaml:"smtp_username"`
+		SMTPPassword string `yaml:"smtp_password"`
+		FromEmail    string `yaml:"from_email"`
+		FromName     string `yaml:"from_name"`
+		UseTLS       bool   `yaml:"use_tls"`
 	}
 )
 
@@ -146,3 +157,5 @@ func IsValidEntryType(entryType string) bool {
 	validTypes := GetJournalEntryTypes()
 	return slices.Contains(validTypes, entryType)
 }
+
+// TODO load env should not cause the app to crash

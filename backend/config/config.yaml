@@ -6,11 +6,21 @@ server:
 
 persistence:
   postgres:
-    host: ${DB_HOST} 
+    host: ${DB_HOST}
     port: ${DB_PORT}
     username: ${DB_USERNAME}
-    password: ${DB_PASSWORD} 
-    database: ${DB_NAME} 
+    password: ${DB_PASSWORD}
+    database: ${DB_NAME}
   redis:
-    host: ${REDIS_HOST} 
+    host: ${REDIS_HOST}
     port: ${REDIS_PORT}
+
+email:
+  smtp_host: ${SMTP_HOST}
+  smtp_port: ${SMTP_PORT}
+  smtp_username: ${SMTP_USERNAME}
+  smtp_password: ${SMTP_PASSWORD}
+  from_email: ${FROM_EMAIL}
+  from_name: ${FROM_NAME}
+  use_tls: ${USE_TLS}
+
