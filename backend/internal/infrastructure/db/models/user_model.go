@@ -9,12 +9,12 @@ import (
 )
 
 type AdminInvitation struct {
-	ID              uint      `gorm:"primaryKey;autoIncrement"`
-	Email           string    `gorm:"type:varchar(255);not null;index"`
-	Role            string    `gorm:"type:varchar(100);not null"`
-	InvitedBy       string    `gorm:"type:varchar(100)"`
-	InvitationToken string    `gorm:"type:varchar(255);not null;uniqueIndex"`
-	InvitationLink  string    `gorm:"type:text;not null"`
+	ID              uint      `gorm:"primaryKey;autoIncrement" json:"id"`
+	Email           string    `gorm:"type:varchar(255);not null;index" json:"email"`
+	Role            string    `gorm:"type:varchar(100);not null" json:"role"`
+	InvitedBy       string    `gorm:"type:varchar(100)" json:"invited_by"`
+	InvitationToken string    `gorm:"type:varchar(255);not null;uniqueIndex" json:"invitation_token"`
+	Status          string    `json:"status"`
 	ExpiresAt       time.Time `gorm:"autoCreateTime" json:"expires_at"`
 	CreatedAt       time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt       time.Time `gorm:"autoUpdateTime" json:"updated_at"`

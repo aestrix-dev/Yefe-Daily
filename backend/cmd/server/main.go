@@ -32,7 +32,6 @@ func main() {
 		logger.Log.WithError(err).Fatal("Failed to load config")
 		return
 	}
-
 	serverCtx, serverStopCtx := context.WithCancel(context.Background())
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
@@ -47,7 +46,7 @@ func main() {
 	_ = service.NewServiceManager(nil)
 	emailService := service.NewEmailService(config.EmailConfig, nil)
 	if err := emailService.Start(); err != nil {
-		logger.Log.Error("Failed to start email service: %v", err)
+		logger.Log.WithError(err).Error("Failed to start email service")
 		return
 	}
 
@@ -145,6 +144,7 @@ func main() {
 		StatsRepo:         statsRepo,
 		AdminRepo:         adminRepo,
 		SongRepo:          songRepo,
+		EmailService:      emailService,
 	}
 
 	// Setup router and server

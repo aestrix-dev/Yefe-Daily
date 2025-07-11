@@ -26,9 +26,9 @@ func (h *adminUserHandler) Handle() *chi.Mux {
 	router.Get("/admins", h.listAdminUsers)
 	router.Patch("/{userID}/status", h.updateUserStatus)
 	router.Patch("/{userID}/plan", h.updateUserPlan)
-	router.Post("/invitations", h.inviteNewAdmin)
+	router.Post("/invite", h.inviteNewAdmin)
+	router.Post("/accept-invitation", h.acceptInvitation)
 	router.Get("/invitations", h.getPendingInvitations)
-	router.Get("/accept-invitation", h.acceptInvitation)
 	return router
 }
 
