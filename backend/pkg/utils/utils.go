@@ -24,6 +24,14 @@ var (
 	LogDir      = path.Join(basePath, "logs")
 )
 
+var DefaultPasswordConfig = types.PasswordConfig{
+	Memory:      64 * 1024, // MB
+	Iterations:  3,
+	Parallelism: 2,
+	SaltLength:  16,
+	KeyLength:   32,
+}
+
 type (
 	AppSettings struct {
 		Server      ServerSettings      `yaml:"server"`

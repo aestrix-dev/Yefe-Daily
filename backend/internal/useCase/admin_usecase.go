@@ -7,6 +7,7 @@ import (
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 )
 
@@ -137,8 +138,8 @@ func (uc *adminUserUseCase) UpdateUserPlan(
 func (uc *adminUserUseCase) InviteNewAdmin(ctx context.Context, invitation dto.AdminInvitationEmailRequest, invitedBy string) error {
 
 	// Check if user already exists
-	existingUser, err := uc.userRepo.GetByEmail(ctx, invitation.Email)
-	if err == nil && existingUser != nil {
+	_, err := uc.userRepo.GetByEmail(ctx, invitation.Email)
+	if err == nil {
 		return fmt.Errorf("user with email %s already exists", invitation.Email)
 	}
 
@@ -195,6 +196,7 @@ func (uc *adminUserUseCase) GetPendingInvitations(ctx context.Context) ([]domain
 }
 
 func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationToken string) error {
+
 	// Get all invitations and find the one with matching token
 	invitations, err := uc.adminRepo.GetAdminInvitations(ctx)
 	if err != nil {
@@ -225,13 +227,15 @@ func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationToke
 	}
 
 	// Check if user already exists
-	existingUser, err := uc.userRepo.GetByEmail(ctx, invitation.Email)
-	if err == nil && existingUser != nil {
+	_, err = uc.userRepo.GetByEmail(ctx, invitation.Email)
+	if err == nil {
+		logger.Log.WithError(err).Error("User already exists")
 		return fmt.Errorf("user with email %s already exists", invitation.Email)
 	}
 
 	// Create the admin user
 	newUser := &domain.User{
+		ID:       utils.GenerateID(),
 		Email:    invitation.Email,
 		Role:     invitation.Role,
 		IsActive: true,
@@ -239,12 +243,14 @@ func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationToke
 
 	err = uc.userRepo.CreateAdminUser(ctx, newUser, invitation.Role)
 	if err != nil {
+		logger.Log.WithError(err).Error("Could not create admin account")
 		return fmt.Errorf("failed to create admin user: %w", err)
 	}
 
 	// Update invitation status to accepted
 	err = uc.adminRepo.UpdateInvitationStatus(ctx, invitation.ID, "accepted")
 	if err != nil {
+		logger.Log.WithError(err).Error("Could not update invitation status")
 		return fmt.Errorf("failed to update invitation status: %w", err)
 	}
 

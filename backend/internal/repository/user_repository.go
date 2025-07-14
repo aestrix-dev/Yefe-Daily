@@ -114,6 +114,7 @@ func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 // GetByEmail retrieves a user by their email address
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	var user domain.User
+	var dbUser models.User
 	if email == "" {
 		return nil, errors.New("email cannot be empty")
 	}
@@ -121,7 +122,6 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 	// Normalize email
 	email = strings.ToLower(strings.TrimSpace(email))
 
-	var dbUser models.User
 	err := r.db.WithContext(ctx).
 		Preload("Profile").
 		Where("email = ? AND deleted_at IS NULL", email).
@@ -328,14 +328,24 @@ func (r *userRepository) IncrementFailedLogin(ctx context.Context, userID string
 }
 
 func (r *userRepository) CreateAdminUser(ctx context.Context, user *domain.User, role string) error {
+	var dbuser models.User
+	salt := utils.GenerateSalt(utils.DefaultPasswordConfig.SaltLength)
+	default_password := utils.HashPassword("1234admin", salt, utils.DefaultPasswordConfig)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// Set admin-specific fields
 		user.Role = role
 		user.IsActive = true
 		user.IsEmailVerified = true // Admins are pre-verified
 
+		err := utils.TypeConverter(user, &dbuser)
+		if err != nil {
+			return err
+		}
+
+		dbuser.PasswordHash = default_password
+		dbuser.Salt = salt
 		// Create the user
-		if err := tx.Create(user).Error; err != nil {
+		if err := tx.Create(&dbuser).Error; err != nil {
 			return fmt.Errorf("failed to create admin user: %w", err)
 		}
 
