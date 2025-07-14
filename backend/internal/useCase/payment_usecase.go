@@ -7,6 +7,7 @@ import (
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/stripe/stripe-go/v74"
@@ -139,6 +140,7 @@ func (u *paymentUseCase) UpgradePackage(ctx context.Context, req dto.UpgradePack
 }
 
 func (u *paymentUseCase) GetPaymentHistory(ctx context.Context, userID uint, page, limit int) (dto.PaymentHistoryResponse, error) {
+	var dtoPayments []dto.Payment
 	if page < 1 {
 		page = 1
 	}
@@ -151,8 +153,14 @@ func (u *paymentUseCase) GetPaymentHistory(ctx context.Context, userID uint, pag
 		return dto.PaymentHistoryResponse{}, fmt.Errorf("failed to get payment history: %w", err)
 	}
 
+	err = utils.TypeConverter(payments, dtoPayments)
+	if err != nil {
+
+		return dto.PaymentHistoryResponse{}, fmt.Errorf("failed to get payment history: %w", err)
+	}
+
 	return dto.PaymentHistoryResponse{
-		Payments: payments,
+		Payments: dtoPayments,
 		Total:    int64(len(payments)),
 		Page:     page,
 		Limit:    limit,

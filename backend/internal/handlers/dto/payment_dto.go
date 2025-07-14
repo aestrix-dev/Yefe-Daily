@@ -2,9 +2,20 @@ package dto
 
 import (
 	"time"
-	"yefe_app/v1/internal/domain"
 )
 
+type Payment struct {
+	ID               string     `json:"id"`
+	Amount           int64      `json:"amount"`
+	Currency         string     `json:"currency"`
+	Status           string     `json:"status"`
+	PaymentIntentID  string     `json:"payment_intent_id"`
+	StripeCustomerID string     `json:"stripe_customer_id"`
+	PaymentMethod    string     `json:"payment_method"`
+	ProcessedAt      *time.Time `json:"processed_at"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        time.Time  `json:"updated_at"`
+}
 type CreatePaymentIntentRequest struct {
 	UserID        uint   `json:"user_id" binding:"required"`
 	ToPackageID   uint   `json:"to_package_id" binding:"required"`
@@ -44,10 +55,10 @@ type UpgradePackageResponse struct {
 }
 
 type PaymentHistoryResponse struct {
-	Payments []domain.Payment `json:"payments"`
-	Total    int64            `json:"total"`
-	Page     int              `json:"page"`
-	Limit    int              `json:"limit"`
+	Payments []Payment `json:"payments"`
+	Total    int64     `json:"total"`
+	Page     int       `json:"page"`
+	Limit    int       `json:"limit"`
 }
 
 type WebhookRequest struct {
