@@ -27,7 +27,6 @@ func (h *adminUserHandler) Handle() *chi.Mux {
 	router.Patch("/{userID}/status", h.updateUserStatus)
 	router.Patch("/{userID}/plan", h.updateUserPlan)
 	router.Post("/invite", h.inviteNewAdmin)
-	router.Post("/accept-invitation", h.acceptInvitation)
 	router.Get("/invitations", h.getPendingInvitations)
 	return router
 }
@@ -225,7 +224,7 @@ func (h *adminUserHandler) getPendingInvitations(w http.ResponseWriter, r *http.
 // @Failure 404 {object} web.ErrorResponse
 // @Failure 500 {object} web.ErrorResponse
 // @Router /admin/invitations/accept [post]
-func (h *adminUserHandler) acceptInvitation(w http.ResponseWriter, r *http.Request) {
+func (h *adminUserHandler) AcceptInvitation(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
 	if token == "" {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invitation token is required", nil)

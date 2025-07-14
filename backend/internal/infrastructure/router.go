@@ -84,6 +84,7 @@ func NewRouter(config ServerConfig) http.Handler {
 	// auth routes
 	r.Post("/auth/login", auth_handlers.LoginRoute)
 	r.Post("/auth/register", auth_handlers.RegisterRoute)
+	r.Post("/accept-invitation", admin_user_handelrs.AcceptInvitation)
 
 	return r
 }
