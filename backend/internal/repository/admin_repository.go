@@ -194,6 +194,7 @@ func (r *adminUserRepository) InviteAdmin(ctx context.Context, invitation domain
 	return nil
 }
 
+// TODO use where
 func (r *adminUserRepository) GetAdminInvitations(ctx context.Context) ([]domain.AdminInvitation, error) {
 	var dbinvitations []models.AdminInvitation
 	var invitations []domain.AdminInvitation
@@ -213,11 +214,6 @@ func (r *adminUserRepository) GetAdminInvitations(ctx context.Context) ([]domain
 func (r *adminUserRepository) UpdateInvitationStatus(ctx context.Context, invitationID string, status string) error {
 	updates := map[string]interface{}{
 		"status": status,
-	}
-
-	if status == "accepted" {
-		now := time.Now()
-		updates["accepted_at"] = &now
 	}
 
 	result := r.db.WithContext(ctx).Model(&models.AdminInvitation{}).Where("id = ?", invitationID).Updates(updates)
