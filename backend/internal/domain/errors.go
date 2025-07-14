@@ -83,7 +83,8 @@ func IsAuthorizationError(err error) bool {
 	return errors.Is(err, ErrUnauthorized) ||
 		errors.Is(err, ErrInvalidToken) ||
 		errors.Is(err, ErrMissingAuthHeader) ||
-		errors.Is(err, ErrInvalidAuthHeader)
+		errors.Is(err, ErrInvalidAuthHeader) ||
+		errors.Is(err, ErrInvalidCredentials)
 }
 
 func IsConflictError(err error) bool {
