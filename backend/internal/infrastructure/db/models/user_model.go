@@ -9,7 +9,7 @@ import (
 )
 
 type AdminInvitation struct {
-	ID              uint      `gorm:"primaryKey;autoIncrement" json:"id"`
+	ID              string    `gorm:"primaryKey;autoIncrement" json:"id"`
 	Email           string    `gorm:"type:varchar(255);not null;index" json:"email"`
 	Role            string    `gorm:"type:varchar(100);not null" json:"role"`
 	InvitedBy       string    `gorm:"type:varchar(100)" json:"invited_by"`
