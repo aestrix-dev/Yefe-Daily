@@ -25,7 +25,7 @@ func NewPuzzleHandler(puzzleUsecase domain.PuzzleUseCase) *puzzleHandler {
 func (p *puzzleHandler) Handle() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/daily", p.GetDailyPuzzle)
-	router.Post("/submit", p.SubmitDailyPuzzleAnswer)
+	router.Put("/submit", p.SubmitDailyPuzzleAnswer)
 	router.Get("/stats", p.GetUserStats)
 	router.Get("/completed", p.GetUserCompletedPuzzles)
 	return router

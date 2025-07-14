@@ -26,7 +26,7 @@ func (h *challengesHandler) Handle() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/today", h.getTodaysChallenges)
 	router.Get("/history", h.getChallengeHistory)
-	router.Post("/{challengeID}/complete", h.completeChallenge)
+	router.Put("/{challengeID}/complete", h.completeChallenge)
 	router.Get("/dashboard", h.getDashboard)
 	router.Get("/stats", h.getUserStats)
 	router.Get("/leaderboard", h.getLeaderboard)
