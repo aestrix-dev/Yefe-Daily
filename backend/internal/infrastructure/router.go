@@ -56,8 +56,6 @@ func (conf ServerConfig) auth_middleware() *middlewares.AuthMiddleware {
 }
 
 func NewRouter(config ServerConfig) http.Handler {
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
 
 	auth_handlers := handlers.NewAuthHandler(config.auth_usecase())
 	journal_handlers := handlers.NewJournalHandler(config.journal_usecase())
@@ -65,26 +63,29 @@ func NewRouter(config ServerConfig) http.Handler {
 	challenges_handler := handlers.NewChallengesHandler(config.challenges_usecase())
 	admin_user_handelrs := handlers.NewAdminUserHandler(config.admin_user_usecase())
 	song_handler := handlers.NewMusicHandler(config.song_usecase())
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Route("/v1", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(config.auth_middleware().RequireAuth)
+			r.Post("/auth/logout", auth_handlers.LogoutRoute)
+			r.Mount("/journal", journal_handlers.Handle())
+			r.Mount("/puzzle", puzzle_handler.Handle())
+			r.Mount("/challenges", challenges_handler.Handle())
+			r.Mount("/songs", song_handler.Handle())
+		})
 
-	r.Group(func(r chi.Router) {
-		r.Use(config.auth_middleware().RequireAuth)
-		r.Post("/auth/logout", auth_handlers.LogoutRoute)
-		r.Mount("/journal", journal_handlers.Handle())
-		r.Mount("/puzzle", puzzle_handler.Handle())
-		r.Mount("/challenges", challenges_handler.Handle())
-		r.Mount("/songs", song_handler.Handle())
+		r.Group(func(r chi.Router) {
+			r.Use(config.auth_middleware().RequireAuth)
+			r.Use(config.auth_middleware().AdminOnly)
+			r.Mount("/admin", admin_user_handelrs.Handle())
+		})
+
+		// auth routes
+		r.Post("/auth/login", auth_handlers.LoginRoute)
+		r.Post("/auth/register", auth_handlers.RegisterRoute)
+		r.Post("/accept-invitation", admin_user_handelrs.AcceptInvitation)
 	})
-
-	r.Group(func(r chi.Router) {
-		r.Use(config.auth_middleware().RequireAuth)
-		r.Use(config.auth_middleware().AdminOnly)
-		r.Mount("/admin", admin_user_handelrs.Handle())
-	})
-
-	// auth routes
-	r.Post("/auth/login", auth_handlers.LoginRoute)
-	r.Post("/auth/register", auth_handlers.RegisterRoute)
-	r.Post("/accept-invitation", admin_user_handelrs.AcceptInvitation)
 
 	return r
 }
