@@ -69,7 +69,7 @@ func NewEmailService(config utils.EmailConfig, logger Logger) *EmailServiceImpl 
 	bgConfig.RestartOnPanic = true
 	bgConfig.MaxRestartAttempts = 5
 	bgConfig.RestartDelay = 10 * time.Second
-	bgConfig.HealthCheckInterval = 30 * time.Second
+	bgConfig.HealthCheckInterval = 5 * time.Minute
 
 	emailSvc.backgroundSvc = NewBackgroundService(bgConfig, worker)
 
