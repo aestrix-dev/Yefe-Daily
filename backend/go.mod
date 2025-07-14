@@ -4,14 +4,14 @@ go 1.24.3
 
 require (
 	github.com/emperorsixpacks/envsubst v1.0.3
-	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-playground/validator/v10 v10.26.0
-	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
+	github.com/redis/go-redis/v9 v9.10.0
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/crypto v0.39.0
 	gorm.io/driver/postgres v1.6.0
@@ -32,11 +32,8 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/onsi/ginkgo v1.16.5 // indirect
-	github.com/onsi/gomega v1.37.0 // indirect
-	github.com/redis/go-redis/v9 v9.10.0 // indirect
-	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
+	github.com/stripe/stripe-go/v74 v74.30.0 // indirect
 	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
