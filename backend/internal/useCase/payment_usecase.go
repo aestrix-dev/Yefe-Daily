@@ -153,7 +153,7 @@ func (u *paymentUseCase) GetPaymentHistory(ctx context.Context, userID uint, pag
 		return dto.PaymentHistoryResponse{}, fmt.Errorf("failed to get payment history: %w", err)
 	}
 
-	err = utils.TypeConverter(payments, dtoPayments)
+	err = utils.TypeConverter(payments, &dtoPayments)
 	if err != nil {
 
 		return dto.PaymentHistoryResponse{}, fmt.Errorf("failed to get payment history: %w", err)
