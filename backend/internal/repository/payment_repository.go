@@ -87,8 +87,18 @@ func (r *paymentRepository) GetUserSubscription(ctx context.Context, userID uint
 	return &subscription, err
 }
 
+func (r *paymentRepository) GetPaymentByPaymentIntentID(ctx context.Context, paymentIntentID string) (*domain.Payment, error) {
+	var payment domain.Payment
+	var dbPayment models.Payment
+	err := r.db.WithContext(ctx).
+		Where("payment_intent_id = ?", paymentIntentID).
+		First(&dbPayment).Error
+	err = utils.TypeConverter(payment, &dbPayment)
+	if err != nil {
+		return nil, err
+	}
+	return &payment, err
+}
 func (r *paymentRepository) CreateOrUpdateSubscription(ctx context.Context, subscription domain.UserSubscription) error {
 	return r.db.WithContext(ctx).Save(&subscription).Error
 }
-
-// TODO remove packae here

@@ -167,20 +167,6 @@ func (u *paymentUseCase) GetPaymentHistory(ctx context.Context, userID uint, pag
 	}, nil
 }
 
-func (u *paymentUseCase) ProcessWebhook(ctx context.Context, req dto.WebhookRequest) error {
-	switch req.Type {
-	case "payment_intent.succeeded":
-		// Handle successful payment
-		return u.handlePaymentSucceeded(ctx, req.Data)
-	case "payment_intent.payment_failed":
-		// Handle failed payment
-		return u.handlePaymentFailed(ctx, req.Data)
-	default:
-		log.Printf("Unhandled webhook type: %s", req.Type)
-	}
-	return nil
-}
-
 func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[string]interface{}) error {
 	// Extract payment intent ID from webhook data
 	paymentIntentID, ok := data["id"].(string)
@@ -189,12 +175,87 @@ func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[st
 	}
 
 	// Find payment by payment intent ID
-	// This is a simplified approach - you might want to add an index
-	// or store the mapping differently
+	payment, err := u.repo.GetPaymentByPaymentIntentID(ctx, paymentIntentID)
+	if err != nil {
+		log.Printf("Failed to find payment with intent ID %s: %v", paymentIntentID, err)
+		return fmt.Errorf("payment not found: %w", err)
+	}
+
+	// Update payment status to completed
+	now := time.Now()
+	payment.Status = "completed"
+	payment.ProcessedAt = &now
+	payment.UpdatedAt = now
+
+	// Save the updated payment
+	if err := u.repo.UpdatePayment(ctx, payment); err != nil {
+		log.Printf("Failed to update payment %s: %v", payment.ID, err)
+		return fmt.Errorf("failed to update payment: %w", err)
+	}
+
+	// Create or update user subscription
+	subscription := domain.UserSubscription{
+		UserID:    payment.UserID,
+		Status:    "active",
+		StartDate: now,
+		EndDate:   now.AddDate(0, 1, 0), // 1 month subscription
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	if err := u.repo.CreateOrUpdateSubscription(ctx, subscription); err != nil {
+		log.Printf("Failed to update subscription for user %d: %v", payment.UserID, err)
+		return fmt.Errorf("failed to update subscription: %w", err)
+	}
+
+	log.Printf("Payment %s processed successfully via webhook", payment.ID)
 	return nil
 }
 
 func (u *paymentUseCase) handlePaymentFailed(ctx context.Context, data map[string]interface{}) error {
-	// Similar to handlePaymentSucceeded but update status to failed
+	// Extract payment intent ID from webhook data
+	paymentIntentID, ok := data["id"].(string)
+	if !ok {
+		return fmt.Errorf("invalid payment intent ID")
+	}
+
+	// Extract failure reason if available
+	var failureReason string
+	if lastPaymentError, exists := data["last_payment_error"]; exists {
+		if errorMap, ok := lastPaymentError.(map[string]interface{}); ok {
+			if message, exists := errorMap["message"]; exists {
+				if messageStr, ok := message.(string); ok {
+					failureReason = messageStr
+				}
+			}
+		}
+	}
+
+	// Find payment by payment intent ID
+	payment, err := u.repo.GetPaymentByPaymentIntentID(ctx, paymentIntentID)
+	if err != nil {
+		log.Printf("Failed to find payment with intent ID %s: %v", paymentIntentID, err)
+		return fmt.Errorf("payment not found: %w", err)
+	}
+
+	// Update payment status to failed
+	now := time.Now()
+	payment.Status = "failed"
+	payment.UpdatedAt = now
+
+	// Store failure reason if available (assuming you have a FailureReason field)
+	// If you don't have this field, you can remove this section
+	if failureReason != "" {
+		// payment.FailureReason = failureReason
+		log.Printf("Payment %s failed with reason: %s", payment.ID, failureReason)
+	}
+
+	// Save the updated payment
+	if err := u.repo.UpdatePayment(ctx, payment); err != nil {
+		log.Printf("Failed to update payment %s: %v", payment.ID, err)
+		return fmt.Errorf("failed to update payment: %w", err)
+	}
+
+	log.Printf("Payment %s marked as failed via webhook", payment.ID)
 	return nil
 }

@@ -38,6 +38,7 @@ type PaymentRepository interface {
 	GetPaymentsByUserID(ctx context.Context, userID uint, page, limit int) ([]Payment, error)
 	GetUserSubscription(ctx context.Context, userID uint) (*UserSubscription, error)
 	CreateOrUpdateSubscription(ctx context.Context, subscription UserSubscription) error
+	GetPaymentByPaymentIntentID(ctx context.Context, paymentIntentID string) (*Payment, error)
 }
 
 // ============= USE CASE =============
