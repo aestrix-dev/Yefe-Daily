@@ -49,7 +49,7 @@ type UserListFilter struct {
 	Status    string `json:"status"`
 	Plan      string `json:"plan"`
 	Search    string `json:"search"`     // Search by name or email
-	SortBy    string `json:"sort_by"`    // name, email, join_date, last_login, etc.
+	SortBy    string `json:"sort_by"`    // name, email, created_date, last_login, etc.
 	SortOrder string `json:"sort_order"` // asc, desc
 	Limit     int    `json:"limit"`
 	Offset    int    `json:"offset"`
@@ -71,7 +71,6 @@ type User struct {
 	Email     string     `json:"email"`
 	Plan      string     `json:"plan"`
 	Status    string     `json:"status"`
-	JoinDate  time.Time  `json:"join_date"`
 	LastLogin *time.Time `json:"last_login"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
