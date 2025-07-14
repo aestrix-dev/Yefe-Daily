@@ -198,7 +198,6 @@ func (r *adminUserRepository) InviteAdmin(ctx context.Context, invitation domain
 func (r *adminUserRepository) GetAdminInvitations(ctx context.Context) ([]domain.AdminInvitation, error) {
 	var dbinvitations []models.AdminInvitation
 	var invitations []domain.AdminInvitation
-	// TODO need model here
 
 	if err := r.db.WithContext(ctx).Find(&dbinvitations).Error; err != nil {
 		return nil, fmt.Errorf("failed to get admin invitations: %w", err)

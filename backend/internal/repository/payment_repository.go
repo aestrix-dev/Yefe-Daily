@@ -27,7 +27,6 @@ func (r *paymentRepository) CreatePayment(ctx context.Context, payment *domain.P
 	return r.db.WithContext(ctx).Create(dbPayment).Error
 }
 
-// TODO remove the package side
 func (r *paymentRepository) GetPaymentByID(ctx context.Context, id string) (*domain.Payment, error) {
 	var payment domain.Payment
 	var dbPayment models.Payment
