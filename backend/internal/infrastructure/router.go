@@ -3,7 +3,7 @@ package infrastructure
 import (
 	"net/http"
 	"yefe_app/v1/internal/domain"
-	"yefe_app/v1/internal/handlers"
+	"yefe_app/v1/internal/handlers/v1"
 	middlewares "yefe_app/v1/internal/infrastructure/middleware"
 	usecase "yefe_app/v1/internal/useCase"
 
@@ -15,6 +15,7 @@ import (
 type ServerConfig struct {
 	DB                *gorm.DB
 	JWT_SECRET        string
+	EmailService      domain.EmailService
 	UserRepo          domain.UserRepository
 	SessionRepo       domain.SessionRepository
 	SecEventRepo      domain.SecurityEventRepository
@@ -26,7 +27,7 @@ type ServerConfig struct {
 	StatsRepo         domain.ChallengeStatsRepository
 	AdminRepo         domain.AdminUserRepository
 	SongRepo          domain.SongRepository
-	EmailService      domain.EmailService
+	PaymentRepo       domain.PaymentRepository
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
@@ -35,6 +36,10 @@ func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
 
 func (conf ServerConfig) admin_user_usecase() domain.AdminUserUseCase {
 	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo, conf.EmailService)
+}
+
+func (conf ServerConfig) payment_usercase() domain.PaymentUseCase {
+	return usecase.NewPaymentUseCase(conf.PaymentRepo)
 }
 
 func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
@@ -63,6 +68,8 @@ func NewRouter(config ServerConfig) http.Handler {
 	challenges_handler := handlers.NewChallengesHandler(config.challenges_usecase())
 	admin_user_handelrs := handlers.NewAdminUserHandler(config.admin_user_usecase())
 	song_handler := handlers.NewMusicHandler(config.song_usecase())
+	payments_handler := handlers.NewPaymentHandler(config.payment_usercase())
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Route("/v1", func(r chi.Router) {
@@ -73,6 +80,7 @@ func NewRouter(config ServerConfig) http.Handler {
 			r.Mount("/puzzle", puzzle_handler.Handle())
 			r.Mount("/challenges", challenges_handler.Handle())
 			r.Mount("/songs", song_handler.Handle())
+			r.Mount("/payments", payments_handler.Handle())
 		})
 
 		r.Group(func(r chi.Router) {
