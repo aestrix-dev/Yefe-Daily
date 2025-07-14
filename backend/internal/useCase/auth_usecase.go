@@ -25,14 +25,6 @@ type authUseCase struct {
 	jwtSecret       string
 }
 
-var defaultPasswordConfig = types.PasswordConfig{
-	Memory:      64 * 1024, // MB
-	Iterations:  3,
-	Parallelism: 2,
-	SaltLength:  16,
-	KeyLength:   32,
-}
-
 var (
 	now = time.Now()
 
@@ -63,18 +55,13 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	}
 
 	// Check if email exists
-	if existingUser, _ := a.userRepo.GetByEmail(ctx, req.Email); existingUser != nil {
+	if _, err := a.userRepo.GetByEmail(ctx, req.Email); err == nil {
 		return nil, domain.ErrEmailAlreadyExists
 	}
 
-	// Check if username exists
-	if existingUser, _ := a.userRepo.GetByEmail(ctx, req.Email); existingUser != nil {
-		return nil, domain.ErrUsernameAlreadyExists
-	}
-
 	// Generate salt and hash password
-	salt := utils.GenerateSalt(defaultPasswordConfig.SaltLength)
-	passwordHash := utils.HashPassword(req.Password, salt, defaultPasswordConfig)
+	salt := utils.GenerateSalt(utils.DefaultPasswordConfig.SaltLength)
+	passwordHash := utils.HashPassword(req.Password, salt, utils.DefaultPasswordConfig)
 
 	user := &domain.User{
 		ID:           utils.GenerateID(),
@@ -87,7 +74,7 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 		UpdatedAt:    time.Now(),
 	}
 
-  user.DowngradeToFree()
+	user.DowngradeToFree()
 
 	prefs := req.Prefs
 
@@ -137,7 +124,7 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 
 	user, err = a.userRepo.GetByEmail(ctx, req.Email)
 
-	if err != nil || user == nil {
+	if err == nil || user == nil {
 		return nil, domain.ErrInvalidCredentials
 	}
 
@@ -152,7 +139,7 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 	}
 
 	// Verify password
-	if !utils.VerifyPassword(req.Password, user.Salt, user.PasswordHash, defaultPasswordConfig) {
+	if !utils.VerifyPassword(req.Password, user.Salt, user.PasswordHash, utils.DefaultPasswordConfig) {
 		user.FailedLoginCount++
 		user.LastFailedLogin = &time.Time{}
 		*user.LastFailedLogin = time.Now()
