@@ -83,6 +83,9 @@ func HandleDomainError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrRateLimitExceeded):
 		ErrorResponse(w, http.StatusTooManyRequests, "Too many requests", nil)
 
+	case domain.IsAuthorizationError(err):
+		ErrorResponse(w, http.StatusForbidden, "Invalid credentials", nil)
+
 	default:
 		ErrorResponse(w, http.StatusInternalServerError, "Internal server error", nil)
 	}

@@ -124,7 +124,7 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 
 	user, err = a.userRepo.GetByEmail(ctx, req.Email)
 
-	if err == nil || user == nil {
+	if err != nil {
 		return nil, domain.ErrInvalidCredentials
 	}
 
@@ -135,6 +135,7 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 
 	// Check if account is active
 	if !user.IsActive {
+		logger.Log.WithError(err).Error("Account inactive")
 		return nil, domain.ErrAccountInactive
 	}
 
@@ -151,11 +152,8 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 			a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventAccountLocked, req.IPAddress, req.UserAgent, nil)
 		}
 
-		err := a.userRepo.UpdateLastLogin(ctx, user.ID)
-		if err != nil {
-			logger.Log.WithError(err).Error("Could not update last login")
-		}
 		a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventLoginFailed, req.IPAddress, req.UserAgent, nil)
+		logger.Log.WithError(err).Error("Invalid password or email")
 		return nil, domain.ErrInvalidCredentials
 	}
 
@@ -193,6 +191,10 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 
 	a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)
 
+	err = a.userRepo.UpdateLastLogin(ctx, user.ID)
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not update last login")
+	}
 	return &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: session.RefreshToken,
