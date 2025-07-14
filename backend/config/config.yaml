@@ -28,3 +28,5 @@ email_config:
   retry_attempts: 2 
   retry_delay: 10s 
 
+stripe_config:
+  stripe_secret_key: ${STRIPE_SECRET_KEY}

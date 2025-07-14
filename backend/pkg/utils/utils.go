@@ -34,9 +34,10 @@ var DefaultPasswordConfig = types.PasswordConfig{
 
 type (
 	AppSettings struct {
-		Server      ServerSettings      `yaml:"server"`
-		Persistence PersistenceSettings `yaml:"persistence"`
-		EmailConfig EmailConfig         `yaml:"email_config"`
+		Server       ServerSettings      `yaml:"server"`
+		Persistence  PersistenceSettings `yaml:"persistence"`
+		EmailConfig  EmailConfig         `yaml:"email_config"`
+		StripeConfig Stripe              `yaml:"stripe_config"`
 	}
 	ServerSettings struct {
 		Name   string `yaml:"name"`
@@ -68,6 +69,9 @@ type (
 		QueueSize     int           `yaml:"queue_size"`
 		RetryAttempts int           `yaml:"retry_attempts"`
 		RetryDelay    time.Duration `yaml:"retry_delay"`
+	}
+	Stripe struct {
+		SecretKey string `yaml:"stripe_secret_key"`
 	}
 )
 
