@@ -15,6 +15,8 @@ import (
 	"yefe_app/v1/pkg/logger"
 	service "yefe_app/v1/pkg/services"
 	"yefe_app/v1/pkg/utils"
+
+	"github.com/stripe/stripe-go/v74"
 )
 
 func main() {
@@ -32,6 +34,8 @@ func main() {
 		logger.Log.WithError(err).Fatal("Failed to load config")
 		return
 	}
+	stripe.Key = config.StripeConfig.SecretKey
+
 	serverCtx, serverStopCtx := context.WithCancel(context.Background())
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
