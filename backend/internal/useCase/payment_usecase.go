@@ -7,6 +7,7 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/logger"
+	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 
 	"github.com/stripe/stripe-go/v74"
@@ -18,6 +19,7 @@ type paymentUseCase struct {
 	adminUC       domain.AdminUserUseCase
 	paymentConfig utils.Stripe
 	emailService  domain.EmailService
+	securityRepo  domain.SecurityEventRepository
 }
 
 func NewPaymentUseCase(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.Stripe, emailSerice domain.EmailService) domain.PaymentUseCase {
@@ -60,7 +62,12 @@ func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.Create
 	if err != nil {
 		return dto.CreatePaymentIntentResponse{}, fmt.Errorf("failed to update payment: %w", err)
 	}
-
+	err = u.securityRepo.LogSecurityEvent(ctx, payment.UserID, types.EventCreatePaymentIntent, "", "", types.JSONMap{
+		"payment_id": payment.ID,
+	})
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not log event")
+	}
 	return dto.CreatePaymentIntentResponse{
 		PaymentID:    payment.ID,
 		ClientSecret: pi.ClientSecret,
@@ -103,6 +110,12 @@ func (u *paymentUseCase) ConfirmPayment(ctx context.Context, req dto.ConfirmPaym
 		logger.Log.WithError(err).Error("Could not update user %s plan", payment.UserID)
 		return dto.ConfirmPaymentResponse{}, err
 	}
+	err = u.securityRepo.LogSecurityEvent(ctx, payment.UserID, types.EventConfirmPayment, "", "", types.JSONMap{
+		"payment_id": payment.ID,
+	})
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not log event")
+	}
 	return dto.ConfirmPaymentResponse{
 		PaymentID:   payment.ID,
 		Status:      "completed",
@@ -121,7 +134,12 @@ func (u *paymentUseCase) UpgradePackage(ctx context.Context, req dto.UpgradePack
 	if err != nil {
 		return dto.UpgradePackageResponse{}, err
 	}
-
+	err = u.securityRepo.LogSecurityEvent(ctx, intentReq.UserID, types.EventUpgradePackage, "", "", types.JSONMap{
+		"payment_id": intentResp.PaymentID,
+	})
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not log event")
+	}
 	return dto.UpgradePackageResponse{
 		PaymentID:    intentResp.PaymentID,
 		ClientSecret: intentResp.ClientSecret,
@@ -233,6 +251,12 @@ func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[st
 		return fmt.Errorf("Could not process payment")
 	}
 	logger.Log.Infof("Payment %s processed successfully via webhook", payment.ID)
+	err = u.securityRepo.LogSecurityEvent(ctx, payment.UserID, types.EventPaymentSuccessfull, "", "", types.JSONMap{
+		"payment_id": payment.ID,
+	})
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not log event")
+	}
 	return nil
 }
 
@@ -307,6 +331,13 @@ func (u *paymentUseCase) handlePaymentFailed(ctx context.Context, data map[strin
 		return fmt.Errorf("Could not process payment")
 	}
 	logger.Log.Infof("Payment %s marked as failed via webhook", payment.ID)
+	err = u.securityRepo.LogSecurityEvent(ctx, payment.UserID, types.EventPaymentFailed, "", "", types.JSONMap{
+		"payment_id": payment.ID,
+	})
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not log event")
+	}
+
 	return nil
 }
 
