@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 type EmailRequest struct {
 	To       []string `json:"to"`
 	CC       []string `json:"cc,omitempty"`
@@ -17,4 +19,15 @@ type AdminInvitationEmailRequest struct {
 type AdminInvitationEmailResponse struct {
 	AdminInvitationEmailRequest
 	InvitationLink string `json:"invitation_link"`
+}
+
+type PaymentConfirmationEmailData struct {
+	Name          string
+	Amount        int8
+	Currency      string
+	PaymentID     string
+	Date          time.Time
+	PaymentMethod string
+	Status        string
+	Email         string
 }
