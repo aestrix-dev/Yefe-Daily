@@ -71,7 +71,8 @@ type (
 		RetryDelay    time.Duration `yaml:"retry_delay"`
 	}
 	Stripe struct {
-		SecretKey string `yaml:"stripe_secret_key"`
+		SecretKey    string `yaml:"stripe_secret_key"`
+		ProPlanPrice int8   `yaml:"pro_plan_price"`
 	}
 )
 
