@@ -21,6 +21,11 @@ type PasswordConfig struct {
 type SecurityEventType string
 
 const (
+	DEV  = "dev"
+	PROD = "prod"
+)
+
+const (
 	EventLogin              SecurityEventType = "login"
 	EventLoginFailed        SecurityEventType = "login_failed"
 	EventLogout             SecurityEventType = "logout"
