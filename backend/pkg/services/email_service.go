@@ -165,6 +165,22 @@ func (e *EmailServiceImpl) SendAdminInvitation(ctx context.Context, req dto.Admi
 
 	return e.SendEmail(ctx, emailReq)
 }
+func (e *EmailServiceImpl) SendPaymentConfirmationEmail(ctx context.Context, req dto.PaymentConfirmationEmailData) error {
+	// Build the invitation email content
+	subject := fmt.Sprintf("Payment confitmation for Yefe Plus")
+
+	htmlBody := e.buildPaymentConfirmationHTML(req)
+	textBody := e.buildPaymentConfirmationText(req)
+
+	emailReq := dto.EmailRequest{
+		To:       []string{req.Email},
+		Subject:  subject,
+		Body:     textBody,
+		HTMLBody: htmlBody,
+	}
+
+	return e.SendEmail(ctx, emailReq)
+}
 
 // EmailWorker implementation for background processing
 func (w *EmailWorker) Name() string {
@@ -419,6 +435,90 @@ This is an automated message. Please do not reply to this email.
 `,
 		req.Role,
 		req.InvitationLink,
+	)
+}
+
+// buildPaymentConfirmationHTML creates the HTML content for a payment confirmation email
+func (e *EmailServiceImpl) buildPaymentConfirmationHTML(req dto.PaymentConfirmationEmailData) string {
+	return fmt.Sprintf(`
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Confirmation</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .footer { padding: 20px; text-align: center; font-size: 12px; color: #666; }
+        .summary-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .summary-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        .summary-table td.label { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Payment Confirmation</h1>
+        </div>
+        <div class="content">
+            <p>Hello %s,</p>
+            <p>Thank you for your payment. We’ve successfully processed your transaction.</p>
+
+            <table class="summary-table">
+                <tr><td class="label">Amount:</td><td>%s %0.2f</td></tr>
+                <tr><td class="label">Payment ID:</td><td>%s</td></tr>
+                <tr><td class="label">Date:</td><td>%s</td></tr>
+                <tr><td class="label">Payment Method:</td><td>%s</td></tr>
+                <tr><td class="label">Status:</td><td>%s</td></tr>
+            </table>
+
+            <p>If you have any questions or need a receipt, please contact our support team.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>`,
+		req.Name,
+		req.Currency,
+		req.Amount,
+		req.PaymentID,
+		req.Date.Format("January 2, 2006 at 3:04 PM"),
+		req.PaymentMethod,
+		req.Status,
+	)
+}
+
+// buildPaymentConfirmationText creates the plain text content for a payment confirmation email
+func (e *EmailServiceImpl) buildPaymentConfirmationText(req dto.PaymentConfirmationEmailData) string {
+	return fmt.Sprintf(`
+Payment Confirmation
+
+Hello %s,
+
+Thank you for your payment. We’ve successfully processed your transaction.
+
+Amount: %s %.2f
+Payment ID: %s
+Date: %s
+Payment Method: %s
+Status: %s
+
+If you have any questions or need a receipt, please contact our support team.
+
+---
+This is an automated message. Please do not reply to this email.
+`,
+		req.Name,
+		req.Currency,
+		req.Amount,
+		req.PaymentID,
+		req.Date.Format("January 2, 2006 at 3:04 PM"),
+		req.PaymentMethod,
+		req.Status,
 	)
 }
 

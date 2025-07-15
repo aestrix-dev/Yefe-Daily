@@ -5,18 +5,18 @@ import (
 )
 
 type Payment struct {
-	ID               string     `json:"id"`
-	Amount           int64      `json:"amount"`
-	Currency         string     `json:"currency"`
-	Status           string     `json:"status"`
-	PaymentIntentID  string     `json:"payment_intent_id"`
-	PaymentMethod    string     `json:"payment_method"`
-	ProcessedAt      *time.Time `json:"processed_at"`
-	CreatedAt        time.Time  `json:"created_at"`
-	UpdatedAt        time.Time  `json:"updated_at"`
+	ID              string     `json:"id"`
+	Amount          int64      `json:"amount"`
+	Currency        string     `json:"currency"`
+	Status          string     `json:"status"`
+	PaymentIntentID string     `json:"payment_intent_id"`
+	PaymentMethod   string     `json:"payment_method"`
+	ProcessedAt     *time.Time `json:"processed_at"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
 }
 type CreatePaymentIntentRequest struct {
-	UserID        string `json:"user_id" binding:"required"`
+	UserID        string `json:"-"`
 	PaymentMethod string `json:"payment_method"`
 }
 
