@@ -76,7 +76,7 @@ func NewRouter(config ServerConfig) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://adapted-kindly-perch.ngrok-free.app"}, // TODO add frontend origin here
+		AllowedOrigins:   []string{"http://localhost:3000"}, // TODO add frontend origin here
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
