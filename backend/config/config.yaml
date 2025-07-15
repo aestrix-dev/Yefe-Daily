@@ -5,7 +5,7 @@ server:
   secret: ${JWT_SECRET}
   dev_url: ${DEV_URL}
   prod_url: ${PRO_URL}
-  env: ${ENV}
+  environment: ${ENV}
 
 persistence:
   postgres:
