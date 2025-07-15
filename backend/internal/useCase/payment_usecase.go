@@ -3,32 +3,33 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
-	"github.com/google/uuid"
 	"github.com/stripe/stripe-go/v74"
 	"github.com/stripe/stripe-go/v74/paymentintent"
 )
 
 type paymentUseCase struct {
-	repo domain.PaymentRepository
+	repo          domain.PaymentRepository
+	adminUC       domain.AdminUserUseCase
+	paymentConfig utils.Stripe
 }
 
-func NewPaymentUseCase(repo domain.PaymentRepository) domain.PaymentUseCase {
-	return &paymentUseCase{repo: repo}
+func NewPaymentUseCase(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.Stripe) domain.PaymentUseCase {
+	return &paymentUseCase{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig}
 }
 
 func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error) {
 
 	// Create payment record
 	payment := &domain.Payment{
-		ID:            uuid.New().String(),
+		ID:            utils.GenerateID(),
 		UserID:        req.UserID,
-		Amount:        5,
+		Amount:        int64(u.paymentConfig.ProPlanPrice) * 1000,
 		Currency:      "USD",
 		Status:        "pending",
 		PaymentMethod: req.PaymentMethod,
@@ -43,7 +44,7 @@ func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.Create
 
 	// Create Stripe payment intent
 	params := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(5),
+		Amount:   stripe.Int64(int64(u.paymentConfig.ProPlanPrice) * 1000),
 		Currency: stripe.String("USD"),
 	}
 
@@ -62,7 +63,7 @@ func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.Create
 	return dto.CreatePaymentIntentResponse{
 		PaymentID:    payment.ID,
 		ClientSecret: pi.ClientSecret,
-		Amount:       5,
+		Amount:       int64(u.paymentConfig.ProPlanPrice) * 1000,
 		Currency:     "USD", // TODO make global
 		Status:       "pending",
 	}, nil
@@ -95,22 +96,12 @@ func (u *paymentUseCase) ConfirmPayment(ctx context.Context, req dto.ConfirmPaym
 	if err != nil {
 		return dto.ConfirmPaymentResponse{}, fmt.Errorf("failed to update payment: %w", err)
 	}
+	err = u.adminUC.UpdateUserPlan(ctx, payment.UserID, "yefe_plus")
 
-	// Update user subscription
-	subscription := domain.UserSubscription{
-		UserID:    payment.UserID,
-		Status:    "active",
-		StartDate: now,
-		EndDate:   now.AddDate(0, 1, 0),
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-
-	err = u.repo.CreateOrUpdateSubscription(ctx, subscription)
 	if err != nil {
-		return dto.ConfirmPaymentResponse{}, fmt.Errorf("failed to update subscription: %w", err)
+		logger.Log.WithError(err).Error("Could not update user %s plan", payment.UserID)
+		return dto.ConfirmPaymentResponse{}, err
 	}
-
 	return dto.ConfirmPaymentResponse{
 		PaymentID:   payment.ID,
 		Status:      "completed",
@@ -122,8 +113,7 @@ func (u *paymentUseCase) ConfirmPayment(ctx context.Context, req dto.ConfirmPaym
 func (u *paymentUseCase) UpgradePackage(ctx context.Context, req dto.UpgradePackageRequest) (dto.UpgradePackageResponse, error) {
 	// Create payment intent
 	intentReq := dto.CreatePaymentIntentRequest{
-		UserID:      req.UserID,
-		ToPackageID: req.ToPackageID,
+		UserID: req.UserID,
 	}
 
 	intentResp, err := u.CreatePaymentIntent(ctx, intentReq)
@@ -167,6 +157,20 @@ func (u *paymentUseCase) GetPaymentHistory(ctx context.Context, userID uint, pag
 	}, nil
 }
 
+func (u *paymentUseCase) ProcessWebhook(ctx context.Context, req dto.WebhookRequest) error {
+	switch req.Type {
+	case "payment_intent.succeeded":
+		// Handle successful payment
+		return u.handlePaymentSucceeded(ctx, req.Data)
+	case "payment_intent.payment_failed":
+		// Handle failed payment
+		return u.handlePaymentFailed(ctx, req.Data)
+	default:
+		logger.Log.Errorf("Unhandled webhook type: %s", req.Type)
+	}
+	return nil
+}
+
 func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[string]interface{}) error {
 	// Extract payment intent ID from webhook data
 	paymentIntentID, ok := data["id"].(string)
@@ -177,7 +181,7 @@ func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[st
 	// Find payment by payment intent ID
 	payment, err := u.repo.GetPaymentByPaymentIntentID(ctx, paymentIntentID)
 	if err != nil {
-		log.Printf("Failed to find payment with intent ID %s: %v", paymentIntentID, err)
+		logger.Log.WithError(err).Errorf("Failed to find payment with intent ID %s", paymentIntentID)
 		return fmt.Errorf("payment not found: %w", err)
 	}
 
@@ -189,26 +193,18 @@ func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[st
 
 	// Save the updated payment
 	if err := u.repo.UpdatePayment(ctx, payment); err != nil {
-		log.Printf("Failed to update payment %s: %v", payment.ID, err)
+		logger.Log.WithError(err).Errorf("Failed to update payment %s", payment.ID)
 		return fmt.Errorf("failed to update payment: %w", err)
 	}
 
-	// Create or update user subscription
-	subscription := domain.UserSubscription{
-		UserID:    payment.UserID,
-		Status:    "active",
-		StartDate: now,
-		EndDate:   now.AddDate(0, 1, 0), // 1 month subscription
-		CreatedAt: now,
-		UpdatedAt: now,
+	err = u.adminUC.UpdateUserPlan(ctx, payment.UserID, "yefe_plus")
+
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not update user %s plan", payment.UserID)
+		return err
 	}
 
-	if err := u.repo.CreateOrUpdateSubscription(ctx, subscription); err != nil {
-		log.Printf("Failed to update subscription for user %d: %v", payment.UserID, err)
-		return fmt.Errorf("failed to update subscription: %w", err)
-	}
-
-	log.Printf("Payment %s processed successfully via webhook", payment.ID)
+	logger.Log.Info("Payment %s processed successfully via webhook", payment.ID)
 	return nil
 }
 
@@ -234,7 +230,7 @@ func (u *paymentUseCase) handlePaymentFailed(ctx context.Context, data map[strin
 	// Find payment by payment intent ID
 	payment, err := u.repo.GetPaymentByPaymentIntentID(ctx, paymentIntentID)
 	if err != nil {
-		log.Printf("Failed to find payment with intent ID %s: %v", paymentIntentID, err)
+		logger.Log.WithError(err).Errorf("Failed to find payment with intent ID %s", paymentIntentID)
 		return fmt.Errorf("payment not found: %w", err)
 	}
 
@@ -247,15 +243,15 @@ func (u *paymentUseCase) handlePaymentFailed(ctx context.Context, data map[strin
 	// If you don't have this field, you can remove this section
 	if failureReason != "" {
 		// payment.FailureReason = failureReason
-		log.Printf("Payment %s failed with reason: %s", payment.ID, failureReason)
+		logger.Log.Errorf("Payment %s failed with reason: %s", payment.ID, failureReason)
 	}
 
 	// Save the updated payment
 	if err := u.repo.UpdatePayment(ctx, payment); err != nil {
-		log.Printf("Failed to update payment %s: %v", payment.ID, err)
+		logger.Log.WithError(err).Errorf("Failed to update payment %s", payment.ID)
 		return fmt.Errorf("failed to update payment: %w", err)
 	}
 
-	log.Printf("Payment %s marked as failed via webhook", payment.ID)
+	logger.Log.Info("Payment %s marked as failed via webhook", payment.ID)
 	return nil
 }

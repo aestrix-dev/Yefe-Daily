@@ -24,7 +24,7 @@ func (r *paymentRepository) CreatePayment(ctx context.Context, payment *domain.P
 	if err != nil {
 		return err
 	}
-	return r.db.WithContext(ctx).Create(dbPayment).Error
+	return r.db.WithContext(ctx).Create(&dbPayment).Error
 }
 
 func (r *paymentRepository) GetPaymentByID(ctx context.Context, id string) (*domain.Payment, error) {
@@ -74,19 +74,6 @@ func (r *paymentRepository) GetPaymentsByUserID(ctx context.Context, userID uint
 	return payments, err
 }
 
-func (r *paymentRepository) GetUserSubscription(ctx context.Context, userID uint) (*domain.UserSubscription, error) {
-	var subscription domain.UserSubscription
-	var dbSubscription models.UserSubscription
-	err := r.db.WithContext(ctx).
-		Where("user_id = ?", userID).
-		First(&dbSubscription).Error
-	err = utils.TypeConverter(subscription, &dbSubscription)
-	if err != nil {
-		return nil, err
-	}
-	return &subscription, err
-}
-
 func (r *paymentRepository) GetPaymentByPaymentIntentID(ctx context.Context, paymentIntentID string) (*domain.Payment, error) {
 	var payment domain.Payment
 	var dbPayment models.Payment
@@ -98,7 +85,4 @@ func (r *paymentRepository) GetPaymentByPaymentIntentID(ctx context.Context, pay
 		return nil, err
 	}
 	return &payment, err
-}
-func (r *paymentRepository) CreateOrUpdateSubscription(ctx context.Context, subscription domain.UserSubscription) error {
-	return r.db.WithContext(ctx).Save(&subscription).Error
 }

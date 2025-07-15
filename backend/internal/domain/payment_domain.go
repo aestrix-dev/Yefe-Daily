@@ -7,37 +7,23 @@ import (
 )
 
 type Payment struct {
-	ID               string     `json:"id"`
-	UserID           uint       `json:"user_id"`
-	Amount           int64      `json:"amount"`
-	Currency         string     `json:"currency"`
-	Status           string     `json:"status"`
-	PaymentIntentID  string     `json:"payment_intent_id"`
-	StripeCustomerID string     `json:"stripe_customer_id"`
-	PaymentMethod    string     `json:"payment_method"`
-	ProcessedAt      *time.Time `json:"processed_at"`
-	CreatedAt        time.Time  `json:"created_at"`
-	UpdatedAt        time.Time  `json:"updated_at"`
+	ID              string     `json:"id"`
+	UserID          string     `json:"user_id"`
+	Amount          int64      `json:"amount"`
+	Currency        string     `json:"currency"`
+	Status          string     `json:"status"`
+	PaymentIntentID string     `json:"payment_intent_id"`
+	PaymentMethod   string     `json:"payment_method"`
+	ProcessedAt     *time.Time `json:"processed_at"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
 }
 
-type UserSubscription struct {
-	ID          uint      `json:"id"`
-	UserID      uint      `json:"user_id"`
-	PackageID   uint      `json:"package_id"`
-	Status      string    `json:"status"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
-	StripeSubID string    `json:"stripe_subscription_id"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
 type PaymentRepository interface {
 	CreatePayment(ctx context.Context, payment *Payment) error
 	GetPaymentByID(ctx context.Context, id string) (*Payment, error)
 	UpdatePayment(ctx context.Context, payment *Payment) error
 	GetPaymentsByUserID(ctx context.Context, userID uint, page, limit int) ([]Payment, error)
-	GetUserSubscription(ctx context.Context, userID uint) (*UserSubscription, error)
-	CreateOrUpdateSubscription(ctx context.Context, subscription UserSubscription) error
 	GetPaymentByPaymentIntentID(ctx context.Context, paymentIntentID string) (*Payment, error)
 }
 

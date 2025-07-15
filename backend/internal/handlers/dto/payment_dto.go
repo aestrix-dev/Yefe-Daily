@@ -10,15 +10,13 @@ type Payment struct {
 	Currency         string     `json:"currency"`
 	Status           string     `json:"status"`
 	PaymentIntentID  string     `json:"payment_intent_id"`
-	StripeCustomerID string     `json:"stripe_customer_id"`
 	PaymentMethod    string     `json:"payment_method"`
 	ProcessedAt      *time.Time `json:"processed_at"`
 	CreatedAt        time.Time  `json:"created_at"`
 	UpdatedAt        time.Time  `json:"updated_at"`
 }
 type CreatePaymentIntentRequest struct {
-	UserID        uint   `json:"user_id" binding:"required"`
-	ToPackageID   uint   `json:"to_package_id" binding:"required"`
+	UserID        string `json:"user_id" binding:"required"`
 	PaymentMethod string `json:"payment_method"`
 }
 
@@ -43,8 +41,7 @@ type ConfirmPaymentResponse struct {
 }
 
 type UpgradePackageRequest struct {
-	UserID      uint `json:"user_id" binding:"required"`
-	ToPackageID uint `json:"to_package_id" binding:"required"`
+	UserID string `json:"user_id" binding:"required"`
 }
 
 type UpgradePackageResponse struct {

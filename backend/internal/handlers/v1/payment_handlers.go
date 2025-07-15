@@ -24,7 +24,6 @@ func (p paymentHandler) Handle() *chi.Mux {
 
 	router.Post("/intent", p.CreatePaymentIntent)
 	router.Post("/confirm", p.ConfirmPayment)
-	router.Post("/upgrade", p.UpgradePackage)
 	router.Get("/history/:user_id", p.GetPaymentHistory)
 	router.Post("/webhooks/stripe", p.StripeWebhook)
 	return router
@@ -36,7 +35,7 @@ func (h *paymentHandler) CreatePaymentIntent(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	resp, err := h.useCase.CreatePaymentIntent(r.Context(), &req)
+	resp, err := h.useCase.CreatePaymentIntent(r.Context(), req)
 	if err != nil {
 		logger.Log.WithError(err).Error("Could not create payment intenet")
 		utils.ErrorResponse(w, http.StatusInsufficientStorage, "Internal server error", nil)
@@ -54,7 +53,7 @@ func (h *paymentHandler) ConfirmPayment(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	resp, err := h.useCase.ConfirmPayment(r.Context(), &req)
+	resp, err := h.useCase.ConfirmPayment(r.Context(), req)
 	if err != nil {
 		logger.Log.WithError(err).Error("Could not conirm payment")
 		utils.ErrorResponse(w, http.StatusInsufficientStorage, "Internal server error", nil)
@@ -71,7 +70,7 @@ func (h *paymentHandler) UpgradePackage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	resp, err := h.useCase.UpgradePackage(r.Context(), &req)
+	resp, err := h.useCase.UpgradePackage(r.Context(), req)
 	if err != nil {
 		logger.Log.WithError(err).Error("Could not conirm payment")
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Internal server error", nil)
@@ -111,7 +110,7 @@ func (h *paymentHandler) StripeWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.useCase.ProcessWebhook(r.Context(), &req)
+	err := h.useCase.ProcessWebhook(r.Context(), req)
 	if err != nil {
 		logger.Log.WithError(err).Error("Could not process stripe webhook")
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Internal server error", nil)

@@ -119,7 +119,7 @@ func (uc *adminUserUseCase) UpdateUserPlan(
 
 	case plan == "yefe_plus" && user.PlanType == "free":
 		// Upgrade from free to premium
-		endDate := time.Now().AddDate(1, 0, 0) // 1 year default
+		endDate := time.Now().AddDate(0, 1, 0)
 		user.UpgradeToYefePlus(&endDate, true)
 
 	default:
