@@ -171,6 +171,7 @@ func (e *EmailServiceImpl) SendPaymentConfirmationEmail(ctx context.Context, req
 
 	htmlBody := e.buildPaymentConfirmationHTML(req)
 	textBody := e.buildPaymentConfirmationText(req)
+	fmt.Println(textBody)
 
 	emailReq := dto.EmailRequest{
 		To:       []string{req.Email},
@@ -440,8 +441,9 @@ This is an automated message. Please do not reply to this email.
 
 // buildPaymentConfirmationHTML creates the HTML content for a payment confirmation email
 func (e *EmailServiceImpl) buildPaymentConfirmationHTML(req dto.PaymentConfirmationEmailData) string {
-	return fmt.Sprintf(`
-<!DOCTYPE html>
+	var b strings.Builder
+
+	b.WriteString(`<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -463,33 +465,30 @@ func (e *EmailServiceImpl) buildPaymentConfirmationHTML(req dto.PaymentConfirmat
             <h1>Payment Confirmation</h1>
         </div>
         <div class="content">
-            <p>Hello %s,</p>
-            <p>Thank you for your payment. We’ve successfully processed your transaction.</p>
+`)
 
-            <table class="summary-table">
-                <tr><td class="label">Amount:</td><td>%s %0.2f</td></tr>
-                <tr><td class="label">Payment ID:</td><td>%s</td></tr>
-                <tr><td class="label">Date:</td><td>%s</td></tr>
-                <tr><td class="label">Payment Method:</td><td>%s</td></tr>
-                <tr><td class="label">Status:</td><td>%s</td></tr>
-            </table>
+	// Dynamic content
+	b.WriteString(fmt.Sprintf("<p>Hello %s,</p>\n", req.Name))
+	b.WriteString("<p>Thank you for your payment. We’ve successfully processed your transaction.</p>\n")
 
-            <p>If you have any questions or need a receipt, please contact our support team.</p>
+	b.WriteString(`<table class="summary-table">`)
+	b.WriteString(fmt.Sprintf("<tr><td class=\"label\">Amount:</td><td>%s %d</td></tr>\n", req.Currency, req.Amount))
+	b.WriteString(fmt.Sprintf("<tr><td class=\"label\">Payment ID:</td><td>%s</td></tr>\n", req.PaymentID))
+	b.WriteString(fmt.Sprintf("<tr><td class=\"label\">Date:</td><td>%s</td></tr>\n", req.Date.Format("January 2, 2006 at 3:04 PM")))
+	b.WriteString(fmt.Sprintf("<tr><td class=\"label\">Payment Method:</td><td>%s</td></tr>\n", req.PaymentMethod))
+	b.WriteString(fmt.Sprintf("<tr><td class=\"label\">Status:</td><td>%s</td></tr>\n", req.Status))
+	b.WriteString("</table>\n")
+
+	b.WriteString(`<p>If you have any questions or need a receipt, please contact our support team.</p>
         </div>
         <div class="footer">
             <p>This is an automated message. Please do not reply to this email.</p>
         </div>
     </div>
 </body>
-</html>`,
-		req.Name,
-		req.Currency,
-		req.Amount,
-		req.PaymentID,
-		req.Date.Format("January 2, 2006 at 3:04 PM"),
-		req.PaymentMethod,
-		req.Status,
-	)
+</html>`)
+
+	return b.String()
 }
 
 // buildPaymentConfirmationText creates the plain text content for a payment confirmation email
@@ -501,7 +500,7 @@ Hello %s,
 
 Thank you for your payment. We’ve successfully processed your transaction.
 
-Amount: %s %.2f
+Amount: %s %d
 Payment ID: %s
 Date: %s
 Payment Method: %s
