@@ -106,6 +106,7 @@ type AdminUserUseCase interface {
 	InviteNewAdmin(ctx context.Context, req dto.AdminInvitationEmailRequest, invitedBy string) error
 	GetPendingInvitations(ctx context.Context) ([]AdminInvitation, error)
 	AcceptInvitation(ctx context.Context, invitationToken string) error
+	GetUserByID(ctx context.Context, userID string) (*User, error)
 }
 type AuthUseCase interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*User, error)

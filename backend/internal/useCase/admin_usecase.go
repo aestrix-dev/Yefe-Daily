@@ -8,6 +8,7 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/logger"
+	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 )
 
@@ -15,6 +16,7 @@ type adminUserUseCase struct {
 	adminRepo    domain.AdminUserRepository
 	userRepo     domain.UserRepository
 	emailService domain.EmailService
+	config       utils.ServerSettings
 }
 
 func NewAdminUserUseCase(
@@ -28,7 +30,9 @@ func NewAdminUserUseCase(
 		emailService: emailService,
 	}
 }
-
+func (r *adminUserUseCase) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
+	return r.userRepo.GetByID(ctx, userID)
+}
 func (uc *adminUserUseCase) GetAllUsers(
 	ctx context.Context,
 	filter dto.UserListFilter,
@@ -136,6 +140,13 @@ func (uc *adminUserUseCase) UpdateUserPlan(
 }
 
 func (uc *adminUserUseCase) InviteNewAdmin(ctx context.Context, invitation dto.AdminInvitationEmailRequest, invitedBy string) error {
+	var invitationLink string
+
+	if uc.config.Env == types.PROD {
+		invitationLink = uc.config.ProdURL
+	} else {
+		invitationLink = uc.config.DevURl
+	}
 
 	// Check if user already exists
 	_, err := uc.userRepo.GetByEmail(ctx, invitation.Email)
@@ -163,7 +174,7 @@ func (uc *adminUserUseCase) InviteNewAdmin(ctx context.Context, invitation dto.A
 	}
 
 	// Send invitation email
-	invitationLink := fmt.Sprintf("https://yourapp.com/admin/accept-invitation?token=%s", token)
+	invitationLink = fmt.Sprintf("%s/admin/accept-invitation?token=%s", invitationLink, token)
 	emailReq := dto.AdminInvitationEmailResponse{
 		AdminInvitationEmailRequest: invitation,
 		InvitationLink:              invitationLink,

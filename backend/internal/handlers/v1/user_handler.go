@@ -7,6 +7,7 @@ import (
 
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
 	"github.com/go-chi/chi/v5"
@@ -23,7 +24,8 @@ func NewAdminUserHandler(adminUC domain.AdminUserUseCase) *adminUserHandler {
 func (h *adminUserHandler) Handle() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/", h.listUsers)
-	router.Get("/admins", h.listAdminUsers)
+	router.Get("/{userID}", h.listUsers)
+	router.Get("/admins", h.getUser)
 	router.Put("/{userID}/status", h.updateUserStatus)
 	router.Put("/{userID}/plan", h.updateUserPlan)
 	router.Post("/invite", h.inviteNewAdmin)
@@ -69,6 +71,29 @@ func (h *adminUserHandler) listAdminUsers(w http.ResponseWriter, r *http.Request
 	}
 
 	utils.SuccessResponse(w, http.StatusOK, "users", users)
+}
+
+// @Description Get user
+func (h *adminUserHandler) getUser(w http.ResponseWriter, r *http.Request) {
+	var dtoUser dto.User
+	userID := chi.URLParam(r, "userID")
+
+	user, err := h.adminUC.GetUserByID(r.Context(), userID)
+
+	if err != nil {
+		logger.Log.WithError(err).Error("Failed to get user")
+		utils.ErrorResponse(w, http.StatusNotFound, "Failed to get user", nil)
+		return
+	}
+
+	err = utils.TypeConverter(user, &dtoUser)
+	if err != nil {
+		logger.Log.WithError(err).Error("Failed to get user")
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get users", nil)
+		return
+	}
+
+	utils.SuccessResponse(w, http.StatusOK, "user", user)
 }
 
 // @Summary List users
