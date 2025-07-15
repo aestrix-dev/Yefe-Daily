@@ -217,7 +217,6 @@ func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[st
 		return fmt.Errorf("Could not get user")
 	}
 
-	logger.Log.Infof("Payment %s processed successfully via webhook", payment.ID)
 	emailReq := dto.PaymentConfirmationEmailData{
 		Name:          user.Name,
 		Email:         user.Email,
@@ -225,8 +224,15 @@ func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[st
 		Status:        payment.Status,
 		Date:          payment.UpdatedAt,
 		PaymentMethod: payment.PaymentMethod,
+		Amount:        int8(payment.Amount / 100),
+		PaymentID:     payment.ID,
 	}
-	u.emailService.SendPaymentConfirmationEmail(ctx, emailReq)
+	err = u.emailService.SendPaymentConfirmationEmail(ctx, emailReq)
+	if err != nil {
+		logger.Log.WithError(err).Error("could not send payment confirmation email")
+		return fmt.Errorf("Could not process payment")
+	}
+	logger.Log.Infof("Payment %s processed successfully via webhook", payment.ID)
 	return nil
 }
 
@@ -280,8 +286,6 @@ func (u *paymentUseCase) handlePaymentFailed(ctx context.Context, data map[strin
 		return fmt.Errorf("failed to update payment: %w", err)
 	}
 
-	logger.Log.Infof("Payment %s marked as failed via webhook", payment.ID)
-
 	user, err := u.adminUC.GetUserByID(ctx, payment.UserID)
 	if err != nil {
 		logger.Log.WithError(err).Errorf("Could not get user: %s", payment.UserID)
@@ -294,8 +298,15 @@ func (u *paymentUseCase) handlePaymentFailed(ctx context.Context, data map[strin
 		Status:        payment.Status,
 		Date:          payment.UpdatedAt,
 		PaymentMethod: payment.PaymentMethod,
+		Amount:        int8(payment.Amount / 100),
+		PaymentID:     payment.ID,
 	}
-	u.emailService.SendPaymentConfirmationEmail(ctx, emailReq)
+	err = u.emailService.SendPaymentConfirmationEmail(ctx, emailReq)
+	if err != nil {
+		logger.Log.WithError(err).Error("could not send payment confirmation email")
+		return fmt.Errorf("Could not process payment")
+	}
+	logger.Log.Infof("Payment %s marked as failed via webhook", payment.ID)
 	return nil
 }
 
