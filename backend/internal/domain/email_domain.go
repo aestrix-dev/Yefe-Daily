@@ -11,10 +11,8 @@ type EmailService interface {
 
 	// General email operations
 	SendEmail(ctx context.Context, req dto.EmailRequest) error
+	SendPaymentConfirmationEmail(ctx context.Context, req dto.PaymentConfirmationEmailData)
 	//SendBulkEmail(ctx context.Context, requests []EmailRequest) error
-
-	// Template-based emails
-	//SendTemplateEmail(ctx context.Context, req TemplateEmailRequest) error
 
 	// Email verification and notifications
 	//SendEmailVerification(ctx context.Context, email string, token string) error
