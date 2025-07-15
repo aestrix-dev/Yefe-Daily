@@ -17,10 +17,11 @@ type paymentUseCase struct {
 	repo          domain.PaymentRepository
 	adminUC       domain.AdminUserUseCase
 	paymentConfig utils.Stripe
+	emailService  domain.EmailService
 }
 
-func NewPaymentUseCase(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.Stripe) domain.PaymentUseCase {
-	return &paymentUseCase{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig}
+func NewPaymentUseCase(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.Stripe, emailSerice domain.EmailService) domain.PaymentUseCase {
+	return &paymentUseCase{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig, emailService: emailSerice}
 }
 
 func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error) {
@@ -29,7 +30,7 @@ func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.Create
 	payment := &domain.Payment{
 		ID:            utils.GenerateID(),
 		UserID:        req.UserID,
-		Amount:        int64(u.paymentConfig.ProPlanPrice) * 1000,
+		Amount:        int64(u.paymentConfig.ProPlanPrice) * 100,
 		Currency:      "USD",
 		Status:        "pending",
 		PaymentMethod: req.PaymentMethod,
@@ -44,7 +45,7 @@ func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.Create
 
 	// Create Stripe payment intent
 	params := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(int64(u.paymentConfig.ProPlanPrice) * 1000),
+		Amount:   stripe.Int64(int64(u.paymentConfig.ProPlanPrice) * 100),
 		Currency: stripe.String("USD"),
 	}
 
@@ -63,7 +64,7 @@ func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.Create
 	return dto.CreatePaymentIntentResponse{
 		PaymentID:    payment.ID,
 		ClientSecret: pi.ClientSecret,
-		Amount:       int64(u.paymentConfig.ProPlanPrice) * 1000,
+		Amount:       int64(u.paymentConfig.ProPlanPrice) * 100,
 		Currency:     "USD", // TODO make global
 		Status:       "pending",
 	}, nil
@@ -172,8 +173,14 @@ func (u *paymentUseCase) ProcessWebhook(ctx context.Context, req dto.WebhookRequ
 }
 
 func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[string]interface{}) error {
+	logger.Log.Info("Payment successfull")
 	// Extract payment intent ID from webhook data
-	paymentIntentID, ok := data["id"].(string)
+	object, ok := data["object"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("object key is missing or wrong type")
+	}
+
+	paymentIntentID, ok := object["id"].(string)
 	if !ok {
 		return fmt.Errorf("invalid payment intent ID")
 	}
@@ -200,17 +207,38 @@ func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[st
 	err = u.adminUC.UpdateUserPlan(ctx, payment.UserID, "yefe_plus")
 
 	if err != nil {
-		logger.Log.WithError(err).Error("Could not update user %s plan", payment.UserID)
+		logger.Log.WithError(err).Errorf("Could not update user %s plan", payment.UserID)
 		return err
 	}
 
-	logger.Log.Info("Payment %s processed successfully via webhook", payment.ID)
+	user, err := u.adminUC.GetUserByID(ctx, payment.UserID)
+	if err != nil {
+		logger.Log.WithError(err).Errorf("Could not get user: %s", payment.UserID)
+		return fmt.Errorf("Could not get user")
+	}
+
+	logger.Log.Infof("Payment %s processed successfully via webhook", payment.ID)
+	emailReq := dto.PaymentConfirmationEmailData{
+		Name:          user.Name,
+		Email:         user.Email,
+		Currency:      payment.Currency,
+		Status:        payment.Status,
+		Date:          payment.UpdatedAt,
+		PaymentMethod: payment.PaymentMethod,
+	}
+	u.emailService.SendPaymentConfirmationEmail(ctx, emailReq)
 	return nil
 }
 
 func (u *paymentUseCase) handlePaymentFailed(ctx context.Context, data map[string]interface{}) error {
+	logger.Log.Info("Payment failed")
 	// Extract payment intent ID from webhook data
-	paymentIntentID, ok := data["id"].(string)
+	object, ok := data["object"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("object key is missing or wrong type")
+	}
+
+	paymentIntentID, ok := object["id"].(string)
 	if !ok {
 		return fmt.Errorf("invalid payment intent ID")
 	}
@@ -252,6 +280,23 @@ func (u *paymentUseCase) handlePaymentFailed(ctx context.Context, data map[strin
 		return fmt.Errorf("failed to update payment: %w", err)
 	}
 
-	logger.Log.Info("Payment %s marked as failed via webhook", payment.ID)
+	logger.Log.Infof("Payment %s marked as failed via webhook", payment.ID)
+
+	user, err := u.adminUC.GetUserByID(ctx, payment.UserID)
+	if err != nil {
+		logger.Log.WithError(err).Errorf("Could not get user: %s", payment.UserID)
+		return fmt.Errorf("Could not get user")
+	}
+	emailReq := dto.PaymentConfirmationEmailData{
+		Name:          user.Name,
+		Email:         user.Email,
+		Currency:      payment.Currency,
+		Status:        payment.Status,
+		Date:          payment.UpdatedAt,
+		PaymentMethod: payment.PaymentMethod,
+	}
+	u.emailService.SendPaymentConfirmationEmail(ctx, emailReq)
 	return nil
 }
+
+// TODO check users plan before creating payment intent

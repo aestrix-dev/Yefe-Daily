@@ -25,7 +25,6 @@ func (p paymentHandler) Handle() *chi.Mux {
 	router.Post("/intent", p.CreatePaymentIntent)
 	router.Post("/confirm", p.ConfirmPayment)
 	router.Get("/history/:user_id", p.GetPaymentHistory)
-	router.Post("/webhooks/stripe", p.StripeWebhook)
 	return router
 }
 func (h *paymentHandler) CreatePaymentIntent(w http.ResponseWriter, r *http.Request) {
@@ -34,6 +33,7 @@ func (h *paymentHandler) CreatePaymentIntent(w http.ResponseWriter, r *http.Requ
 		utils.ErrorResponse(w, http.StatusUnauthorized, "Invalid request body", nil)
 		return
 	}
+	req.UserID = getUserIDFromContext(r.Context())
 
 	resp, err := h.useCase.CreatePaymentIntent(r.Context(), req)
 	if err != nil {

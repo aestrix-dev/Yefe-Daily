@@ -149,7 +149,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 
 // Update updates an existing user
 func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
-	var dbUser domain.User
+	var dbUser models.User
 	if user == nil {
 		return errors.New("user cannot be nil")
 	}
@@ -166,7 +166,7 @@ func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// Update user
-		result := tx.Model(&models.User{}).
+		result := tx.Model(&dbUser).
 			Where("id = ? AND deleted_at IS NULL", user.ID).
 			Updates(dbUser)
 

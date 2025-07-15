@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"gorm.io/gorm"
 )
 
@@ -41,7 +42,7 @@ func (conf ServerConfig) admin_user_usecase() domain.AdminUserUseCase {
 }
 
 func (conf ServerConfig) payment_usercase() domain.PaymentUseCase {
-	return usecase.NewPaymentUseCase(conf.PaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig)
+	return usecase.NewPaymentUseCase(conf.PaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig, conf.EmailService)
 }
 
 func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
@@ -74,6 +75,14 @@ func NewRouter(config ServerConfig) http.Handler {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://adapted-kindly-perch.ngrok-free.app"}, // TODO add frontend origin here
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 	r.Route("/v1", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(config.auth_middleware().RequireAuth)
@@ -97,6 +106,7 @@ func NewRouter(config ServerConfig) http.Handler {
 		r.Post("/auth/login", auth_handlers.LoginRoute)
 		r.Post("/auth/register", auth_handlers.RegisterRoute)
 		r.Post("/accept-invitation", admin_user_handelrs.AcceptInvitation)
+		r.Post("/webhooks/stripe", payments_handler.StripeWebhook)
 	})
 
 	return r
