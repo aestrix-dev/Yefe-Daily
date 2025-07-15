@@ -3,6 +3,9 @@ server:
   host: "localhost"
   port: 8080
   secret: ${JWT_SECRET}
+  dev_url: ${DEV_URL}
+  prod_url: ${PRO_URL}
+  env: ${ENV}
 
 persistence:
   postgres:
