@@ -35,6 +35,7 @@ func main() {
 		return
 	}
 	stripe.Key = config.StripeConfig.SecretKey
+	paymentConfig := config.StripeConfig
 
 	serverCtx, serverStopCtx := context.WithCancel(context.Background())
 	sig := make(chan os.Signal, 1)
@@ -99,6 +100,7 @@ func main() {
 		return
 
 	}
+	paymentRepo := repository.NewPaymentRepository(db)
 
 	scheduler.AddJob("set-daily-puzzle", "Daily Puzzly", utils.DAILY, func(ctx context.Context) error {
 		_, ok := inmemeoryCache.Get("daily-puzzle")
@@ -137,6 +139,8 @@ func main() {
 	serverConfig := infrastructure.ServerConfig{
 		DB:                db,
 		JWT_SECRET:        config.Server.Secret,
+		EmailService:      emailService,
+		PaymentConfig:     paymentConfig,
 		UserRepo:          userRepo,
 		SessionRepo:       sessionRepo,
 		SecEventRepo:      secEventRepo,
@@ -148,7 +152,7 @@ func main() {
 		StatsRepo:         statsRepo,
 		AdminRepo:         adminRepo,
 		SongRepo:          songRepo,
-		EmailService:      emailService,
+		PaymentRepo:       paymentRepo,
 	}
 
 	// Setup router and server

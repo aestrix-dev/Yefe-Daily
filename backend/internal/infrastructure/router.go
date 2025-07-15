@@ -6,6 +6,7 @@ import (
 	"yefe_app/v1/internal/handlers/v1"
 	middlewares "yefe_app/v1/internal/infrastructure/middleware"
 	usecase "yefe_app/v1/internal/useCase"
+	"yefe_app/v1/pkg/utils"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -16,6 +17,7 @@ type ServerConfig struct {
 	DB                *gorm.DB
 	JWT_SECRET        string
 	EmailService      domain.EmailService
+	PaymentConfig     utils.Stripe
 	UserRepo          domain.UserRepository
 	SessionRepo       domain.SessionRepository
 	SecEventRepo      domain.SecurityEventRepository
@@ -39,7 +41,7 @@ func (conf ServerConfig) admin_user_usecase() domain.AdminUserUseCase {
 }
 
 func (conf ServerConfig) payment_usercase() domain.PaymentUseCase {
-	return usecase.NewPaymentUseCase(conf.PaymentRepo)
+	return usecase.NewPaymentUseCase(conf.PaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig)
 }
 
 func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
@@ -86,6 +88,8 @@ func NewRouter(config ServerConfig) http.Handler {
 		r.Group(func(r chi.Router) {
 			r.Use(config.auth_middleware().RequireAuth)
 			r.Use(config.auth_middleware().AdminOnly)
+			r.Post("/payments/upgrade", payments_handler.UpgradePackage)
+
 			r.Mount("/admin", admin_user_handelrs.Handle())
 		})
 
