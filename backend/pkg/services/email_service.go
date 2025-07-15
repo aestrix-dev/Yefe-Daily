@@ -171,7 +171,6 @@ func (e *EmailServiceImpl) SendPaymentConfirmationEmail(ctx context.Context, req
 
 	htmlBody := e.buildPaymentConfirmationHTML(req)
 	textBody := e.buildPaymentConfirmationText(req)
-	fmt.Println(textBody)
 
 	emailReq := dto.EmailRequest{
 		To:       []string{req.Email},

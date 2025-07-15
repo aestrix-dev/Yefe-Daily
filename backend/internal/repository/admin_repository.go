@@ -36,7 +36,9 @@ func (r *adminUserRepository) GetAllUsers(ctx context.Context, filter dto.UserLi
 	// Build the base query
 	query := r.db.WithContext(ctx).Model(&models.User{}).Preload("Profile")
 
-	query = query.Where("role = ?", filter.Role)
+	if filter.Role != "" {
+		query = query.Where("role = ?", filter.Role)
+	}
 
 	// Apply filters
 	if filter.Status != "" {

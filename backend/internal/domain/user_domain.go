@@ -14,6 +14,33 @@ const (
 	ProUser  UserType = "pro"
 )
 
+type MetricData struct {
+	Value      int     `json:"value"`
+	Change     float64 `json:"change"`
+	ChangeType string  `json:"changeType"`
+}
+
+type ActivityItem struct {
+	ID          string                  `json:"id"`
+	Type        types.SecurityEventType `json:"type"`
+	User        string                  `json:"user"`
+	Description types.JSONMap           `json:"description"`
+	TimeAgo     string                  `json:"timeAgo"`
+}
+
+type QuickInsights struct {
+	PremiumConversionRate float64 `json:"premiumConversionRate"`
+	ActiveUsersToday      int     `json:"activeUsersToday"`
+	PendingInvitations    int     `json:"pendingInvitations"`
+}
+
+type DashboardData struct {
+	TotalUsers         MetricData     `json:"totalUsers"`
+	PremiumSubscribers MetricData     `json:"premiumSubscribers"`
+	RecentActivity     []ActivityItem `json:"recentActivity"`
+	QuickInsights      QuickInsights  `json:"quickInsights"`
+	LastUpdated        time.Time      `json:"lastUpdated"`
+}
 type AdminInvitation struct {
 	ID              string    `json:"id"`
 	Email           string    `json:"email"`
@@ -62,6 +89,11 @@ type UserProfile struct {
 	CreatedAt               time.Time               `json:"created_at"`
 	UpdatedAt               time.Time               `json:"updated_at"`
 }
+
+type DashboardUsecase interface {
+	GetDashboardData(ctx context.Context) (*DashboardData, error)
+}
+
 type UserRepository interface {
 	Create(ctx context.Context, user *User, notificationsPrefs types.NotificationsPref) error
 	GetByID(ctx context.Context, id string) (*User, error)

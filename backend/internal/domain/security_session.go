@@ -46,7 +46,12 @@ type SecurityEvent struct {
 type SecurityEventRepository interface {
 	Create(ctx context.Context, event *SecurityEvent) error
 	GetByUserID(ctx context.Context, userID string, limit int) ([]*SecurityEvent, error)
+	GetRecentEvents(ctx context.Context, since time.Time, limit int) ([]SecurityEvent, error)
 	LogSecurityEvent(ctx context.Context, userID string, eventType types.SecurityEventType, ipAddress, userAgent string, details types.JSONMap) error
+}
+
+type UserActivityUsecase interface {
+	GetRecentActivity(ctx context.Context, limit int) ([]SecurityEvent, error)
 }
 
 type SessionRepository interface {

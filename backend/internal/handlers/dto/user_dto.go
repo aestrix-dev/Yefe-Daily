@@ -69,7 +69,7 @@ type User struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
 	Email     string     `json:"email"`
-	Plan      string     `json:"plan"`
+	Plan      string     `json:"plan_type"`
 	Status    string     `json:"status"`
 	LastLogin *time.Time `json:"last_login"`
 	CreatedAt time.Time  `json:"created_at"`
@@ -94,5 +94,3 @@ type UpdateStatusRequest struct {
 type UpdatePlanRequest struct {
 	Plan string `json:"plan" validate:"required,oneof=free yefe_plus"`
 }
-
-

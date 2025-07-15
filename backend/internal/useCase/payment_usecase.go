@@ -22,8 +22,8 @@ type paymentUseCase struct {
 	securityRepo  domain.SecurityEventRepository
 }
 
-func NewPaymentUseCase(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.Stripe, emailSerice domain.EmailService) domain.PaymentUseCase {
-	return &paymentUseCase{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig, emailService: emailSerice}
+func NewPaymentUseCase(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.Stripe, emailSerice domain.EmailService, securityRepo domain.SecurityEventRepository) domain.PaymentUseCase {
+	return &paymentUseCase{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig, emailService: emailSerice, securityRepo: securityRepo}
 }
 
 func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error) {

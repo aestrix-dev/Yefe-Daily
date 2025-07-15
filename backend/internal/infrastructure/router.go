@@ -42,7 +42,7 @@ func (conf ServerConfig) admin_user_usecase() domain.AdminUserUseCase {
 }
 
 func (conf ServerConfig) payment_usercase() domain.PaymentUseCase {
-	return usecase.NewPaymentUseCase(conf.PaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig, conf.EmailService)
+	return usecase.NewPaymentUseCase(conf.PaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo)
 }
 
 func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
@@ -56,8 +56,14 @@ func (conf ServerConfig) song_usecase() domain.SongUseCase {
 	return usecase.NewMusicUseCase(conf.SongRepo)
 }
 
+func (conf ServerConfig) user_activity_usecase() domain.UserActivityUsecase {
+	return usecase.NewUserActivityUsecase(conf.SecEventRepo)
+}
 func (conf ServerConfig) challenges_usecase() domain.ChallengeUseCase {
 	return usecase.NewChallengeUseCase(conf.ChallengeRepo, conf.UserChallengeRepo, conf.StatsRepo)
+}
+func (conf ServerConfig) dashboard_usecase() domain.DashboardUsecase {
+	return usecase.NewDashboardUsecase(conf.admin_user_usecase(), conf.user_activity_usecase())
 }
 func (conf ServerConfig) auth_middleware() *middlewares.AuthMiddleware {
 	return middlewares.NewAuthMiddleware(conf.JWT_SECRET, conf.SessionRepo, conf.UserRepo, conf.SecEventRepo)
@@ -72,6 +78,8 @@ func NewRouter(config ServerConfig) http.Handler {
 	admin_user_handelrs := handlers.NewAdminUserHandler(config.admin_user_usecase())
 	song_handler := handlers.NewMusicHandler(config.song_usecase())
 	payments_handler := handlers.NewPaymentHandler(config.payment_usercase())
+	user_activity_handler := handlers.NewUserEventsHandler(config.user_activity_usecase())
+	dashboard_handler := handlers.NewDashboardHandler(config.dashboard_usecase())
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -98,8 +106,9 @@ func NewRouter(config ServerConfig) http.Handler {
 			r.Use(config.auth_middleware().RequireAuth)
 			r.Use(config.auth_middleware().AdminOnly)
 			r.Post("/payments/upgrade", payments_handler.UpgradePackage)
-
+			r.Mount("/events", user_activity_handler.Handle())
 			r.Mount("/admin", admin_user_handelrs.Handle())
+			r.Mount("/dashboard", dashboard_handler.Handle())
 		})
 
 		// auth routes

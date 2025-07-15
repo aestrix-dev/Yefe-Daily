@@ -58,6 +58,28 @@ func (r *postgresSecurityEventRepository) Create(ctx context.Context, event *dom
 	return nil
 }
 
+func (r *postgresSecurityEventRepository) GetRecentEvents(ctx context.Context, since time.Time, limit int) ([]domain.SecurityEvent, error) {
+	var dbEvents []models.SecurityEvent
+	var events []domain.SecurityEvent
+
+	err := r.db.WithContext(ctx).
+		Where("created_at >= ?", since).
+		Order("created_at DESC").
+		Limit(limit).
+		Find(&dbEvents).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get recent events: %w", err)
+	}
+
+	err = utils.TypeConverter(dbEvents, &events)
+	if err != nil {
+		return nil, err
+	}
+
+	return events, nil
+}
+
 // GetByUserID retrieves security events for a specific user, ordered by most recent first
 func (r *postgresSecurityEventRepository) GetByUserID(ctx context.Context, userID string, limit int) ([]*domain.SecurityEvent, error) {
 	if userID == "" {
