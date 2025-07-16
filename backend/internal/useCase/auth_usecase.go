@@ -2,10 +2,13 @@ package usecase
 
 import (
 	"context"
+	"encoding/hex"
+	"fmt"
 	"strings"
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 
@@ -14,48 +17,37 @@ import (
 )
 
 type authUseCase struct {
-	userRepo        domain.UserRepository
-	sessionRepo     domain.SessionRepository
-	secEventRepo    domain.SecurityEventRepository
-	emailService    EmailService
-	rateLimiter     RateLimiter
-	passwordChecker PasswordChecker
+	userRepo     domain.UserRepository
+	sessionRepo  domain.SessionRepository
+	secEventRepo domain.SecurityEventRepository
+	//emailService    EmailService
+	passwordChecker types.PasswordChecker
 	jwtSecret       string
 }
 
-var defaultPasswordConfig = types.PasswordConfig{
-	Memory:      64 * 1024, // MB
-	Iterations:  3,
-	Parallelism: 2,
-	SaltLength:  16,
-	KeyLength:   32,
-}
+var (
+	now = time.Now()
+
+	timeLayout = "15:04"
+)
 
 func NewAuthUseCase(
 	userRepo domain.UserRepository,
 	sessionRepo domain.SessionRepository,
 	secEventRepo domain.SecurityEventRepository,
-	emailService EmailService,
-	rateLimiter RateLimiter,
-	passwordChecker PasswordChecker,
 	jwtSecret string,
 ) domain.AuthUseCase {
 	return &authUseCase{
-		userRepo:        userRepo,
-		sessionRepo:     sessionRepo,
-		secEventRepo:    secEventRepo,
-		emailService:    emailService,
-		rateLimiter:     rateLimiter,
-		passwordChecker: passwordChecker,
+		userRepo:     userRepo,
+		sessionRepo:  sessionRepo,
+		secEventRepo: secEventRepo,
+		//	emailService:    emailService,
+		passwordChecker: utils.NewBasicPasswordChecker(),
 		jwtSecret:       jwtSecret,
 	}
 }
 
 func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*domain.User, error) {
-	// Rate limiting
-	if !a.rateLimiter.Allow("register:"+req.IPAddress, 3, time.Hour) {
-		return nil, domain.ErrRateLimitExceeded
-	}
 
 	// Validate password strength
 	if !a.passwordChecker.IsStrong(req.Password) {
@@ -63,23 +55,18 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 	}
 
 	// Check if email exists
-	if existingUser, _ := a.userRepo.GetByEmail(ctx, req.Email); existingUser != nil {
+	if _, err := a.userRepo.GetByEmail(ctx, req.Email); err == nil {
 		return nil, domain.ErrEmailAlreadyExists
 	}
 
-	// Check if username exists
-	if existingUser, _ := a.userRepo.GetByUsername(ctx, req.Username); existingUser != nil {
-		return nil, domain.ErrUsernameAlreadyExists
-	}
-
 	// Generate salt and hash password
-	salt := utils.GenerateSalt(defaultPasswordConfig.SaltLength)
-	passwordHash := utils.HashPassword(req.Password, salt, defaultPasswordConfig)
+	salt := utils.GenerateSalt(utils.DefaultPasswordConfig.SaltLength)
+	passwordHash := utils.HashPassword(req.Password, salt, utils.DefaultPasswordConfig)
 
 	user := &domain.User{
-		ID:           uuid.New().String(),
+		ID:           utils.GenerateID(),
 		Email:        strings.ToLower(strings.TrimSpace(req.Email)),
-		Username:     strings.TrimSpace(req.Username),
+		Name:         strings.TrimSpace(req.Name),
 		PasswordHash: passwordHash,
 		Salt:         salt,
 		IsActive:     true,
@@ -87,38 +74,57 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 		UpdatedAt:    time.Now(),
 	}
 
-	if err := a.userRepo.Create(ctx, user); err != nil {
+	user.DowngradeToFree()
+
+	prefs := req.Prefs
+
+	morningReminder, err := time.Parse(timeLayout, prefs.Reminders.MorningReminder)
+	if err != nil {
+		return nil, err
+	}
+	eveningReminder, err := time.Parse(timeLayout, prefs.Reminders.EveningReminder)
+	if err != nil {
+		return nil, err
+	}
+
+	reminders := types.ReminderRequest{
+		MorningReminder: morningReminder,
+		EveningReminder: eveningReminder,
+	}
+
+	userPrefs := &types.NotificationsPref{
+		MorningPrompt:     prefs.MorningPrompt,
+		EveningReflection: prefs.EveningReflection,
+		Challenge:         prefs.Challenge,
+		Language:          prefs.Language,
+		Reminders:         reminders,
+	}
+
+	if err := a.userRepo.Create(ctx, user, *userPrefs); err != nil {
+		logger.Log.WithError(err).Error("error creating user")
 		return nil, err
 	}
 
 	// Send email verification
-	go a.sendEmailVerification(user)
+	//go a.sendEmailVerification(user)
 
 	// Log security event
-	a.logSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)
+	a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventAccountCreated, req.IPAddress, req.UserAgent, types.JSONMap{
+		"message": "User created",
+	})
 
 	return user, nil
 }
 
 func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error) {
-	// Rate limiting
-	if !a.rateLimiter.Allow("login:"+req.IPAddress, 5, time.Minute*15) {
-		return nil, domain.ErrRateLimitExceeded
-	}
 
 	// Find user by email or username
 	var user *domain.User
 	var err error
 
-	if strings.Contains(req.EmailOrUsername, "@") {
-		user, err = a.userRepo.GetByEmail(ctx, req.EmailOrUsername)
-	} else {
-		user, err = a.userRepo.GetByUsername(ctx, req.EmailOrUsername)
-	}
+	user, err = a.userRepo.GetByEmail(ctx, req.Email)
 
-	if err != nil || user == nil {
-		a.logSecurityEvent(ctx, "", types.EventLoginFailed, req.IPAddress, req.UserAgent,
-			map[string]interface{}{"reason": "user_not_found"})
+	if err != nil {
 		return nil, domain.ErrInvalidCredentials
 	}
 
@@ -129,24 +135,25 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 
 	// Check if account is active
 	if !user.IsActive {
+		logger.Log.WithError(err).Error("Account inactive")
 		return nil, domain.ErrAccountInactive
 	}
 
 	// Verify password
-	if !utils.VerifyPassword(req.Password, user.Salt, user.PasswordHash, defaultPasswordConfig) {
+	if !utils.VerifyPassword(req.Password, user.Salt, user.PasswordHash, utils.DefaultPasswordConfig) {
 		user.FailedLoginCount++
 		user.LastFailedLogin = &time.Time{}
 		*user.LastFailedLogin = time.Now()
 
-		// Lock account after 5 failed attempts
+		// Lock account after 5 failed attempts TODO this does not make any sense
 		if user.FailedLoginCount >= 5 {
 			lockUntil := time.Now().Add(time.Hour * 1)
 			user.AccountLockedUntil = &lockUntil
-			a.logSecurityEvent(ctx, user.ID, types.EventAccountLocked, req.IPAddress, req.UserAgent, nil)
+			a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventAccountLocked, req.IPAddress, req.UserAgent, nil)
 		}
 
-		a.userRepo.Update(ctx, user)
-		a.logSecurityEvent(ctx, user.ID, types.EventLoginFailed, req.IPAddress, req.UserAgent, nil)
+		a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventLoginFailed, req.IPAddress, req.UserAgent, nil)
+		logger.Log.WithError(err).Error("Invalid password or email")
 		return nil, domain.ErrInvalidCredentials
 	}
 
@@ -157,7 +164,7 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 	user.LastLoginAt = &time.Time{}
 	*user.LastLoginAt = time.Now()
 	user.LastLoginIP = req.IPAddress
-	a.userRepo.Update(ctx, user)
+	//a.userRepo.Update(ctx, user)
 
 	// Create session
 	session := &domain.Session{
@@ -182,13 +189,53 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 		return nil, err
 	}
 
-	a.logSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)
+	a.secEventRepo.LogSecurityEvent(ctx, user.ID, types.EventLogin, req.IPAddress, req.UserAgent, nil)
 
+	err = a.userRepo.UpdateLastLogin(ctx, user.ID)
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not update last login")
+	}
 	return &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: session.RefreshToken,
 		ExpiresIn:    int64(time.Hour * 24 / time.Second),
 	}, nil
+}
+
+func (a *authUseCase) Logout(ctx context.Context, req dto.LogoutRequest) error {
+	// Get session from repository
+	session, err := a.sessionRepo.GetByID(ctx, req.SessionID)
+	if err != nil || session == nil {
+		a.secEventRepo.LogSecurityEvent(ctx, "", types.EventLoginFailed, req.IPAddress, req.UserAgent,
+			map[string]any{"reason": "session_not_found"})
+		return domain.ErrSessionNotFound
+	}
+
+	// Check if session is already inactive
+	if !session.IsActive {
+		return domain.ErrSessionAlreadyInactive
+	}
+
+	// Check if session has expired
+	if time.Now().After(session.ExpiresAt) {
+		return domain.ErrAccountInactive
+	}
+
+	// Deactivate the session
+	session.IsActive = false
+	session.LoggedOutAt = time.Now()
+
+	// Update session in repository
+	if err := a.sessionRepo.Update(ctx, session); err != nil {
+		a.secEventRepo.LogSecurityEvent(ctx, session.UserID, types.EventLogoutFailed, req.IPAddress, req.UserAgent,
+			map[string]any{"reason": "database_error"})
+		return err
+	}
+
+	// Log successful logout
+	a.secEventRepo.LogSecurityEvent(ctx, session.UserID, types.EventLogout, req.IPAddress, req.UserAgent, nil)
+
+	return nil
 }
 
 func (a *authUseCase) generateJWT(userID, sessionID string) (string, error) {
@@ -200,61 +247,10 @@ func (a *authUseCase) generateJWT(userID, sessionID string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(a.jwtSecret))
-}
-
-func (a *authUseCase) logSecurityEvent(ctx context.Context, userID string, eventType domain.SecurityEventType, ip, userAgent string, details map[string]interface{}) {
-	event := &domain.SecurityEvent{
-		ID:        uuid.New().String(),
-		UserID:    userID,
-		EventType: eventType,
-		IPAddress: ip,
-		UserAgent: userAgent,
-		Details:   details,
-		CreatedAt: time.Now(),
-	}
-	a.secEventRepo.Create(ctx, event)
-}
-
-// Additional security services
-type EmailService interface {
-	SendVerificationEmail(user *domain.User, token string) error
-	SendPasswordResetEmail(user *domain.User, token string) error
-}
-
-type RateLimiter interface {
-	Allow(key string, limit int, window time.Duration) bool
-}
-
-type PasswordChecker interface {
-	IsStrong(password string) bool
-}
-
-// Example password checker implementation
-type passwordChecker struct{}
-
-func (p *passwordChecker) IsStrong(password string) bool {
-	if len(password) < 8 {
-		return false
+	secret, err := hex.DecodeString(a.jwtSecret)
+	if err != nil {
+		return "", fmt.Errorf("invalid JWT secret encoding: %w", err)
 	}
 
-	hasUpper := false
-	hasLower := false
-	hasDigit := false
-	hasSpecial := false
-
-	for _, char := range password {
-		switch {
-		case char >= 'A' && char <= 'Z':
-			hasUpper = true
-		case char >= 'a' && char <= 'z':
-			hasLower = true
-		case char >= '0' && char <= '9':
-			hasDigit = true
-		default:
-			hasSpecial = true
-		}
-	}
-
-	return hasUpper && hasLower && hasDigit && hasSpecial
+	return token.SignedString(secret)
 }

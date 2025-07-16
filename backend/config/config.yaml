@@ -2,11 +2,35 @@ server:
   name: "yefe"
   host: "localhost"
   port: 8080
+  secret: ${JWT_SECRET}
+  dev_url: ${DEV_URL}
+  prod_url: ${PRO_URL}
+  environment: ${ENV}
 
 persistence:
   postgres:
-    host: ${DB_HOST} 
+    host: ${DB_HOST}
     port: ${DB_PORT}
     username: ${DB_USERNAME}
-    password: ${DB_PASSWORD} 
-    database: ${DB_NAME} 
+    password: ${DB_PASSWORD}
+    database: ${DB_NAME}
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+
+email_config:
+  smtp_host: ${SMTP_HOST}
+  smtp_port: ${SMTP_PORT}
+  smtp_username: ${SMTP_USERNAME}
+  smtp_password: ${SMTP_PASSWORD}
+  from_email: ${FROM_EMAIL}
+  from_name: ${FROM_NAME}
+  use_tls: false
+  worker_count: 2 
+  queue_size: 100 
+  retry_attempts: 2 
+  retry_delay: 10s 
+
+stripe_config:
+  stripe_secret_key: ${STRIPE_SECRET_KEY}
+  pro_plan_price: 5

@@ -4,34 +4,53 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base32"
+	"encoding/json"
 	"os"
 	"path"
+	"slices"
 	"sync"
+	"time"
 	"yefe_app/v1/pkg/types"
 
 	envsubt "github.com/emperorsixpacks/envsubst"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/argon2"
 )
 
 var (
 	once        sync.Once
-	basePath, _ = getBasePath()
+	basePath, _ = GetBasePath()
 	LogDir      = path.Join(basePath, "logs")
 )
 
+var DefaultPasswordConfig = types.PasswordConfig{
+	Memory:      64 * 1024, // MB
+	Iterations:  3,
+	Parallelism: 2,
+	SaltLength:  16,
+	KeyLength:   32,
+}
+
 type (
 	AppSettings struct {
-		Server      ServerSettings      `yaml:"server"`
-		Persistence PersistenceSettings `yaml:"persistence"`
+		Server       ServerSettings      `yaml:"server"`
+		Persistence  PersistenceSettings `yaml:"persistence"`
+		EmailConfig  EmailConfig         `yaml:"email_config"`
+		StripeConfig Stripe              `yaml:"stripe_config"`
 	}
 	ServerSettings struct {
-		Name string `yaml:"name"`
-		Port int    `yaml:"port"`
-		Host string `yaml:"host"`
+		Name    string `yaml:"name"`
+		Port    int    `yaml:"port"`
+		Host    string `yaml:"host"`
+		Secret  string `yaml:"secret"`
+		DevURl  string `yaml:"dev_url"`
+		ProdURL string `yaml:"prod_url,omitempty"`
+		Env     string `yaml:"environment"`
 	}
 	PersistenceSettings struct {
 		PostgresSQl DBSettings `yaml:"postgres"`
+		Redis       DBSettings `yaml:"redis"`
 	}
 	DBSettings struct {
 		Host          string `yaml:"host"`
@@ -41,10 +60,27 @@ type (
 		Password      string `yaml:"password"`
 		DataBase      string `yaml:"database"`
 	}
+	EmailConfig struct {
+		SMTPHost      string        `yaml:"smtp_host"`
+		SMTPPort      string        `yaml:"smtp_port"`
+		SMTPUsername  string        `yaml:"smtp_username"`
+		SMTPPassword  string        `yaml:"smtp_password"`
+		FromEmail     string        `yaml:"from_email"`
+		FromName      string        `yaml:"from_name"`
+		UseTLS        bool          `yaml:"use_tls"`
+		WorkerCount   int           `yaml:"worker_count"`
+		QueueSize     int           `yaml:"queue_size"`
+		RetryAttempts int           `yaml:"retry_attempts"`
+		RetryDelay    time.Duration `yaml:"retry_delay"`
+	}
+	Stripe struct {
+		SecretKey    string `yaml:"stripe_secret_key"`
+		ProPlanPrice int8   `yaml:"pro_plan_price"`
+	}
 )
 
 func LoadEnv() error {
-	pathStr, err := getBasePath()
+	pathStr, err := GetBasePath()
 	if err != nil {
 		return err
 	}
@@ -65,7 +101,7 @@ func LoadConfig() (AppSettings, error) {
 	if err != nil {
 		return AppSettings{}, err
 	}
-	pathStr, err := getBasePath()
+	pathStr, err := GetBasePath()
 	if err != nil {
 		return AppSettings{}, err
 	}
@@ -111,3 +147,35 @@ func GenerateSecureToken() string {
 	rand.Read(bytes)
 	return base32.StdEncoding.EncodeToString(bytes)
 }
+
+// generateID generates a new UUID
+func GenerateID() string {
+	return uuid.NewString()
+}
+
+func TypeConverter(in any, out any) error {
+	input, err := json.Marshal(in)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(input, out)
+	return nil
+}
+
+// GetJournalEntryTypes returns all valid journal entry types
+func GetJournalEntryTypes() []string {
+	return []string{"morning", "evening", "wisdom_note"}
+}
+
+// GetDefaultTags returns default tags for the journal
+func GetDefaultTags() []string {
+	return []string{"Faith", "Family", "Focus", "Rest", "Growth", "Gratitude"}
+}
+
+// IsValidEntryType checks if the entry type is valid
+func IsValidEntryType(entryType string) bool {
+	validTypes := GetJournalEntryTypes()
+	return slices.Contains(validTypes, entryType)
+}
+
+// TODO load env should not cause the app to crash
