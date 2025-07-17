@@ -14,7 +14,7 @@ import (
 	"github.com/stripe/stripe-go/v74/paymentintent"
 )
 
-type paymentUseCase struct {
+type stripePaymentUseCase struct {
 	repo          domain.PaymentRepository
 	adminUC       domain.AdminUserUseCase
 	paymentConfig utils.Stripe
@@ -22,11 +22,11 @@ type paymentUseCase struct {
 	securityRepo  domain.SecurityEventRepository
 }
 
-func NewPaymentUseCase(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.Stripe, emailSerice domain.EmailService, securityRepo domain.SecurityEventRepository) domain.PaymentUseCase {
-	return &paymentUseCase{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig, emailService: emailSerice, securityRepo: securityRepo}
+func NewStripePaymentUseCase(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.Stripe, emailSerice domain.EmailService, securityRepo domain.SecurityEventRepository) domain.PaymentUseCase {
+	return &stripePaymentUseCase{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig, emailService: emailSerice, securityRepo: securityRepo}
 }
 
-func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error) {
+func (u *stripePaymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error) {
 
 	// Create payment record
 	payment := &domain.Payment{
@@ -77,7 +77,7 @@ func (u *paymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.Create
 	}, nil
 }
 
-func (u *paymentUseCase) ConfirmPayment(ctx context.Context, req dto.ConfirmPaymentRequest) (dto.ConfirmPaymentResponse, error) {
+func (u *stripePaymentUseCase) ConfirmPayment(ctx context.Context, req dto.ConfirmPaymentRequest) (dto.ConfirmPaymentResponse, error) {
 	// Get payment
 	payment, err := u.repo.GetPaymentByID(ctx, req.PaymentID)
 	if err != nil {
@@ -124,7 +124,7 @@ func (u *paymentUseCase) ConfirmPayment(ctx context.Context, req dto.ConfirmPaym
 	}, nil
 }
 
-func (u *paymentUseCase) UpgradePackage(ctx context.Context, req dto.UpgradePackageRequest) (dto.UpgradePackageResponse, error) {
+func (u *stripePaymentUseCase) UpgradePackage(ctx context.Context, req dto.UpgradePackageRequest) (dto.UpgradePackageResponse, error) {
 	// Create payment intent
 	intentReq := dto.CreatePaymentIntentRequest{
 		UserID: req.UserID,
@@ -148,7 +148,7 @@ func (u *paymentUseCase) UpgradePackage(ctx context.Context, req dto.UpgradePack
 	}, nil
 }
 
-func (u *paymentUseCase) GetPaymentHistory(ctx context.Context, userID uint, page, limit int) (dto.PaymentHistoryResponse, error) {
+func (u *stripePaymentUseCase) GetPaymentHistory(ctx context.Context, userID uint, page, limit int) (dto.PaymentHistoryResponse, error) {
 	var dtoPayments []dto.Payment
 	if page < 1 {
 		page = 1
@@ -176,7 +176,7 @@ func (u *paymentUseCase) GetPaymentHistory(ctx context.Context, userID uint, pag
 	}, nil
 }
 
-func (u *paymentUseCase) ProcessWebhook(ctx context.Context, req dto.WebhookRequest) error {
+func (u *stripePaymentUseCase) ProcessWebhook(ctx context.Context, req dto.WebhookRequest) error {
 	switch req.Type {
 	case "payment_intent.succeeded":
 		// Handle successful payment
@@ -190,7 +190,7 @@ func (u *paymentUseCase) ProcessWebhook(ctx context.Context, req dto.WebhookRequ
 	return nil
 }
 
-func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[string]interface{}) error {
+func (u *stripePaymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[string]interface{}) error {
 	logger.Log.Info("Payment successfull")
 	// Extract payment intent ID from webhook data
 	object, ok := data["object"].(map[string]interface{})
@@ -260,7 +260,7 @@ func (u *paymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[st
 	return nil
 }
 
-func (u *paymentUseCase) handlePaymentFailed(ctx context.Context, data map[string]interface{}) error {
+func (u *stripePaymentUseCase) handlePaymentFailed(ctx context.Context, data map[string]interface{}) error {
 	logger.Log.Info("Payment failed")
 	// Extract payment intent ID from webhook data
 	object, ok := data["object"].(map[string]interface{})

@@ -30,7 +30,7 @@ type ServerConfig struct {
 	StatsRepo         domain.ChallengeStatsRepository
 	AdminRepo         domain.AdminUserRepository
 	SongRepo          domain.SongRepository
-	PaymentRepo       domain.PaymentRepository
+	StripePaymentRepo domain.PaymentRepository
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
@@ -41,8 +41,8 @@ func (conf ServerConfig) admin_user_usecase() domain.AdminUserUseCase {
 	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo, conf.EmailService)
 }
 
-func (conf ServerConfig) payment_usercase() domain.PaymentUseCase {
-	return usecase.NewPaymentUseCase(conf.PaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo)
+func (conf ServerConfig) stripe_payment_usercase() domain.PaymentUseCase {
+	return usecase.NewStripePaymentUseCase(conf.StripePaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo)
 }
 
 func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
@@ -77,7 +77,7 @@ func NewRouter(config ServerConfig) http.Handler {
 	challenges_handler := handlers.NewChallengesHandler(config.challenges_usecase())
 	admin_user_handelrs := handlers.NewAdminUserHandler(config.admin_user_usecase())
 	song_handler := handlers.NewMusicHandler(config.song_usecase())
-	payments_handler := handlers.NewPaymentHandler(config.payment_usercase())
+	payments_handler := handlers.NewPaymentHandler(config.stripe_payment_usercase())
 	user_activity_handler := handlers.NewUserEventsHandler(config.user_activity_usecase())
 	dashboard_handler := handlers.NewDashboardHandler(config.dashboard_usecase())
 
