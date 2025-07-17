@@ -5,6 +5,7 @@ import (
 	"crypto/subtle"
 	"encoding/base32"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path"
 	"slices"
@@ -99,7 +100,7 @@ func LoadEnv() error {
 func LoadConfig() (AppSettings, error) {
 	err := LoadEnv()
 	if err != nil {
-		return AppSettings{}, err
+		fmt.Printf("env does not exists: %s", err.Error())
 	}
 	pathStr, err := GetBasePath()
 	if err != nil {
