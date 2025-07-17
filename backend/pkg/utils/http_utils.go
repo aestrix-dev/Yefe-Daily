@@ -48,45 +48,58 @@ func HandleDomainError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrInvalidPlanType),
 		errors.Is(err, domain.ErrInvalidUserStatus),
 		errors.Is(err, domain.ErrInvalidPlanTransition):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
 
 	case errors.Is(err, domain.ErrUserAlreadyHasPlan):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusConflict, err.Error(), nil)
 
 	case errors.Is(err, domain.ErrPlanUpdateConflict):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusConflict, "Plan update in progress", nil)
 
 	case errors.Is(err, domain.ErrPremiumPlanRequired):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusForbidden, "Premium plan required", nil)
 
 	// Existing cases
 	case errors.Is(err, domain.ErrUserInactive),
 		errors.Is(err, domain.ErrAccountInactive):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusForbidden, "Account is inactive", nil)
 
 	case errors.Is(err, domain.ErrAccountLocked):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusLocked, "Account is locked", nil)
 
 	case errors.Is(err, domain.ErrEmailNotVerified):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusForbidden, "Email not verified", nil)
 
 	case errors.Is(err, domain.ErrWeakPassword):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusBadRequest, "Password too weak", nil)
 
 	case errors.Is(err, domain.ErrEmailAlreadyExists),
 		errors.Is(err, domain.ErrUsernameAlreadyExists):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusConflict, "Resource already exists", nil)
 
 	case errors.Is(err, domain.ErrInvalidToken):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusUnauthorized, "Invalid token", nil)
 
 	case errors.Is(err, domain.ErrRateLimitExceeded):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusTooManyRequests, "Too many requests", nil)
 
 	case domain.IsAuthorizationError(err):
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusForbidden, "Invalid credentials", nil)
 
 	default:
+		fmt.Println(err)
 		ErrorResponse(w, http.StatusInternalServerError, "Internal server error", nil)
 	}
 }
