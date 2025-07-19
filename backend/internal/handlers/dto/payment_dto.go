@@ -23,6 +23,8 @@ type CreatePaymentIntentRequest struct {
 type CreatePaymentIntentResponse struct {
 	PaymentID    string `json:"payment_id"`
 	ClientSecret string `json:"client_secret"`
+	PaymentRef   string `json:"payment_ref,omitempty"`
+	PaymentURL   string `json:"payment_url,omitempty"`
 	Amount       int64  `json:"amount"`
 	Currency     string `json:"currency"`
 	Status       string `json:"status"`
@@ -59,6 +61,10 @@ type PaymentHistoryResponse struct {
 }
 
 type WebhookRequest struct {
-	Type string                 `json:"type"`
-	Data map[string]interface{} `json:"data"`
+	Provider  string         `json:"provider"`
+	Event     string         `json:"event"`
+	Type      string         `json:"type"`
+	Data      map[string]any `json:"data"`
+	Signature string         `json:"signature,omitempty"`
+	Body      []byte         `json:"body,omitempty"`
 }

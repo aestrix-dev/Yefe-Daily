@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+type PaymentProvider string
+
+const (
+	ProviderStripe   PaymentProvider = "stripe"
+	ProviderPaystack PaymentProvider = "paystack"
+)
+
 // Password security configuration
 type PasswordConfig struct {
 	Memory      uint32

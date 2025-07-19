@@ -1,4 +1,4 @@
-package usecase
+package payments
 
 import (
 	"context"
@@ -14,19 +14,19 @@ import (
 	"github.com/stripe/stripe-go/v74/paymentintent"
 )
 
-type stripePaymentUseCase struct {
+type stripePaymentProvider struct {
 	repo          domain.PaymentRepository
 	adminUC       domain.AdminUserUseCase
-	paymentConfig utils.Stripe
+	paymentConfig utils.PaymentConfig
 	emailService  domain.EmailService
 	securityRepo  domain.SecurityEventRepository
 }
 
-func NewStripePaymentUseCase(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.Stripe, emailSerice domain.EmailService, securityRepo domain.SecurityEventRepository) domain.PaymentUseCase {
-	return &stripePaymentUseCase{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig, emailService: emailSerice, securityRepo: securityRepo}
+func NewStripePaymentProvider(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.PaymentConfig, emailSerice domain.EmailService, securityRepo domain.SecurityEventRepository) domain.PaymentProvider {
+	return &stripePaymentProvider{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig, emailService: emailSerice, securityRepo: securityRepo}
 }
 
-func (u *stripePaymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error) {
+func (u *stripePaymentProvider) CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error) {
 
 	// Create payment record
 	payment := &domain.Payment{
@@ -76,8 +76,7 @@ func (u *stripePaymentUseCase) CreatePaymentIntent(ctx context.Context, req dto.
 		Status:       "pending",
 	}, nil
 }
-
-func (u *stripePaymentUseCase) ConfirmPayment(ctx context.Context, req dto.ConfirmPaymentRequest) (dto.ConfirmPaymentResponse, error) {
+func (u *stripePaymentProvider) ConfirmPayment(ctx context.Context, req dto.ConfirmPaymentRequest) (dto.ConfirmPaymentResponse, error) {
 	// Get payment
 	payment, err := u.repo.GetPaymentByID(ctx, req.PaymentID)
 	if err != nil {
@@ -124,7 +123,7 @@ func (u *stripePaymentUseCase) ConfirmPayment(ctx context.Context, req dto.Confi
 	}, nil
 }
 
-func (u *stripePaymentUseCase) UpgradePackage(ctx context.Context, req dto.UpgradePackageRequest) (dto.UpgradePackageResponse, error) {
+func (u *stripePaymentProvider) UpgradePackage(ctx context.Context, req dto.UpgradePackageRequest) (dto.UpgradePackageResponse, error) {
 	// Create payment intent
 	intentReq := dto.CreatePaymentIntentRequest{
 		UserID: req.UserID,
@@ -147,36 +146,7 @@ func (u *stripePaymentUseCase) UpgradePackage(ctx context.Context, req dto.Upgra
 		Message:      "Payment intent created successfully",
 	}, nil
 }
-
-func (u *stripePaymentUseCase) GetPaymentHistory(ctx context.Context, userID uint, page, limit int) (dto.PaymentHistoryResponse, error) {
-	var dtoPayments []dto.Payment
-	if page < 1 {
-		page = 1
-	}
-	if limit < 1 {
-		limit = 10
-	}
-
-	payments, err := u.repo.GetPaymentsByUserID(ctx, userID, page, limit)
-	if err != nil {
-		return dto.PaymentHistoryResponse{}, fmt.Errorf("failed to get payment history: %w", err)
-	}
-
-	err = utils.TypeConverter(payments, &dtoPayments)
-	if err != nil {
-
-		return dto.PaymentHistoryResponse{}, fmt.Errorf("failed to get payment history: %w", err)
-	}
-
-	return dto.PaymentHistoryResponse{
-		Payments: dtoPayments,
-		Total:    int64(len(payments)),
-		Page:     page,
-		Limit:    limit,
-	}, nil
-}
-
-func (u *stripePaymentUseCase) ProcessWebhook(ctx context.Context, req dto.WebhookRequest) error {
+func (u *stripePaymentProvider) ProcessWebhook(ctx context.Context, req dto.WebhookRequest) error {
 	switch req.Type {
 	case "payment_intent.succeeded":
 		// Handle successful payment
@@ -184,13 +154,15 @@ func (u *stripePaymentUseCase) ProcessWebhook(ctx context.Context, req dto.Webho
 	case "payment_intent.payment_failed":
 		// Handle failed payment
 		return u.handlePaymentFailed(ctx, req.Data)
+	case "payment_intent.created":
+		return nil
 	default:
 		logger.Log.Errorf("Unhandled webhook type: %s", req.Type)
 	}
 	return nil
 }
 
-func (u *stripePaymentUseCase) handlePaymentSucceeded(ctx context.Context, data map[string]interface{}) error {
+func (u *stripePaymentProvider) handlePaymentSucceeded(ctx context.Context, data map[string]interface{}) error {
 	logger.Log.Info("Payment successfull")
 	// Extract payment intent ID from webhook data
 	object, ok := data["object"].(map[string]interface{})
@@ -260,7 +232,7 @@ func (u *stripePaymentUseCase) handlePaymentSucceeded(ctx context.Context, data 
 	return nil
 }
 
-func (u *stripePaymentUseCase) handlePaymentFailed(ctx context.Context, data map[string]interface{}) error {
+func (u *stripePaymentProvider) handlePaymentFailed(ctx context.Context, data map[string]interface{}) error {
 	logger.Log.Info("Payment failed")
 	// Extract payment intent ID from webhook data
 	object, ok := data["object"].(map[string]interface{})
@@ -313,7 +285,7 @@ func (u *stripePaymentUseCase) handlePaymentFailed(ctx context.Context, data map
 	user, err := u.adminUC.GetUserByID(ctx, payment.UserID)
 	if err != nil {
 		logger.Log.WithError(err).Errorf("Could not get user: %s", payment.UserID)
-		return fmt.Errorf("Could not get user")
+		return domain.ErrUserNotFound
 	}
 	emailReq := dto.PaymentConfirmationEmailData{
 		Name:          user.Name,

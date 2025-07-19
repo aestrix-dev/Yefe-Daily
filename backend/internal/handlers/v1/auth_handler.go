@@ -8,7 +8,7 @@ import (
 	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 )
 
 type AuthHandler struct {

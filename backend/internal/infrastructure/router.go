@@ -5,12 +5,14 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/v1"
 	middlewares "yefe_app/v1/internal/infrastructure/middleware"
+	"yefe_app/v1/internal/infrastructure/payments"
 	usecase "yefe_app/v1/internal/useCase"
+	service "yefe_app/v1/pkg/services"
 	"yefe_app/v1/pkg/utils"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
+	"github.com/rs/cors"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +20,7 @@ type ServerConfig struct {
 	DB                *gorm.DB
 	JWT_SECRET        string
 	EmailService      domain.EmailService
-	PaymentConfig     utils.Stripe
+	PaymentConfig     utils.PaymentConfig
 	UserRepo          domain.UserRepository
 	SessionRepo       domain.SessionRepository
 	SecEventRepo      domain.SecurityEventRepository
@@ -30,7 +32,7 @@ type ServerConfig struct {
 	StatsRepo         domain.ChallengeStatsRepository
 	AdminRepo         domain.AdminUserRepository
 	SongRepo          domain.SongRepository
-	StripePaymentRepo domain.PaymentRepository
+	PaymentRepo       domain.PaymentRepository
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
@@ -41,8 +43,8 @@ func (conf ServerConfig) admin_user_usecase() domain.AdminUserUseCase {
 	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo, conf.EmailService)
 }
 
-func (conf ServerConfig) stripe_payment_usercase() domain.PaymentUseCase {
-	return usecase.NewStripePaymentUseCase(conf.StripePaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo)
+func (conf ServerConfig) payment_usercase() domain.PaymentUseCase {
+	return usecase.NewPaymentUsecase(conf.PaymentRepo)
 }
 
 func (conf ServerConfig) journal_usecase() domain.JournalUseCase {
@@ -68,6 +70,14 @@ func (conf ServerConfig) dashboard_usecase() domain.DashboardUsecase {
 func (conf ServerConfig) auth_middleware() *middlewares.AuthMiddleware {
 	return middlewares.NewAuthMiddleware(conf.JWT_SECRET, conf.SessionRepo, conf.UserRepo, conf.SecEventRepo)
 }
+func (conf ServerConfig) paystack_payemnt() domain.PaymentProvider {
+	paystackClient := service.NewpaystackClient(conf.PaymentConfig.PaystackPrivateKey)
+	return payments.NewPaystackPaymentProvider(conf.PaymentRepo, conf.EmailService, conf.admin_user_usecase(), paystackClient, conf.SecEventRepo, conf.PaymentConfig)
+}
+
+func (conf ServerConfig) stripe_payemnt() domain.PaymentProvider {
+	return payments.NewStripePaymentProvider(conf.PaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo)
+}
 
 func NewRouter(config ServerConfig) http.Handler {
 
@@ -77,20 +87,26 @@ func NewRouter(config ServerConfig) http.Handler {
 	challenges_handler := handlers.NewChallengesHandler(config.challenges_usecase())
 	admin_user_handelrs := handlers.NewAdminUserHandler(config.admin_user_usecase())
 	song_handler := handlers.NewMusicHandler(config.song_usecase())
-	payments_handler := handlers.NewPaymentHandler(config.stripe_payment_usercase())
+	payments_handler := handlers.NewPaymentHandler(config.payment_usercase(), map[string]domain.PaymentProvider{
+		"stripe":   config.stripe_payemnt(),
+		"paystack": config.paystack_payemnt(),
+	})
 	user_activity_handler := handlers.NewUserEventsHandler(config.user_activity_usecase())
 	dashboard_handler := handlers.NewDashboardHandler(config.dashboard_usecase())
 
 	r := chi.NewRouter()
+
 	r.Use(middleware.Logger)
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"}, // TODO add frontend origin here
+	r.Use(cors.New(cors.Options{
+		AllowedOrigins: []string{
+			"http://localhost:3003",
+		},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Payment-Provider"},
 		AllowCredentials: true,
 		MaxAge:           300,
-	}))
+	}).Handler)
+
 	r.Route("/v1", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(config.auth_middleware().RequireAuth)
@@ -116,7 +132,10 @@ func NewRouter(config ServerConfig) http.Handler {
 		r.Post("/auth/register", auth_handlers.RegisterRoute)
 		r.Post("/accept-invitation", admin_user_handelrs.AcceptInvitation)
 		r.Post("/webhooks/stripe", payments_handler.StripeWebhook)
+		r.Post("/webhooks/paystack", payments_handler.PaystackWebhook)
 	})
 
 	return r
 }
+
+// TODO remove sql logs
