@@ -6,6 +6,7 @@ server:
   dev_url: ${DEV_URL}
   prod_url: ${PRO_URL}
   environment: ${ENV}
+  allowed_hosts: ${ALLOWED_HOSTS}
 
 persistence:
   postgres:

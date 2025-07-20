@@ -41,13 +41,14 @@ type (
 		StripeConfig PaymentConfig       `yaml:"payment_config"`
 	}
 	ServerSettings struct {
-		Name    string `yaml:"name"`
-		Port    int    `yaml:"port"`
-		Host    string `yaml:"host"`
-		Secret  string `yaml:"secret"`
-		DevURl  string `yaml:"dev_url"`
-		ProdURL string `yaml:"prod_url,omitempty"`
-		Env     string `yaml:"environment"`
+		Name         string   `yaml:"name"`
+		Port         int      `yaml:"port"`
+		Host         string   `yaml:"host"`
+		Secret       string   `yaml:"secret"`
+		DevURl       string   `yaml:"dev_url"`
+		ProdURL      string   `yaml:"prod_url,omitempty"`
+		Env          string   `yaml:"environment"`
+		AllowedHosts []string `yaml:"allowed_hosts"`
 	}
 	PersistenceSettings struct {
 		PostgresSQl DBSettings `yaml:"postgres"`
