@@ -19,6 +19,7 @@ import (
 type ServerConfig struct {
 	DB                *gorm.DB
 	JWT_SECRET        string
+	AllowedHosts      []string
 	EmailService      domain.EmailService
 	PaymentConfig     utils.PaymentConfig
 	UserRepo          domain.UserRepository
@@ -98,9 +99,7 @@ func NewRouter(config ServerConfig) http.Handler {
 
 	r.Use(middleware.Logger)
 	r.Use(cors.New(cors.Options{
-		AllowedOrigins: []string{
-			"http://localhost:3003",
-		},
+		AllowedOrigins:   config.AllowedHosts,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Payment-Provider"},
 		AllowCredentials: true,

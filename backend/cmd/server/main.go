@@ -138,6 +138,7 @@ func main() {
 
 	serverConfig := infrastructure.ServerConfig{
 		DB:                db,
+		AllowedHosts:      config.Server.AllowedHosts,
 		JWT_SECRET:        config.Server.Secret,
 		EmailService:      emailService,
 		PaymentConfig:     paymentConfig,
