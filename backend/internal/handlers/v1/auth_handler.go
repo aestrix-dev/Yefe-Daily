@@ -99,6 +99,36 @@ func (a AuthHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (a AuthHandler) AcceptNotifications(w http.ResponseWriter, r *http.Request) {
+	user := getUserFromContext(r.Context())
+	var req dto.AcceptNotificationRequest
+
+	if user.Role == "admin" {
+		utils.ErrorResponse(w, http.StatusForbidden, "Not open to admin user", nil)
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Log.WithError(err).Error("")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		return
+	}
+	if err := a.validator.Struct(&req); err != nil {
+		logger.Log.WithError(err).Error("")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		return
+	}
+
+	err := a.authUseCase.AcceptNotificaions(r.Context(), req.FcmToken, user)
+
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not register notification")
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Could not register notification", nil)
+		return
+	}
+	utils.SuccessResponse(w, http.StatusCreated, "User notifiaction created", nil)
+}
+
 func NewAuthHandler(authUseCase domain.AuthUseCase) *AuthHandler {
 	router := &AuthHandler{
 		authUseCase: authUseCase,
