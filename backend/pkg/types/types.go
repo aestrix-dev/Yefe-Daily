@@ -5,8 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
-	"time"
+)
+
+type PaymentProvider string
+
+const (
+	ProviderStripe   PaymentProvider = "stripe"
+	ProviderPaystack PaymentProvider = "paystack"
 )
 
 // Password security configuration
@@ -48,6 +55,30 @@ const (
 )
 
 type EventSeverity string
+type ReminderStr string
+
+func (r ReminderStr) Validate() error {
+	split := strings.Split(string(r), ":")
+	hour, err := strconv.Atoi(split[0])
+	if err != nil {
+		return err
+	}
+	minute, err := strconv.Atoi(split[0])
+	if err != nil {
+		return err
+	}
+	if (hour < 0) || (hour > 12) {
+		return fmt.Errorf("Hour cannot be less than 0 and greater then 12")
+	}
+	if (minute < 0) || (minute > 12) {
+		return fmt.Errorf("minute cannot be less than 0 and greater then 12")
+	}
+	return nil
+}
+
+func (r ReminderStr) String() string{
+  return string(r)
+}
 
 const (
 	SeverityInfo     EventSeverity = "info"
@@ -61,8 +92,17 @@ type PasswordChecker interface {
 }
 
 type ReminderRequest struct {
-	MorningReminder time.Time `json:"notification_reminders_morning_reminder"`
-	EveningReminder time.Time `json:"notification_reminders_evening_reminder"`
+	MorningReminder ReminderStr `json:"notification_reminders_morning_reminder"`
+	EveningReminder ReminderStr `json:"notification_reminders_evening_reminder"`
+}
+
+func (r ReminderRequest) Validate() error {
+	var err error
+
+	err = r.MorningReminder.Validate()
+	err = r.EveningReminder.Validate()
+
+	return err
 }
 
 type NotificationsPref struct {

@@ -43,7 +43,7 @@ type User struct {
 	PlanStatus    string     `gorm:"type:varchar(20);default:'active'" json:"plan_status"`
 
 	// Relationships
-	Profile        *UserProfile           `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"profile,omitempty"`
+	Profile        *UserProfile           `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user_profile,omitempty"`
 	Sessions       []domain.Session       `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
 	SecurityEvents []domain.SecurityEvent `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
 
@@ -130,4 +130,9 @@ func (UserProfile) TableName() string {
 
 func (Session) TableName() string {
 	return "sessions"
+}
+
+func (j *UserProfile) BeforeCreate(tx *gorm.DB) error {
+
+	return j.NotificationPreferences.Reminders.Validate()
 }

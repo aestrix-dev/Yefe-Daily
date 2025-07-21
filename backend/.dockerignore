@@ -1,0 +1,68 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test files
+*_test.go
+test/
+coverage.txt
+coverage.html
+
+# Build artifacts
+dist/
+build/
+bin/
+
+# Temporary files
+tmp/
+temp/
+
+# Node modules (if any)
+node_modules/
+
+# Environment files (we'll copy .env explicitly)
+.env.local
+.env.development
+.env.test
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE files
+.vscode/
+.idea/
+
+# Air (Go live reload)
+.air.toml
+tmp/
+
+# Go mod cache
+go.sum.backup

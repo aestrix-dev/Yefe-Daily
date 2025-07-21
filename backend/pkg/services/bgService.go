@@ -11,6 +11,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"yefe_app/v1/pkg/logger"
 )
 
 // Service states
@@ -389,18 +390,13 @@ func (s *BackgroundService) setError(err error) {
 type ServiceManager struct {
 	services map[string]*BackgroundService
 	mu       sync.RWMutex
-	logger   Logger
 }
 
 // NewServiceManager creates a new service manager
-func NewServiceManager(logger Logger) *ServiceManager {
-	if logger == nil {
-		logger = &DefaultLogger{}
-	}
+func NewServiceManager() *ServiceManager {
 
 	return &ServiceManager{
 		services: make(map[string]*BackgroundService),
-		logger:   logger,
 	}
 }
 
@@ -424,7 +420,7 @@ func (sm *ServiceManager) StartAll() error {
 
 	for name, service := range sm.services {
 		if err := service.Start(); err != nil {
-			sm.logger.Error("Failed to start service '%s': %v", name, err)
+			logger.Log.Error("Failed to start service '%s': %v", name, err)
 			return err
 		}
 	}
@@ -440,7 +436,7 @@ func (sm *ServiceManager) StopAll() error {
 	var lastError error
 	for name, service := range sm.services {
 		if err := service.Stop(); err != nil {
-			sm.logger.Error("Failed to stop service '%s': %v", name, err)
+			logger.Log.Error("Failed to stop service '%s': %v", name, err)
 			lastError = err
 		}
 	}
@@ -470,7 +466,7 @@ func (sm *ServiceManager) RunWithSignals() error {
 
 	// Wait for signal
 	sig := <-sigChan
-	sm.logger.Info("Received signal %v, shutting down services", sig)
+	logger.Log.Info("Received signal %v, shutting down services", sig)
 
 	// Stop all services
 	return sm.StopAll()

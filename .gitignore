@@ -1,4 +1,6 @@
 .env
+*.db
+.credentials.json
 .air.toml
 **/*/tmp
 **/*/logs/*

@@ -6,6 +6,7 @@ server:
   dev_url: ${DEV_URL}
   prod_url: ${PRO_URL}
   environment: ${ENV}
+  allowed_hosts: ${ALLOWED_HOSTS}
 
 persistence:
   postgres:
@@ -31,6 +32,7 @@ email_config:
   retry_attempts: 2 
   retry_delay: 10s 
 
-stripe_config:
+payment_config:
   stripe_secret_key: ${STRIPE_SECRET_KEY}
   pro_plan_price: 5
+  paystack_private_key: ${PAYSTACK_API_KEY} 

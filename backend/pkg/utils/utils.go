@@ -5,6 +5,7 @@ import (
 	"crypto/subtle"
 	"encoding/base32"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path"
 	"slices"
@@ -37,16 +38,17 @@ type (
 		Server       ServerSettings      `yaml:"server"`
 		Persistence  PersistenceSettings `yaml:"persistence"`
 		EmailConfig  EmailConfig         `yaml:"email_config"`
-		StripeConfig Stripe              `yaml:"stripe_config"`
+		StripeConfig PaymentConfig       `yaml:"payment_config"`
 	}
 	ServerSettings struct {
-		Name    string `yaml:"name"`
-		Port    int    `yaml:"port"`
-		Host    string `yaml:"host"`
-		Secret  string `yaml:"secret"`
-		DevURl  string `yaml:"dev_url"`
-		ProdURL string `yaml:"prod_url,omitempty"`
-		Env     string `yaml:"environment"`
+		Name         string `yaml:"name"`
+		Port         int    `yaml:"port"`
+		Host         string `yaml:"host"`
+		Secret       string `yaml:"secret"`
+		DevURl       string `yaml:"dev_url"`
+		ProdURL      string `yaml:"prod_url,omitempty"`
+		Env          string `yaml:"environment"`
+		AllowedHosts string `yaml:"allowed_hosts"`
 	}
 	PersistenceSettings struct {
 		PostgresSQl DBSettings `yaml:"postgres"`
@@ -73,9 +75,10 @@ type (
 		RetryAttempts int           `yaml:"retry_attempts"`
 		RetryDelay    time.Duration `yaml:"retry_delay"`
 	}
-	Stripe struct {
-		SecretKey    string `yaml:"stripe_secret_key"`
-		ProPlanPrice int8   `yaml:"pro_plan_price"`
+	PaymentConfig struct {
+		SecretKey          string `yaml:"stripe_secret_key"`
+		PaystackPrivateKey string `yaml:"paystack_private_key"`
+		ProPlanPrice       int8   `yaml:"pro_plan_price"`
 	}
 )
 
@@ -99,7 +102,7 @@ func LoadEnv() error {
 func LoadConfig() (AppSettings, error) {
 	err := LoadEnv()
 	if err != nil {
-		return AppSettings{}, err
+		fmt.Printf("env does not exists: %s", err.Error())
 	}
 	pathStr, err := GetBasePath()
 	if err != nil {

@@ -94,3 +94,7 @@ type UpdateStatusRequest struct {
 type UpdatePlanRequest struct {
 	Plan string `json:"plan" validate:"required,oneof=free yefe_plus"`
 }
+
+type AcceptNotificationRequest struct {
+	FcmToken string `json:"fcm_token" validate:"required"`
+}
