@@ -9,6 +9,7 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/logger"
+	"yefe_app/v1/pkg/services/fire_base"
 	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 
@@ -23,6 +24,7 @@ type authUseCase struct {
 	//emailService    EmailService
 	passwordChecker types.PasswordChecker
 	jwtSecret       string
+	fmcService      *fire_base.FCMNotificationService
 }
 
 var (
@@ -36,6 +38,8 @@ func NewAuthUseCase(
 	sessionRepo domain.SessionRepository,
 	secEventRepo domain.SecurityEventRepository,
 	jwtSecret string,
+	fmcService *fire_base.FCMNotificationService,
+
 ) domain.AuthUseCase {
 	return &authUseCase{
 		userRepo:     userRepo,
@@ -44,6 +48,7 @@ func NewAuthUseCase(
 		//	emailService:    emailService,
 		passwordChecker: utils.NewBasicPasswordChecker(),
 		jwtSecret:       jwtSecret,
+		fmcService:      fmcService,
 	}
 }
 
@@ -78,18 +83,9 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 
 	prefs := req.Prefs
 
-	morningReminder, err := time.Parse(timeLayout, prefs.Reminders.MorningReminder)
-	if err != nil {
-		return nil, err
-	}
-	eveningReminder, err := time.Parse(timeLayout, prefs.Reminders.EveningReminder)
-	if err != nil {
-		return nil, err
-	}
-
 	reminders := types.ReminderRequest{
-		MorningReminder: morningReminder,
-		EveningReminder: eveningReminder,
+		MorningReminder: types.ReminderStr(prefs.Reminders.MorningReminder),
+		EveningReminder: types.ReminderStr(prefs.Reminders.EveningReminder),
 	}
 
 	userPrefs := &types.NotificationsPref{
@@ -236,6 +232,60 @@ func (a *authUseCase) Logout(ctx context.Context, req dto.LogoutRequest) error {
 	a.secEventRepo.LogSecurityEvent(ctx, session.UserID, types.EventLogout, req.IPAddress, req.UserAgent, nil)
 
 	return nil
+}
+
+func (a *authUseCase) AcceptNotificaions(ctx context.Context, fcmToken string, user *domain.User) error {
+
+	preferences := fire_base.FCMUserPreferences{
+		FCMToken:    fcmToken,
+		MorningTime: user.Profile.NotificationPreferences.Reminders.MorningReminder.String(),
+		EveningTime: user.Profile.NotificationPreferences.Reminders.EveningReminder.String(),
+		Timezone:    "America/New_York",
+	}
+	if err := a.fmcService.UpdateUserPreferences(ctx, user.ID, preferences); err != nil {
+		logger.Log.WithError(err).Error("Failed to update user preferences")
+	}
+
+	morningTime := strings.Split(preferences.MorningTime, ":")
+	evnT, err := fire_base.ConvertTo24Hour(preferences.EveningTime)
+	if err != nil {
+		return err
+	}
+
+	eveningTime := strings.Split(evnT, ":")
+
+	morningHour := morningTime[0]
+	morningMinute := morningTime[1]
+
+	eveningHour := eveningTime[0]
+	eveningMinute := eveningTime[1]
+
+	morningCron := fmt.Sprintf("0 %s %s * * *", morningMinute, morningHour)
+	eveningCron := fmt.Sprintf("0 %s %s * * *", eveningMinute, eveningHour)
+	if err := a.fmcService.AddRecurringNotification(
+		utils.GenerateID()+utils.GenerateSecureToken(),
+		preferences.UserID,
+		"Daily Motivation",
+		"Here's your daily dose of motivation!",
+		morningCron,
+		map[string]string{"type": "daily"}); err != nil {
+		logger.Log.WithError(err).Error("Failed to add recurring notification")
+		return err
+	}
+	if err := a.fmcService.AddRecurringNotification(
+		utils.GenerateID()+utils.GenerateSecureToken(),
+		preferences.UserID,
+		"Daily Motivation",
+		"Here's your daily dose of motivation!",
+		eveningCron,
+		map[string]string{"type": "daily"},
+	); err != nil {
+		logger.Log.WithError(err).Error("Failed to add recurring notification")
+		return err
+
+	}
+	return nil
+
 }
 
 func (a *authUseCase) generateJWT(userID, sessionID string) (string, error) {
