@@ -2,12 +2,14 @@ package infrastructure
 
 import (
 	"net/http"
+	"strings"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/v1"
 	middlewares "yefe_app/v1/internal/infrastructure/middleware"
 	"yefe_app/v1/internal/infrastructure/payments"
 	usecase "yefe_app/v1/internal/useCase"
 	service "yefe_app/v1/pkg/services"
+	"yefe_app/v1/pkg/services/fire_base"
 	"yefe_app/v1/pkg/utils"
 
 	"github.com/go-chi/chi/v5"
@@ -17,10 +19,12 @@ import (
 )
 
 type ServerConfig struct {
-	DB                *gorm.DB
-	JWT_SECRET        string
-	AllowedHosts      []string
-	EmailService      domain.EmailService
+	DB           *gorm.DB
+	JWT_SECRET   string
+	AllowedHosts string
+	EmailService domain.EmailService
+	FMCService   *fire_base.FCMNotificationService
+
 	PaymentConfig     utils.PaymentConfig
 	UserRepo          domain.UserRepository
 	SessionRepo       domain.SessionRepository
@@ -37,10 +41,10 @@ type ServerConfig struct {
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
-	return usecase.NewAuthUseCase(conf.UserRepo, conf.SessionRepo, conf.SecEventRepo, conf.JWT_SECRET)
+	return usecase.NewAuthUseCase(conf.UserRepo, conf.SessionRepo, conf.SecEventRepo, conf.JWT_SECRET, conf.FMCService)
 }
 
-func (conf ServerConfig) admin_user_usecase() domain.AdminUserUseCase {
+func (conf ServerConfig) AdminUserUsecase() domain.AdminUserUseCase {
 	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo, conf.EmailService)
 }
 
@@ -66,18 +70,25 @@ func (conf ServerConfig) challenges_usecase() domain.ChallengeUseCase {
 	return usecase.NewChallengeUseCase(conf.ChallengeRepo, conf.UserChallengeRepo, conf.StatsRepo)
 }
 func (conf ServerConfig) dashboard_usecase() domain.DashboardUsecase {
-	return usecase.NewDashboardUsecase(conf.admin_user_usecase(), conf.user_activity_usecase())
+	return usecase.NewDashboardUsecase(conf.AdminUserUsecase(), conf.user_activity_usecase())
 }
 func (conf ServerConfig) auth_middleware() *middlewares.AuthMiddleware {
 	return middlewares.NewAuthMiddleware(conf.JWT_SECRET, conf.SessionRepo, conf.UserRepo, conf.SecEventRepo)
 }
 func (conf ServerConfig) paystack_payemnt() domain.PaymentProvider {
 	paystackClient := service.NewpaystackClient(conf.PaymentConfig.PaystackPrivateKey)
-	return payments.NewPaystackPaymentProvider(conf.PaymentRepo, conf.EmailService, conf.admin_user_usecase(), paystackClient, conf.SecEventRepo, conf.PaymentConfig)
+	return payments.NewPaystackPaymentProvider(conf.PaymentRepo, conf.EmailService, conf.AdminUserUsecase(), paystackClient, conf.SecEventRepo, conf.PaymentConfig)
 }
 
 func (conf ServerConfig) stripe_payemnt() domain.PaymentProvider {
-	return payments.NewStripePaymentProvider(conf.PaymentRepo, conf.admin_user_usecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo)
+	return payments.NewStripePaymentProvider(conf.PaymentRepo, conf.AdminUserUsecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo)
+}
+
+func (conf ServerConfig) getAllowedDomains() []string {
+	if conf.AllowedHosts == "" {
+		return []string{}
+	}
+	return strings.Split(conf.AllowedHosts, ",")
 }
 
 func NewRouter(config ServerConfig) http.Handler {
@@ -86,7 +97,7 @@ func NewRouter(config ServerConfig) http.Handler {
 	journal_handlers := handlers.NewJournalHandler(config.journal_usecase())
 	puzzle_handler := handlers.NewPuzzleHandler(config.puzzle_usecase())
 	challenges_handler := handlers.NewChallengesHandler(config.challenges_usecase())
-	admin_user_handelrs := handlers.NewAdminUserHandler(config.admin_user_usecase())
+	admin_user_handelrs := handlers.NewAdminUserHandler(config.AdminUserUsecase())
 	song_handler := handlers.NewMusicHandler(config.song_usecase())
 	payments_handler := handlers.NewPaymentHandler(config.payment_usercase(), map[string]domain.PaymentProvider{
 		"stripe":   config.stripe_payemnt(),
@@ -99,7 +110,7 @@ func NewRouter(config ServerConfig) http.Handler {
 
 	r.Use(middleware.Logger)
 	r.Use(cors.New(cors.Options{
-		AllowedOrigins:   config.AllowedHosts,
+		AllowedOrigins:   config.getAllowedDomains(),
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Payment-Provider"},
 		AllowCredentials: true,
@@ -110,6 +121,7 @@ func NewRouter(config ServerConfig) http.Handler {
 		r.Group(func(r chi.Router) {
 			r.Use(config.auth_middleware().RequireAuth)
 			r.Post("/auth/logout", auth_handlers.LogoutRoute)
+			r.Post("/auth/accept", auth_handlers.AcceptNotifications)
 			r.Mount("/journal", journal_handlers.Handle())
 			r.Mount("/puzzle", puzzle_handler.Handle())
 			r.Mount("/challenges", challenges_handler.Handle())
