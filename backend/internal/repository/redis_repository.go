@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -18,15 +19,16 @@ type RedisSessionRepository struct {
 }
 
 func NewRedisSessionRepository(config utils.DBSettings) (*RedisSessionRepository, error) {
-
-	options, err := redis.ParseURL(config.ConnectionUrl)
-	if err != nil {
-		logger.Log.WithError(err).Error("Could not parse redis url")
-		return nil, err
+	redisConnAddr := fmt.Sprintf("%s:%s", config.Host, config.Port)
+	options := &redis.Options{
+		Username:  config.UserName,
+		Password:  config.Password,
+		Addr:      redisConnAddr,
+		TLSConfig: &tls.Config{},
 	}
 
 	client := redis.NewClient(options)
-	err = client.Ping(context.Background()).Err()
+	err := client.Ping(context.Background()).Err()
 	if err != nil {
 		logger.Log.WithError(err).Fatal("redis could not connect")
 		return nil, err
