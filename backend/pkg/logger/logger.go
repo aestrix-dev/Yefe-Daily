@@ -61,19 +61,19 @@ func Init() {
 
 	// === Setup Daily File Writer ===
 	logDir := os.Getenv("LOG_DIR")
-	if logDir == "" {
-		logDir = utils.LogDir
-	}
 
 	logPrefix := os.Getenv("LOG_FILE_PREFIX")
 	if logPrefix == "" {
 		logPrefix = "server"
 	}
+	if logDir != "" {
+		logDir = utils.LogDir
+		dailyWriter := newDailyLogWriter(logDir, logPrefix)
 
-	dailyWriter := newDailyLogWriter(logDir, logPrefix)
-
-	// === Combine stdout + file ===
-	Log.SetOutput(io.MultiWriter(os.Stdout, dailyWriter))
+		// === Combine stdout + file ===
+		Log.SetOutput(io.MultiWriter(os.Stdout, dailyWriter))
+	}
+	Log.SetOutput(os.Stdout)
 
 	// === Formatter ===
 	if strings.ToLower(os.Getenv("LOG_FORMAT")) == "json" {
