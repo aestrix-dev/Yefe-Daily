@@ -2,12 +2,14 @@ package fire_base
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/pkg/logger"
+	"yefe_app/v1/pkg/utils"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
@@ -45,9 +47,13 @@ type FCMCoreService struct {
 }
 
 // NewFCMCoreService creates a new FCM core service
-func NewFCMCoreService(serviceAccountPath string, userUseCase domain.AdminUserUseCase, dbPath string) (*FCMCoreService, error) {
+func NewFCMCoreService(config utils.FirebaseConfig, userUseCase domain.AdminUserUseCase, dbPath string) (*FCMCoreService, error) {
 	// Initialize Firebase
-	opt := option.WithCredentialsFile(serviceAccountPath)
+	jsonCreds, err := json.Marshal(config)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling firebase config: %v", err)
+	}
+	opt := option.WithCredentialsJSON(jsonCreds)
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		return nil, fmt.Errorf("error initializing firebase app: %v", err)

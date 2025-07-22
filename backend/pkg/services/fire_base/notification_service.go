@@ -8,6 +8,7 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/pkg/logger"
 	service "yefe_app/v1/pkg/services"
+	"yefe_app/v1/pkg/utils"
 )
 
 // FCMNotificationService orchestrates FCM notifications using background services and scheduler
@@ -21,7 +22,7 @@ type FCMNotificationService struct {
 
 // FCMServiceConfig holds configuration for FCM notification service
 type FCMServiceConfig struct {
-	ServiceAccountPath     string
+	Config                 utils.FirebaseConfig
 	DatabasePath           string
 	NotificationWorkerName string
 }
@@ -32,7 +33,7 @@ func NewFCMNotificationService(ctx context.Context, cancel context.CancelFunc, c
 	// Create context for the service
 
 	// Initialize FCM core service
-	fcmCore, err := NewFCMCoreService(config.ServiceAccountPath, userUseCase, config.DatabasePath)
+	fcmCore, err := NewFCMCoreService(config.Config, userUseCase, config.DatabasePath)
 	if err != nil {
 		cancel()
 		return nil, fmt.Errorf("failed to create FCM core service: %v", err)

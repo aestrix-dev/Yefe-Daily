@@ -35,11 +35,26 @@ var DefaultPasswordConfig = types.PasswordConfig{
 
 type (
 	AppSettings struct {
-		Server       ServerSettings      `yaml:"server"`
-		Persistence  PersistenceSettings `yaml:"persistence"`
-		EmailConfig  EmailConfig         `yaml:"email_config"`
-		StripeConfig PaymentConfig       `yaml:"payment_config"`
+		Server         ServerSettings      `yaml:"server"`
+		Persistence    PersistenceSettings `yaml:"persistence"`
+		EmailConfig    EmailConfig         `yaml:"email_config"`
+		StripeConfig   PaymentConfig       `yaml:"payment_config"`
+		FirebaseConfig FirebaseConfig      `yaml:"firebase_config"`
 	}
+	FirebaseConfig struct {
+		Type                    string `yaml:"type"`
+		ProjectID               string `yaml:"project_id"`
+		PrivateKeyID            string `yaml:"private_key_id"`
+		PrivateKey              string `yaml:"private_key"`
+		ClientEmail             string `yaml:"client_email"`
+		ClientID                string `yaml:"client_id"`
+		AuthURI                 string `yaml:"auth_uri"`
+		TokenURI                string `yaml:"token_uri"`
+		AuthProviderX509CertURL string `yaml:"auth_provider_x509_cert_url"`
+		ClientX509CertURL       string `yaml:"client_x509_cert_url"`
+		UniverseDomain          string `yaml:"universe_domain"`
+	}
+
 	ServerSettings struct {
 		Name         string `yaml:"name"`
 		Port         int    `yaml:"port"`

@@ -30,7 +30,6 @@ func main() {
 	pathToChallenges := path.Join(basePath, "extras", "challenges.json")
 	pathToSongs := path.Join(basePath, "extras", "mood_music_catalog.json")
 	firebasedb := path.Join(basePath, "extras", "firebase.db")
-	fireBaseCredentials := path.Join(basePath, "config", ".credentials.json")
 
 	// Load configuration
 	config, err := utils.LoadConfig()
@@ -42,7 +41,7 @@ func main() {
 	paymentConfig := config.StripeConfig
 
 	fmcConfig := fire_base.FCMServiceConfig{
-		ServiceAccountPath:     fireBaseCredentials,
+		Config:                 config.FirebaseConfig,
 		DatabasePath:           firebasedb,
 		NotificationWorkerName: "daily-notifications-worker",
 	}

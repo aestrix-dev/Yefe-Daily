@@ -19,18 +19,16 @@ type RedisSessionRepository struct {
 
 func NewRedisSessionRepository(config utils.DBSettings) (*RedisSessionRepository, error) {
 
-	redisConnAddr := fmt.Sprintf("%s:%s", config.Host, config.Port)
-	intDB := 0
-
-	options := &redis.Options{
-		Addr:     redisConnAddr,
-		Password: config.Password,
-		DB:       intDB,
-	}
-	client := redis.NewClient(options)
-	err := client.Ping(context.Background()).Err()
+	options, err := redis.ParseURL(config.ConnectionUrl)
 	if err != nil {
-		logger.Log.WithError(err).Fatal("could not connect on %s \n%v", redisConnAddr, err)
+		logger.Log.WithError(err).Error("Could not parse redis url")
+		return nil, err
+	}
+
+	client := redis.NewClient(options)
+	err = client.Ping(context.Background()).Err()
+	if err != nil {
+		logger.Log.WithError(err).Fatal("redis could not connect")
 		return nil, err
 	}
 	return newRedisSessionRepository(client), nil
