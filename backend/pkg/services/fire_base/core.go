@@ -14,7 +14,6 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"google.golang.org/api/option"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -47,7 +46,7 @@ type FCMCoreService struct {
 }
 
 // NewFCMCoreService creates a new FCM core service
-func NewFCMCoreService(config utils.FirebaseConfig, userUseCase domain.AdminUserUseCase, dbPath string) (*FCMCoreService, error) {
+func NewFCMCoreService(db *gorm.DB, config utils.FirebaseConfig, userUseCase domain.AdminUserUseCase, dbPath string) (*FCMCoreService, error) {
 	// Initialize Firebase
 	jsonCreds, err := json.Marshal(config)
 	if err != nil {
@@ -62,12 +61,6 @@ func NewFCMCoreService(config utils.FirebaseConfig, userUseCase domain.AdminUser
 	client, err := app.Messaging(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("error getting messaging client: %v", err)
-	}
-
-	// Initialize database
-	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %v", err)
 	}
 
 	// Auto migrate the schema

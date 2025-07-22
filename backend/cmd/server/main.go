@@ -166,7 +166,7 @@ func main() {
 		PaymentRepo:       paymentRepo,
 	}
 
-	fcmService, err := fire_base.NewFCMNotificationService(serverCtx, serverStopCtx, fmcConfig, serverConfig.AdminUserUsecase(), scheduler)
+	fcmService, err := fire_base.NewFCMNotificationService(serverCtx, db, serverStopCtx, fmcConfig, serverConfig.AdminUserUsecase(), scheduler)
 	if err != nil {
 		logger.Log.Fatal("Failed to create FCM notification service:", err)
 	}

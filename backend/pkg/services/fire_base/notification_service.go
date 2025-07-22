@@ -9,6 +9,8 @@ import (
 	"yefe_app/v1/pkg/logger"
 	service "yefe_app/v1/pkg/services"
 	"yefe_app/v1/pkg/utils"
+
+	"gorm.io/gorm"
 )
 
 // FCMNotificationService orchestrates FCM notifications using background services and scheduler
@@ -28,12 +30,12 @@ type FCMServiceConfig struct {
 }
 
 // NewFCMNotificationService creates a new FCM notification service
-func NewFCMNotificationService(ctx context.Context, cancel context.CancelFunc, config FCMServiceConfig, userUseCase domain.AdminUserUseCase, scheduler *service.Scheduler) (*FCMNotificationService, error) {
+func NewFCMNotificationService(ctx context.Context, db *gorm.DB, cancel context.CancelFunc, config FCMServiceConfig, userUseCase domain.AdminUserUseCase, scheduler *service.Scheduler) (*FCMNotificationService, error) {
 
 	// Create context for the service
 
 	// Initialize FCM core service
-	fcmCore, err := NewFCMCoreService(config.Config, userUseCase, config.DatabasePath)
+	fcmCore, err := NewFCMCoreService(db, config.Config, userUseCase, config.DatabasePath)
 	if err != nil {
 		cancel()
 		return nil, fmt.Errorf("failed to create FCM core service: %v", err)
