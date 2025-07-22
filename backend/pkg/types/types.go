@@ -28,8 +28,8 @@ type PasswordConfig struct {
 type SecurityEventType string
 
 const (
-	DEV  = "dev"
-	PROD = "prod"
+	DEV  = "development"
+	PROD = "production"
 )
 
 const (
@@ -76,8 +76,8 @@ func (r ReminderStr) Validate() error {
 	return nil
 }
 
-func (r ReminderStr) String() string{
-  return string(r)
+func (r ReminderStr) String() string {
+	return string(r)
 }
 
 const (
