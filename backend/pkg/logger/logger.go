@@ -54,7 +54,7 @@ func (w *dailyLogWriter) Write(p []byte) (int, error) {
 func Init() {
 	err := utils.LoadEnv()
 	if err != nil {
-		panic(err)
+		fmt.Println("env file does not exist")
 	}
 
 	Log = logrus.New()
