@@ -75,6 +75,11 @@ func main() {
 		"port": config.Server.Port,
 	}).Debug("Configuration loaded")
 
+	sessionRepo, err := repository.NewRedisSessionRepository(config.Persistence.Redis)
+	if err != nil {
+		logger.Log.WithError(err).Fatal("Failed to initialize redis")
+		return
+	}
 	// Initialize DB
 	db, err := infrastructure.NewDB(config.Persistence.PostgresSQl)
 	if err != nil {
@@ -84,11 +89,7 @@ func main() {
 	logger.Log.Info("Database initialized")
 
 	secEventRepo := repository.NewPostgresSecurityEventRepository(db)
-	sessionRepo, err := repository.NewRedisSessionRepository(config.Persistence.Redis)
-	if err != nil {
-		logger.Log.WithError(err).Fatal("Failed to initialize redis")
-		return
-	}
+
 	userRepo := repository.NewUserRepository(db, secEventRepo)
 	journalRepo := repository.NewJournalRepository(db)
 	userPuzzledRepo := repository.NewUserPuzzleRepository(db)
