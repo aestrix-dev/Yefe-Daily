@@ -8,7 +8,7 @@ import (
 	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 )
 
 type AuthHandler struct {
@@ -97,6 +97,36 @@ func (a AuthHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 		"user":    user,
 		"message": "Please check your email to verify your account",
 	})
+}
+
+func (a AuthHandler) AcceptNotifications(w http.ResponseWriter, r *http.Request) {
+	user := getUserFromContext(r.Context())
+	var req dto.AcceptNotificationRequest
+
+	if user.Role == "admin" {
+		utils.ErrorResponse(w, http.StatusForbidden, "Not open to admin user", nil)
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Log.WithError(err).Error("")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		return
+	}
+	if err := a.validator.Struct(&req); err != nil {
+		logger.Log.WithError(err).Error("")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		return
+	}
+
+	err := a.authUseCase.AcceptNotificaions(r.Context(), req.FcmToken, user)
+
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not register notification")
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Could not register notification", nil)
+		return
+	}
+	utils.SuccessResponse(w, http.StatusCreated, "User notifiaction created", nil)
 }
 
 func NewAuthHandler(authUseCase domain.AuthUseCase) *AuthHandler {

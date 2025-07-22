@@ -35,6 +35,10 @@ func NewAuthMiddleware(
 // RequireAuth middleware - requires valid authentication
 func (m *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			next.ServeHTTP(w, r)
+			return
+		}
 		user, session, err := m.authenticateRequest(r)
 		if err != nil {
 			m.handleAuthError(w, err)
@@ -173,4 +177,3 @@ func (m *AuthMiddleware) handleAuthError(w http.ResponseWriter, err error) {
 		w.Write([]byte(`{"error": "internal server error"}`))
 	}
 }
-

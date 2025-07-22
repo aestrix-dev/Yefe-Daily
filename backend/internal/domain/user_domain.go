@@ -144,6 +144,7 @@ type AuthUseCase interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*User, error)
 	Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error)
 	Logout(ctx context.Context, req dto.LogoutRequest) error
+	AcceptNotificaions(ctx context.Context, fcmToken string, user *User) error
 	//RefreshToken(ctx context.Context, refreshToken string) (*dto.LoginResponse, error)
 	//LogoutAll(ctx context.Context, userID string) error
 	//VerifyEmail(ctx context.Context, token string) error

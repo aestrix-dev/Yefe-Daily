@@ -93,20 +93,91 @@ func (u *dashboardUsecase) getUserStats(ctx context.Context) (map[string]domain.
 		}
 	}
 
+	dailyTrend, dailyTrendAvg := u.getRegistrationStats(ctx, allUsers.Users)
+	premimumTrend, premimumTrendAvg := u.getPremiumStats(ctx, allUsers.Users)
+
 	return map[string]domain.MetricData{
 		"totalUsers": {
-			Value: int(allUsers.Total),
-			//	Change:     10.5,
-			//	ChangeType: "increase",
+			Value:      int(allUsers.Total),
+			Change:     dailyTrendAvg,
+			ChangeType: dailyTrend,
 		},
 		"premiumSubscribers": {
-			Value: premiumCount,
-			//	Change:     8.2,
-			//	ChangeType: "increase", // TODO need to remove
+			Value:      premiumCount,
+			Change:     premimumTrendAvg,
+			ChangeType: premimumTrend,
 		},
 	}, nil
 }
 
+func (u *dashboardUsecase) getRegistrationStats(ctx context.Context, allUsers []dto.User) (string, float64) {
+
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	yesterday := today.AddDate(0, 0, -1)
+
+	var yesterdayCount, todayCount int
+
+	// Count users registered yesterday and today
+	for _, user := range allUsers {
+		userDate := time.Date(user.CreatedAt.Year(), user.CreatedAt.Month(), user.CreatedAt.Day(), 0, 0, 0, 0, user.CreatedAt.Location())
+
+		if userDate.Equal(yesterday) {
+			yesterdayCount++
+		} else if userDate.Equal(today) {
+			todayCount++
+		}
+	}
+
+	// Calculate averages (assuming 24 hours for daily average)
+	todayAvg := float64(todayCount) / 24.0
+
+	// Determine trend
+	var trend string
+	if todayCount > yesterdayCount {
+		trend = "increase"
+	} else if todayCount < yesterdayCount {
+		trend = "decrease"
+	} else {
+		trend = "same"
+	}
+	return trend, todayAvg
+}
+func (u *dashboardUsecase) getPremiumStats(ctx context.Context, allUsers []dto.User) (string, float64) {
+
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	yesterday := today.AddDate(0, 0, -1)
+
+	var yesterdayCount, todayCount int
+
+	// Count users registered yesterday and today
+	for _, user := range allUsers {
+		userDate := time.Date(user.CreatedAt.Year(), user.CreatedAt.Month(), user.CreatedAt.Day(), 0, 0, 0, 0, user.CreatedAt.Location())
+
+		if user.Plan == "premium" {
+			if userDate.Equal(yesterday) {
+				yesterdayCount++
+			} else if userDate.Equal(today) {
+				todayCount++
+			}
+		}
+	}
+
+	// Calculate averages (assuming 24 hours for daily average)
+	todayAvg := float64(todayCount) / 24.0
+
+	// Determine trend
+	var trend string
+	if todayCount > yesterdayCount {
+		trend = "increase"
+	} else if todayCount < yesterdayCount {
+		trend = "decrease"
+	} else {
+		trend = "same"
+	}
+	return trend, todayAvg
+}
 func (u *dashboardUsecase) getRecentActivity(ctx context.Context) ([]domain.ActivityItem, error) {
 	events, err := u.activityUseCase.GetRecentActivity(ctx, 10)
 	if err != nil {

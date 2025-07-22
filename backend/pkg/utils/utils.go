@@ -5,6 +5,7 @@ import (
 	"crypto/subtle"
 	"encoding/base32"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path"
 	"slices"
@@ -34,19 +35,35 @@ var DefaultPasswordConfig = types.PasswordConfig{
 
 type (
 	AppSettings struct {
-		Server       ServerSettings      `yaml:"server"`
-		Persistence  PersistenceSettings `yaml:"persistence"`
-		EmailConfig  EmailConfig         `yaml:"email_config"`
-		StripeConfig Stripe              `yaml:"stripe_config"`
+		Server         ServerSettings      `yaml:"server"`
+		Persistence    PersistenceSettings `yaml:"persistence"`
+		EmailConfig    EmailConfig         `yaml:"email_config"`
+		StripeConfig   PaymentConfig       `yaml:"payment_config"`
+		FirebaseConfig FirebaseConfig      `yaml:"firebase_config"`
 	}
+	FirebaseConfig struct {
+		Type                    string `yaml:"type" json:"type"`
+		ProjectID               string `yaml:"project_id" json:"project_id"`
+		PrivateKeyID            string `yaml:"private_key_id" json:"private_key_id"`
+		PrivateKey              string `yaml:"private_key" json:"private_key"`
+		ClientEmail             string `yaml:"client_email" json:"client_email"`
+		ClientID                string `yaml:"client_id" json:"client_id"`
+		AuthURI                 string `yaml:"auth_uri" json:"auth_uri"`
+		TokenURI                string `yaml:"token_uri" json:"token_uri"`
+		AuthProviderX509CertURL string `yaml:"auth_provider_x509_cert_url" json:"auth_provider_x509_cert_url"`
+		ClientX509CertURL       string `yaml:"client_x509_cert_url" json:"client_x509_cert_url"`
+		UniverseDomain          string `yaml:"universe_domain" json:"universe_domain"`
+	}
+
 	ServerSettings struct {
-		Name    string `yaml:"name"`
-		Port    int    `yaml:"port"`
-		Host    string `yaml:"host"`
-		Secret  string `yaml:"secret"`
-		DevURl  string `yaml:"dev_url"`
-		ProdURL string `yaml:"prod_url,omitempty"`
-		Env     string `yaml:"environment"`
+		Name         string `yaml:"name"`
+		Port         int    `yaml:"port"`
+		Host         string `yaml:"host"`
+		Secret       string `yaml:"secret"`
+		DevURl       string `yaml:"dev_url"`
+		ProdURL      string `yaml:"prod_url,omitempty"`
+		Env          string `yaml:"environment"`
+		AllowedHosts string `yaml:"allowed_hosts"`
 	}
 	PersistenceSettings struct {
 		PostgresSQl DBSettings `yaml:"postgres"`
@@ -73,9 +90,10 @@ type (
 		RetryAttempts int           `yaml:"retry_attempts"`
 		RetryDelay    time.Duration `yaml:"retry_delay"`
 	}
-	Stripe struct {
-		SecretKey    string `yaml:"stripe_secret_key"`
-		ProPlanPrice int8   `yaml:"pro_plan_price"`
+	PaymentConfig struct {
+		SecretKey          string `yaml:"stripe_secret_key"`
+		PaystackPrivateKey string `yaml:"paystack_private_key"`
+		ProPlanPrice       int8   `yaml:"pro_plan_price"`
 	}
 )
 
@@ -99,7 +117,7 @@ func LoadEnv() error {
 func LoadConfig() (AppSettings, error) {
 	err := LoadEnv()
 	if err != nil {
-		return AppSettings{}, err
+		fmt.Printf("env does not exists: %s", err.Error())
 	}
 	pathStr, err := GetBasePath()
 	if err != nil {

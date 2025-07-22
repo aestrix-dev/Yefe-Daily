@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +15,7 @@ import (
 	"yefe_app/v1/pkg/cache"
 	"yefe_app/v1/pkg/logger"
 	service "yefe_app/v1/pkg/services"
+	"yefe_app/v1/pkg/services/fire_base"
 	"yefe_app/v1/pkg/utils"
 
 	"github.com/stripe/stripe-go/v74"
@@ -27,6 +29,7 @@ func main() {
 	pathToPuzzles := path.Join(basePath, "extras", "puzzles.json")
 	pathToChallenges := path.Join(basePath, "extras", "challenges.json")
 	pathToSongs := path.Join(basePath, "extras", "mood_music_catalog.json")
+	firebasedb := path.Join(basePath, "extras", "firebase.db")
 
 	// Load configuration
 	config, err := utils.LoadConfig()
@@ -36,6 +39,12 @@ func main() {
 	}
 	stripe.Key = config.StripeConfig.SecretKey
 	paymentConfig := config.StripeConfig
+
+	fmcConfig := fire_base.FCMServiceConfig{
+		Config:                 config.FirebaseConfig,
+		DatabasePath:           firebasedb,
+		NotificationWorkerName: "daily-notifications-worker",
+	}
 
 	serverCtx, serverStopCtx := context.WithCancel(context.Background())
 	sig := make(chan os.Signal, 1)
@@ -48,7 +57,7 @@ func main() {
 		EnableStats:     true,
 	})
 
-	_ = service.NewServiceManager(nil)
+	_ = service.NewServiceManager()
 	emailService := service.NewEmailService(config.EmailConfig, nil)
 	if err := emailService.Start(); err != nil {
 		logger.Log.WithError(err).Error("Failed to start email service")
@@ -66,6 +75,11 @@ func main() {
 		"port": config.Server.Port,
 	}).Debug("Configuration loaded")
 
+	sessionRepo, err := repository.NewRedisSessionRepository(config.Persistence.Redis)
+	if err != nil {
+		logger.Log.WithError(err).Fatal("Failed to initialize redis")
+		return
+	}
 	// Initialize DB
 	db, err := infrastructure.NewDB(config.Persistence.PostgresSQl)
 	if err != nil {
@@ -75,11 +89,7 @@ func main() {
 	logger.Log.Info("Database initialized")
 
 	secEventRepo := repository.NewPostgresSecurityEventRepository(db)
-	sessionRepo, err := repository.NewRedisSessionRepository(config.Persistence.Redis)
-	if err != nil {
-		logger.Log.WithError(err).Fatal("Failed to initialize redis")
-		return
-	}
+
 	userRepo := repository.NewUserRepository(db, secEventRepo)
 	journalRepo := repository.NewJournalRepository(db)
 	userPuzzledRepo := repository.NewUserPuzzleRepository(db)
@@ -138,6 +148,7 @@ func main() {
 
 	serverConfig := infrastructure.ServerConfig{
 		DB:                db,
+		AllowedHosts:      config.Server.AllowedHosts,
 		JWT_SECRET:        config.Server.Secret,
 		EmailService:      emailService,
 		PaymentConfig:     paymentConfig,
@@ -153,6 +164,18 @@ func main() {
 		AdminRepo:         adminRepo,
 		SongRepo:          songRepo,
 		PaymentRepo:       paymentRepo,
+	}
+
+	fcmService, err := fire_base.NewFCMNotificationService(serverCtx, serverStopCtx, fmcConfig, serverConfig.AdminUserUsecase(), scheduler)
+	if err != nil {
+		logger.Log.Fatal("Failed to create FCM notification service:", err)
+	}
+
+	serverConfig.FMCService = fcmService
+
+	// Start the service (this will start background workers and scheduler)
+	if err := fcmService.Start(); err != nil {
+		log.Fatal("Failed to start FCM notification service:", err)
 	}
 
 	// Setup router and server
@@ -194,5 +217,3 @@ func main() {
 	<-serverCtx.Done()
 	logger.Log.Info("Server context closed. Exiting.")
 }
-
-//TODO set daily puzzles and challenges on startup,

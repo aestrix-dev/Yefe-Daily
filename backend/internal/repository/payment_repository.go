@@ -80,6 +80,10 @@ func (r *paymentRepository) GetPaymentByPaymentIntentID(ctx context.Context, pay
 	err := r.db.WithContext(ctx).
 		Where("payment_intent_id = ?", paymentIntentID).
 		First(&dbPayment).Error
+
+	if err != nil {
+		return nil, err
+	}
 	err = utils.TypeConverter(dbPayment, &payment)
 	if err != nil {
 		return nil, err

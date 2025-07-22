@@ -18,7 +18,11 @@ type Payment struct {
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
 }
-
+type PaymentProviderClient interface {
+	InitializeTransaction(ctx context.Context, req dto.PaystackInitializeRequest) (*dto.PaystackInitializeResponse, error)
+	VerifyTransaction(ctx context.Context, reference string) (*dto.PaystackVerifyResponse, error)
+	ValidateWebhook(body []byte, signature string) bool
+}
 type PaymentRepository interface {
 	CreatePayment(ctx context.Context, payment *Payment) error
 	GetPaymentByID(ctx context.Context, id string) (*Payment, error)
@@ -30,9 +34,12 @@ type PaymentRepository interface {
 // ============= USE CASE =============
 
 type PaymentUseCase interface {
+	GetPaymentHistory(ctx context.Context, userID uint, page, limit int) (dto.PaymentHistoryResponse, error)
+}
+
+type PaymentProvider interface {
 	CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error)
 	ConfirmPayment(ctx context.Context, req dto.ConfirmPaymentRequest) (dto.ConfirmPaymentResponse, error)
 	UpgradePackage(ctx context.Context, req dto.UpgradePackageRequest) (dto.UpgradePackageResponse, error)
-	GetPaymentHistory(ctx context.Context, userID uint, page, limit int) (dto.PaymentHistoryResponse, error)
 	ProcessWebhook(ctx context.Context, req dto.WebhookRequest) error
 }
