@@ -125,6 +125,7 @@ type AdminUserRepository interface {
 	// New methods for admin invitation
 	InviteAdmin(ctx context.Context, invitation AdminInvitation) error
 	GetAdminInvitations(ctx context.Context) ([]AdminInvitation, error)
+	GetAdminInvitationByID(ctx context.Context, token string) (AdminInvitation, error)
 	UpdateInvitationStatus(ctx context.Context, invitationID string, status string) error
 }
 type AdminUserUseCase interface {
@@ -137,7 +138,7 @@ type AdminUserUseCase interface {
 	// New methods for admin invitation
 	InviteNewAdmin(ctx context.Context, req dto.AdminInvitationEmailRequest, invitedBy string) error
 	GetPendingInvitations(ctx context.Context) ([]AdminInvitation, error)
-	AcceptInvitation(ctx context.Context, invitationToken string) error
+	AcceptInvitation(ctx context.Context, invitationRequst dto.AcceptInviteDTO) error
 	GetUserByID(ctx context.Context, userID string) (*User, error)
 }
 type AuthUseCase interface {

@@ -19,7 +19,7 @@ var (
 // User Management Errors
 var (
 	ErrEmailAlreadyExists    = errors.New("email already exists")
-	ErrUsernameAlreadyExists = errors.New("username already exists")
+  ErrUsernameAlreadyExists = errors.New("user already exists")
 	ErrWeakPassword          = errors.New("password does not meet requirements")
 	ErrInvalidUserStatus     = errors.New("invalid user status")
 )

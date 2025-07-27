@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 	"yefe_app/v1/internal/domain"
@@ -10,6 +11,7 @@ import (
 	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
+	"github.com/prometheus/common/model"
 	"gorm.io/gorm"
 )
 
@@ -225,4 +227,30 @@ func (r *adminUserRepository) UpdateInvitationStatus(ctx context.Context, invita
 		return fmt.Errorf("invitation not found")
 	}
 	return nil
+}
+
+func (r *userRepository) GetAdminInvitationByID(ctx context.Context, token string) (*domain.AdminInvitation, error) {
+	var invitation domain.AdminInvitation
+	var dbInvitation model.AdminInvitation
+	if token == "" {
+		return nil, errors.New("email cannot be empty")
+	}
+	err := r.db.WithContext(ctx).
+		Where("invitation_token = ? AND deleted_at IS NULL", token).
+		First(&dbInvitation).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrUserNotFound
+		}
+		return nil, fmt.Errorf("failed to get user by email: %w", err)
+	}
+
+	err = utils.TypeConverter(dbInvitation, &invitation)
+
+	if err != nil {
+		return nil, err
+	}
+	return &invitation, nil
+
 }
