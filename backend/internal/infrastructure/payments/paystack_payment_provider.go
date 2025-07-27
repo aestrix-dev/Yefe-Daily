@@ -40,14 +40,14 @@ func NewPaystackPaymentProvider(
 }
 
 func (uc *paystackPaymentProvider) CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error) {
-
+	amount := (int64(uc.paymentConfig.ProPlanPrice) * 1600) * 100
 	user, err := uc.adminUC.GetUserByID(ctx, req.UserID)
 	if err != nil {
 		return dto.CreatePaymentIntentResponse{}, domain.ErrUserNotFound
 	}
 	paystackReq := dto.PaystackInitializeRequest{
 		Email:    user.Email,
-		Amount:   int64(uc.paymentConfig.ProPlanPrice) * 100,
+		Amount:   amount,
 		Currency: "NGN",
 	}
 	paystackReq.Metadata.UserID = req.UserID
@@ -61,7 +61,7 @@ func (uc *paystackPaymentProvider) CreatePaymentIntent(ctx context.Context, req 
 	payment := &domain.Payment{
 		ID:              utils.GenerateID(),
 		UserID:          req.UserID,
-		Amount:          int64(uc.paymentConfig.ProPlanPrice) * 100,
+		Amount:          amount,
 		Currency:        "NGN",
 		Status:          "pending",
 		PaymentIntentID: paystackResp.Data.Reference,
