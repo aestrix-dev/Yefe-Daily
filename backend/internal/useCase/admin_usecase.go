@@ -174,7 +174,7 @@ func (uc *adminUserUseCase) InviteNewAdmin(ctx context.Context, invitation dto.A
 	}
 
 	// Send invitation email
-	invitationLink = fmt.Sprintf("%s/admin/accept-invitation?token=%s", invitationLink, token)
+	invitationLink = fmt.Sprintf("%s/setup-password?token=%s", invitationLink, token)
 	emailReq := dto.AdminInvitationEmailResponse{
 		AdminInvitationEmailRequest: invitation,
 		InvitationLink:              invitationLink,
