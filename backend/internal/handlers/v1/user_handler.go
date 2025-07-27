@@ -243,20 +243,24 @@ func (h *adminUserHandler) getPendingInvitations(w http.ResponseWriter, r *http.
 // @Summary Accept invitation
 // @Description Accept admin invitation and complete registration
 // @Tags Admin
-// @Param token query string true "Invitation token"
 // @Success 200
 // @Failure 400 {object} web.ErrorResponse
 // @Failure 404 {object} web.ErrorResponse
 // @Failure 500 {object} web.ErrorResponse
 // @Router /admin/invitations/accept [post]
 func (h *adminUserHandler) AcceptInvitation(w http.ResponseWriter, r *http.Request) {
-	token := r.URL.Query().Get("token")
-	if token == "" {
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invitation token is required", nil)
+	var req dto.AcceptInviteDTO
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
 
-	if err := h.adminUC.AcceptInvitation(r.Context(), token); err != nil {
+	if req.ConfirmPassword != req.Password {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Passwords do not match", nil)
+		return
+	}
+
+	if err := h.adminUC.AcceptInvitation(r.Context(), req); err != nil {
 		utils.HandleDomainError(w, err)
 		return
 	}

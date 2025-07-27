@@ -98,3 +98,9 @@ type UpdatePlanRequest struct {
 type AcceptNotificationRequest struct {
 	FcmToken string `json:"fcm_token" validate:"required"`
 }
+
+type AcceptInviteDTO struct {
+	ConfirmPassword string `json:"confirm_password" validate:"required,eqfield=Password"`
+	Password        string `json:"password" validate:"required,min=8"`
+	Token           string `json:"token" validate:"required`
+}

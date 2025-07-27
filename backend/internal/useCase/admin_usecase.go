@@ -206,50 +206,39 @@ func (uc *adminUserUseCase) GetPendingInvitations(ctx context.Context) ([]domain
 	return pendingInvitations, nil
 }
 
-func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationToken string) error {
+func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationRequst dto.AcceptInviteDTO) error {
 
-	// Get all invitations and find the one with matching token
-	invitations, err := uc.adminRepo.GetAdminInvitations(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to get invitations: %w", err)
-	}
-
-	var invitation *domain.AdminInvitation
-	for _, inv := range invitations {
-		if inv.InvitationToken == invitationToken {
-			invitation = &inv
-			break
-		}
-	}
-
-	if invitation == nil {
-		return fmt.Errorf("invitation not found")
+	invitation, err := uc.adminRepo.GetAdminInvitationByID(ctx, invitationRequst.Token)
+	if err == nil {
+		logger.Log.WithError(err).Error("Invitation not found")
+		return domain.ErrInvalidToken
 	}
 
 	// Check if invitation is still valid
 	if invitation.Status != "pending" {
-		return fmt.Errorf("invitation has already been %s", invitation.Status)
+		return domain.ErrInvalidToken
 	}
 
 	if invitation.ExpiresAt.Before(time.Now()) {
-		// Update status to expired
 		uc.adminRepo.UpdateInvitationStatus(ctx, invitation.ID, "expired")
-		return fmt.Errorf("invitation has expired")
+		return domain.ErrInvalidToken
 	}
 
 	// Check if user already exists
 	_, err = uc.userRepo.GetByEmail(ctx, invitation.Email)
 	if err == nil {
 		logger.Log.WithError(err).Error("User already exists")
-		return fmt.Errorf("user with email %s already exists", invitation.Email)
+		return domain.ErrUsernameAlreadyExists
 	}
-
+	salt := utils.GenerateSalt(utils.DefaultPasswordConfig.SaltLength)
+	password_hash := utils.HashPassword(invitationRequst.Password, salt, utils.DefaultPasswordConfig)
 	// Create the admin user
 	newUser := &domain.User{
-		ID:       utils.GenerateID(),
-		Email:    invitation.Email,
-		Role:     invitation.Role,
-		IsActive: true,
+		ID:           utils.GenerateID(),
+		Email:        invitation.Email,
+		Role:         invitation.Role,
+		PasswordHash: password_hash,
+		IsActive:     true,
 	}
 
 	err = uc.userRepo.CreateAdminUser(ctx, newUser, invitation.Role)
