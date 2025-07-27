@@ -41,6 +41,7 @@ func (j journalHandler) Handle() *chi.Mux {
 // CreateEntry handles POST /journal/entries
 func (h *journalHandler) CreateEntry(w http.ResponseWriter, r *http.Request) {
 	userID := getUserIDFromContext(r.Context())
+	user := getUserFromContext(r.Context())
 	if userID == "" {
 		utils.ErrorResponse(w, http.StatusUnauthorized, "Unauthorized", nil)
 		return
@@ -50,6 +51,12 @@ func (h *journalHandler) CreateEntry(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
+	}
+
+	if req.Type == "wisdom_note" && !user.IsYefePlusPlan() {
+		utils.ErrorResponse(w, http.StatusUnauthorized, "User cannot submit a wisdom note", nil)
+		return
+
 	}
 
 	entry, err := h.journalUseCase.CreateEntry(r.Context(), userID, req)
