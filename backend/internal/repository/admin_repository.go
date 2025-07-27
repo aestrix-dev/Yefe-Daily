@@ -11,7 +11,6 @@ import (
 	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
-	"github.com/prometheus/common/model"
 	"gorm.io/gorm"
 )
 
@@ -229,9 +228,9 @@ func (r *adminUserRepository) UpdateInvitationStatus(ctx context.Context, invita
 	return nil
 }
 
-func (r *userRepository) GetAdminInvitationByID(ctx context.Context, token string) (*domain.AdminInvitation, error) {
+func (r *adminUserRepository) GetAdminInvitationByID(ctx context.Context, token string) (*domain.AdminInvitation, error) {
 	var invitation domain.AdminInvitation
-	var dbInvitation model.AdminInvitation
+	var dbInvitation models.AdminInvitation
 	if token == "" {
 		return nil, errors.New("email cannot be empty")
 	}

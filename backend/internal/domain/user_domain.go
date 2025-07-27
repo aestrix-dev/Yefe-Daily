@@ -125,7 +125,7 @@ type AdminUserRepository interface {
 	// New methods for admin invitation
 	InviteAdmin(ctx context.Context, invitation AdminInvitation) error
 	GetAdminInvitations(ctx context.Context) ([]AdminInvitation, error)
-	GetAdminInvitationByID(ctx context.Context, token string) (AdminInvitation, error)
+	GetAdminInvitationByID(ctx context.Context, token string) (*AdminInvitation, error)
 	UpdateInvitationStatus(ctx context.Context, invitationID string, status string) error
 }
 type AdminUserUseCase interface {
