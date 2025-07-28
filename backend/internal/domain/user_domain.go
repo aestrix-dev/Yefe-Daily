@@ -28,6 +28,11 @@ type ActivityItem struct {
 	TimeAgo     string                  `json:"timeAgo"`
 }
 
+type MonthlyRegistrations struct {
+	Month string `json:"month"`
+	Count int    `json:"count"`
+}
+
 type QuickInsights struct {
 	PremiumConversionRate float64 `json:"premiumConversionRate"`
 	ActiveUsersToday      int     `json:"activeUsersToday"`
@@ -35,12 +40,14 @@ type QuickInsights struct {
 }
 
 type DashboardData struct {
-	TotalUsers         MetricData     `json:"totalUsers"`
-	PremiumSubscribers MetricData     `json:"premiumSubscribers"`
-	RecentActivity     []ActivityItem `json:"recentActivity"`
-	QuickInsights      QuickInsights  `json:"quickInsights"`
-	LastUpdated        time.Time      `json:"lastUpdated"`
+	TotalUsers            MetricData             `json:"totalUsers"`
+	PremiumSubscribers    MetricData             `json:"premiumSubscribers"`
+	RecentActivity        []ActivityItem         `json:"recentActivity"`
+	QuickInsights         QuickInsights          `json:"quickInsights"`
+	LastUpdated           time.Time              `json:"lastUpdated"`
+	MonthleyRegistrations []MonthlyRegistrations `json:"MonthleyRegistrations"`
 }
+
 type AdminInvitation struct {
 	ID              string    `json:"id"`
 	Email           string    `json:"email"`
@@ -127,19 +134,19 @@ type AdminUserRepository interface {
 	GetAdminInvitations(ctx context.Context) ([]AdminInvitation, error)
 	GetAdminInvitationByID(ctx context.Context, token string) (*AdminInvitation, error)
 	UpdateInvitationStatus(ctx context.Context, invitationID string, status string) error
+	GetMonthlyAnylics(ctx context.Context) ([]MonthlyRegistrations, error)
 }
 type AdminUserUseCase interface {
 	// Admin-specific operations
 	GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error)
-	//GetUserStats(ctx context.Context) (dto.UserStats, error)
 	UpdateUserStatus(ctx context.Context, userID string, status string) error
 	UpdateUserPlan(ctx context.Context, userID string, plan string) error
-	//GetDashboardData(ctx context.Context) (*DashboardData, error)
 	// New methods for admin invitation
 	InviteNewAdmin(ctx context.Context, req dto.AdminInvitationEmailRequest, invitedBy string) error
 	GetPendingInvitations(ctx context.Context) ([]AdminInvitation, error)
 	AcceptInvitation(ctx context.Context, invitationRequst dto.AcceptInviteDTO) error
 	GetUserByID(ctx context.Context, userID string) (*User, error)
+	GetMonthlyAnylics(ctx context.Context) ([]MonthlyRegistrations, error)
 }
 type AuthUseCase interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*User, error)

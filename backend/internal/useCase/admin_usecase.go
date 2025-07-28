@@ -30,6 +30,11 @@ func NewAdminUserUseCase(
 		emailService: emailService,
 	}
 }
+
+func (r *adminUserUseCase) GetMonthlyAnylics(ctx context.Context) ([]domain.MonthlyRegistrations, error) {
+	return r.adminRepo.GetMonthlyAnylics(ctx)
+}
+
 func (r *adminUserUseCase) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
 	return r.userRepo.GetByID(ctx, userID)
 }

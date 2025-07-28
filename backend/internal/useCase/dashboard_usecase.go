@@ -33,6 +33,7 @@ func (u *dashboardUsecase) GetDashboardData(ctx context.Context) (*domain.Dashbo
 	userStatsC := make(chan result, 1)
 	activityC := make(chan result, 1)
 	insightsC := make(chan result, 1)
+	monthlyRegC := make(chan result, 1)
 
 	// Fetch user stats
 	go func() {
@@ -52,31 +53,46 @@ func (u *dashboardUsecase) GetDashboardData(ctx context.Context) (*domain.Dashbo
 		insightsC <- result{insights, err}
 	}()
 
+	// Fetch monthly reg
+	go func() {
+		monthlyReg, err := u.adminUseCase.GetMonthlyAnylics(ctx)
+		monthlyRegC <- result{monthlyReg, err}
+	}()
+
 	// Receive results
 	userStatsRes := <-userStatsC
 	activityRes := <-activityC
 	insightsRes := <-insightsC
+	monthlyRes := <-monthlyRegC
 
 	if userStatsRes.err != nil {
 		return nil, fmt.Errorf("user stats error: %w", userStatsRes.err)
 	}
+
 	if activityRes.err != nil {
 		return nil, fmt.Errorf("activity fetch error: %w", activityRes.err)
 	}
+
 	if insightsRes.err != nil {
 		return nil, fmt.Errorf("insights error: %w", insightsRes.err)
+	}
+
+	if monthlyRes.err != nil {
+		return nil, fmt.Errorf("Could not get monthly reg error: %w", monthlyRes.err)
 	}
 
 	userStats := userStatsRes.data.(map[string]domain.MetricData)
 	activity := activityRes.data.([]domain.ActivityItem)
 	insights := insightsRes.data.(domain.QuickInsights)
+	monthlyReg := monthlyRes.data.([]domain.MonthlyRegistrations)
 
 	return &domain.DashboardData{
-		TotalUsers:         userStats["totalUsers"],
-		PremiumSubscribers: userStats["premiumSubscribers"],
-		RecentActivity:     activity,
-		QuickInsights:      insights,
-		LastUpdated:        time.Now(),
+		TotalUsers:            userStats["totalUsers"],
+		PremiumSubscribers:    userStats["premiumSubscribers"],
+		RecentActivity:        activity,
+		QuickInsights:         insights,
+		LastUpdated:           time.Now(),
+		MonthleyRegistrations: monthlyReg,
 	}, nil
 }
 
@@ -143,6 +159,7 @@ func (u *dashboardUsecase) getRegistrationStats(ctx context.Context, allUsers []
 	}
 	return trend, todayAvg
 }
+
 func (u *dashboardUsecase) getPremiumStats(ctx context.Context, allUsers []dto.User) (string, float64) {
 
 	now := time.Now()
@@ -178,6 +195,7 @@ func (u *dashboardUsecase) getPremiumStats(ctx context.Context, allUsers []dto.U
 	}
 	return trend, todayAvg
 }
+
 func (u *dashboardUsecase) getRecentActivity(ctx context.Context) ([]domain.ActivityItem, error) {
 	events, err := u.activityUseCase.GetRecentActivity(ctx, 10)
 	if err != nil {

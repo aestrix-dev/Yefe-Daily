@@ -27,6 +27,21 @@ func NewAdminUserRepository(db *gorm.DB, userRepo domain.UserRepository) domain.
 		userRepo: userRepo,
 	}
 }
+func (s *adminUserRepository) GetMonthlyAnylics(ctx context.Context) ([]domain.MonthlyRegistrations, error) {
+	var results []domain.MonthlyRegistrations
+
+	err := s.db.Model(&models.User{}).
+		Select("TO_CHAR(created_at, 'Mon') AS month, COUNT(DISTINCT id) AS count").
+		Group("DATE_TRUNC('month', created_at), month").
+		Order("DATE_TRUNC('month', created_at)").
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
 
 // GetAllUsers retrieves all users with filtering and pagination
 func (r *adminUserRepository) GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error) {
