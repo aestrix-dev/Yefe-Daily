@@ -19,13 +19,13 @@ import (
 )
 
 type ServerConfig struct {
-	DB           *gorm.DB
-	JWT_SECRET   string
-	AllowedHosts string
-	EmailService domain.EmailService
-	FMCService   *fire_base.FCMNotificationService
+	DB            *gorm.DB
+	JWT_SECRET    string
+	AllowedHosts  string
+	EmailService  domain.EmailService
+	FMCService    *fire_base.FCMNotificationService
+	PaymentConfig utils.PaymentConfig
 
-	PaymentConfig     utils.PaymentConfig
 	UserRepo          domain.UserRepository
 	SessionRepo       domain.SessionRepository
 	SecEventRepo      domain.SecurityEventRepository
@@ -38,6 +38,8 @@ type ServerConfig struct {
 	AdminRepo         domain.AdminUserRepository
 	SongRepo          domain.SongRepository
 	PaymentRepo       domain.PaymentRepository
+
+	DailyReflectionUsecase domain.DailyReflectionUseCase
 }
 
 func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
@@ -105,6 +107,7 @@ func NewRouter(config ServerConfig) http.Handler {
 	})
 	user_activity_handler := handlers.NewUserEventsHandler(config.user_activity_usecase())
 	dashboard_handler := handlers.NewDashboardHandler(config.dashboard_usecase())
+	dailyRefelction_handler := handlers.NewDailyreflectionHandler(config.DailyReflectionUsecase)
 
 	r := chi.NewRouter()
 
@@ -144,6 +147,7 @@ func NewRouter(config ServerConfig) http.Handler {
 		r.Post("/accept-invitation", admin_user_handelrs.AcceptInvitation)
 		r.Post("/webhooks/stripe", payments_handler.StripeWebhook)
 		r.Post("/webhooks/paystack", payments_handler.PaystackWebhook)
+		r.Get("/reflection", dailyRefelction_handler.GetTodaysReflection)
 	})
 
 	return r
