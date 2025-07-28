@@ -43,7 +43,21 @@ All endpoints are prefixed with `/v1`.
                 "active_users_today": 1200,
                 "pending_invitations": 5
             },
-            "last_updated": "2025-07-21T12:00:00Z"
+                        "last_updated": "2025-07-21T12:00:00Z",
+            "monthly_registrations": [
+                {
+                    "month": "January",
+                    "count": 100
+                },
+                {
+                    "month": "February",
+                    "count": 150
+                },
+                {
+                    "month": "March",
+                    "count": 200
+                }
+            ]
         }
     }
     ```
