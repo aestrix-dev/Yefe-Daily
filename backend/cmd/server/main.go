@@ -12,6 +12,7 @@ import (
 	"time"
 	"yefe_app/v1/internal/infrastructure"
 	"yefe_app/v1/internal/repository"
+	usecase "yefe_app/v1/internal/useCase"
 	"yefe_app/v1/pkg/cache"
 	"yefe_app/v1/pkg/logger"
 	service "yefe_app/v1/pkg/services"
@@ -29,6 +30,7 @@ func main() {
 	pathToPuzzles := path.Join(basePath, "extras", "puzzles.json")
 	pathToChallenges := path.Join(basePath, "extras", "challenges.json")
 	pathToSongs := path.Join(basePath, "extras", "mood_music_catalog.json")
+	pathToReflections := path.Join(basePath, "extras", "daily_reflection.json")
 	firebasedb := path.Join(basePath, "extras", "firebase.db")
 
 	// Load configuration
@@ -101,6 +103,11 @@ func main() {
 		logger.Log.WithError(err).Fatal("Failed to load challenges")
 		return
 	}
+	dailyRelectionUsecase, err := usecase.NewDailyReflectionUseCase(pathToReflections, inmemeoryCache)
+	if err != nil {
+		logger.Log.WithError(err).Fatal("Failed to load reflections")
+		return
+	}
 	userChallengeRepo := repository.NewUserChallengeRepository(db)
 	statsRepo := repository.NewChallengeStatsRepository(db)
 	songRepo, err := repository.NewJSONMusicRepository(pathToSongs)
@@ -112,58 +119,56 @@ func main() {
 	}
 	paymentRepo := repository.NewPaymentRepository(db)
 
-	scheduler.AddJob("set-daily-puzzle", "Daily Puzzly", utils.DAILY, func(ctx context.Context) error {
-		_, ok := inmemeoryCache.Get("daily-puzzle")
-		if !ok {
-			puzzle, err := puzzleRepo.GetRandomPuzzle()
+	reflection := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-reflection", func() any {
+		ref := dailyRelectionUsecase.GetRandomDailyReflection()
+		if err != nil {
+			logger.Log.WithError(err).Error("Could not generate daily refletion")
+			return err
+		}
+		return ref
+	}, 24*time.Hour)
+
+	logger.Log.WithFields(map[string]any{
+		"ID":   reflection,
+		"date": time.Now().String(),
+	}).Debug("Created new daily reflection")
+
+	err = scheduler.AddJob("set-daily-reflection", "Daily reflection", utils.DAILY, func(ctx context.Context) error {
+		reflection := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-reflection", func() any {
+			ref := dailyRelectionUsecase.GetRandomDailyReflection()
 			if err != nil {
-				logger.Log.WithError(err).Error("Could not generate daily puzzle")
+				logger.Log.WithError(err).Error("Could not generate daily refletion")
 				return err
 			}
-			logger.Log.WithFields(map[string]any{
-				"ID":   puzzle.ID,
-				"date": time.Now().String(),
-			}).Debug("Created new daily puzzle")
-			inmemeoryCache.SetWithTTLAndContext(serverCtx, "daily-puzzle", puzzle, 24*time.Hour)
-		}
-		return nil
-	})
+			return ref
+		}, 24*time.Hour)
 
-	scheduler.AddJob("set-daily-challenges", "Daily Challenges", utils.DAILY, func(ctx context.Context) error {
-		_, ok := inmemeoryCache.Get("daily-challenge")
-		if !ok {
-			challenge := challengeRepo.GetRandomChallange() // TODO this should also return an error
-			logger.Log.WithFields(map[string]any{
-				"ID":   challenge.ID,
-				"date": time.Now().String(),
-			}).Debug("Created new daily challenge")
-			err := challengeRepo.CreateChallenge(&challenge)
-			if err != nil {
-				logger.Log.WithError(err).Error("Could not create challenge puzzle")
-			}
-			inmemeoryCache.SetWithTTLAndContext(serverCtx, "daily-challenge", challenge, 24*time.Hour)
-		}
+		logger.Log.WithFields(map[string]any{
+			"ID":   reflection,
+			"date": time.Now().String(),
+		}).Debug("Created new daily reflection")
 		return nil
 	})
 
 	serverConfig := infrastructure.ServerConfig{
-		DB:                db,
-		AllowedHosts:      config.Server.AllowedHosts,
-		JWT_SECRET:        config.Server.Secret,
-		EmailService:      emailService,
-		PaymentConfig:     paymentConfig,
-		UserRepo:          userRepo,
-		SessionRepo:       sessionRepo,
-		SecEventRepo:      secEventRepo,
-		JournalRepo:       journalRepo,
-		UserPuzzleRepo:    userPuzzledRepo,
-		PuzzleRepo:        puzzleRepo,
-		ChallengeRepo:     challengeRepo,
-		UserChallengeRepo: userChallengeRepo,
-		StatsRepo:         statsRepo,
-		AdminRepo:         adminRepo,
-		SongRepo:          songRepo,
-		PaymentRepo:       paymentRepo,
+		DB:                     db,
+		AllowedHosts:           config.Server.AllowedHosts,
+		JWT_SECRET:             config.Server.Secret,
+		EmailService:           emailService,
+		PaymentConfig:          paymentConfig,
+		UserRepo:               userRepo,
+		SessionRepo:            sessionRepo,
+		SecEventRepo:           secEventRepo,
+		JournalRepo:            journalRepo,
+		UserPuzzleRepo:         userPuzzledRepo,
+		PuzzleRepo:             puzzleRepo,
+		ChallengeRepo:          challengeRepo,
+		UserChallengeRepo:      userChallengeRepo,
+		StatsRepo:              statsRepo,
+		AdminRepo:              adminRepo,
+		SongRepo:               songRepo,
+		PaymentRepo:            paymentRepo,
+		DailyReflectionUsecase: dailyRelectionUsecase,
 	}
 
 	fcmService, err := fire_base.NewFCMNotificationService(serverCtx, db, serverStopCtx, fmcConfig, serverConfig.AdminUserUsecase(), scheduler)
