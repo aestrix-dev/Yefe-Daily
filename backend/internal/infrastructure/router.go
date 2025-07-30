@@ -129,7 +129,7 @@ func NewRouter(config ServerConfig) http.Handler {
 	r.Route("/v1", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(config.auth_middleware().RequireAuth)
-			r.Post("/me", auth_handlers.Me)
+			r.Get("/me", auth_handlers.Me)
 			r.Post("/auth/logout", auth_handlers.LogoutRoute)
 			r.Post("/auth/accept", auth_handlers.AcceptNotifications)
 			r.Mount("/journal", journal_handlers.Handle())

@@ -2,7 +2,7 @@
 
 Retrieves the authenticated user's profile information.
 
-**Endpoint:** `POST /v1/me`
+**Endpoint:** `GET /v1/me`
 
 **Authentication:** Required. The user must be authenticated to access this endpoint.
 
