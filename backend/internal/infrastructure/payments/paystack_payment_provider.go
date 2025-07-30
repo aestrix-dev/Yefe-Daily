@@ -51,7 +51,7 @@ func (uc *paystackPaymentProvider) CreatePaymentIntent(ctx context.Context, req 
 		Currency: "NGN",
 	}
 	paystackReq.Metadata["UserID"] = req.UserID
-	paystackReq.Metadata["FROM"] = "app"
+	paystackReq.Metadata["FROM"] = "mobile_app"
 
 	paystackResp, err := uc.paystackClient.InitializeTransaction(ctx, paystackReq)
 	if err != nil {
