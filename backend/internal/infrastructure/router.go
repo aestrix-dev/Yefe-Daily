@@ -74,9 +74,7 @@ func (conf ServerConfig) challenges_usecase() domain.ChallengeUseCase {
 func (conf ServerConfig) dashboard_usecase() domain.DashboardUsecase {
 	return usecase.NewDashboardUsecase(conf.AdminUserUsecase(), conf.user_activity_usecase())
 }
-func (conf ServerConfig) auth_middleware() *middlewares.AuthMiddleware {
-	return middlewares.NewAuthMiddleware(conf.JWT_SECRET, conf.SessionRepo, conf.UserRepo, conf.SecEventRepo)
-}
+
 func (conf ServerConfig) paystack_payemnt() domain.PaymentProvider {
 	paystackClient := service.NewpaystackClient(conf.PaymentConfig.PaystackPrivateKey)
 	return payments.NewPaystackPaymentProvider(conf.PaymentRepo, conf.EmailService, conf.AdminUserUsecase(), paystackClient, conf.SecEventRepo, conf.PaymentConfig)
@@ -84,6 +82,14 @@ func (conf ServerConfig) paystack_payemnt() domain.PaymentProvider {
 
 func (conf ServerConfig) stripe_payemnt() domain.PaymentProvider {
 	return payments.NewStripePaymentProvider(conf.PaymentRepo, conf.AdminUserUsecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo)
+}
+
+func (conf ServerConfig) auth_middleware() *middlewares.AuthMiddleware {
+	return middlewares.NewAuthMiddleware(conf.JWT_SECRET, conf.SessionRepo, conf.UserRepo, conf.SecEventRepo)
+}
+
+func (conf ServerConfig) paystack_middleware() *middlewares.PaystackWebHookMiddleware {
+	return middlewares.NewPaystackMiddleware(conf.PaymentConfig.StorePaystackWebhookURL, conf.PaymentConfig.PaystackPrivateKey)
 }
 
 func (conf ServerConfig) getAllowedDomains() []string {
@@ -141,12 +147,16 @@ func NewRouter(config ServerConfig) http.Handler {
 			r.Mount("/dashboard", dashboard_handler.Handle())
 		})
 
+		r.Group(func(r chi.Router) {
+			r.Use(config.paystack_middleware().Handle)
+			r.Post("/webhooks/paystack", payments_handler.PaystackWebhook)
+		})
+
 		// auth routes
 		r.Post("/auth/login", auth_handlers.LoginRoute)
 		r.Post("/auth/register", auth_handlers.RegisterRoute)
 		r.Post("/accept-invitation", admin_user_handelrs.AcceptInvitation)
 		r.Post("/webhooks/stripe", payments_handler.StripeWebhook)
-		r.Post("/webhooks/paystack", payments_handler.PaystackWebhook)
 		r.Get("/reflection", dailyRefelction_handler.GetTodaysReflection)
 	})
 

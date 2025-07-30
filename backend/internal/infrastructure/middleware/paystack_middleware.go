@@ -14,17 +14,17 @@ import (
 	"yefe_app/v1/pkg/logger"
 )
 
-type paystackWebHookMiddleware struct {
+type PaystackWebHookMiddleware struct {
 	webbhookUrl string
 	secretKey   string
 	client      *http.Client
 }
 
-func NewPaystackMiddleware(webhookUrl string, secretkey string) *paystackWebHookMiddleware {
-	return &paystackWebHookMiddleware{webbhookUrl: webhookUrl, secretKey: secretkey, client: &http.Client{}}
+func NewPaystackMiddleware(webhookUrl string, secretkey string) *PaystackWebHookMiddleware {
+	return &PaystackWebHookMiddleware{webbhookUrl: webhookUrl, secretKey: secretkey, client: &http.Client{}}
 }
 
-func (m paystackWebHookMiddleware) Handle(next http.Handler) http.Handler {
+func (m PaystackWebHookMiddleware) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Only handle POST requests
 		if r.Method != http.MethodPost {
@@ -75,7 +75,7 @@ func (m paystackWebHookMiddleware) Handle(next http.Handler) http.Handler {
 	})
 }
 
-func (w *paystackWebHookMiddleware) verifySignature(payload []byte, signature string) bool {
+func (w *PaystackWebHookMiddleware) verifySignature(payload []byte, signature string) bool {
 	if w.secretKey == "" {
 		log.Println("Warning: Paystack secret key not set")
 		return false
@@ -88,7 +88,7 @@ func (w *paystackWebHookMiddleware) verifySignature(payload []byte, signature st
 	return hmac.Equal([]byte(expectedSignature), []byte(signature))
 }
 
-func (w *paystackWebHookMiddleware) shouldProcessLocally(webhookData dto.PaystackWebhookEvent) bool {
+func (w *PaystackWebHookMiddleware) shouldProcessLocally(webhookData dto.PaystackWebhookEvent) bool {
 	if from, ok := webhookData.Data.Metadata["FROM"]; ok {
 		fromStr, ok := from.(string)
 		return ok && fromStr == "mobile_app"
@@ -97,7 +97,7 @@ func (w *paystackWebHookMiddleware) shouldProcessLocally(webhookData dto.Paystac
 }
 
 // forwardToFallback forwards the request to the fallback server
-func (w *paystackWebHookMiddleware) forwardToFallback(originalReq *http.Request, payload []byte) error {
+func (w *PaystackWebHookMiddleware) forwardToFallback(originalReq *http.Request, payload []byte) error {
 	if w.webbhookUrl == "" {
 		return fmt.Errorf("fallback URL not configured")
 	}
