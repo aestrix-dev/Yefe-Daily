@@ -38,6 +38,7 @@ payment_config:
   stripe_secret_key: ${STRIPE_SECRET_KEY}
   pro_plan_price: 5
   paystack_private_key: ${PAYSTACK_API_KEY}
+  store_paystack_webhookURL: ${PAYSTACK_WEBHOOK_URL}
 
 firebase_config:
   type: ${FIREBASE_TYPE}

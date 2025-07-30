@@ -91,9 +91,10 @@ type (
 		RetryDelay    time.Duration `yaml:"retry_delay"`
 	}
 	PaymentConfig struct {
-		SecretKey          string `yaml:"stripe_secret_key"`
-		PaystackPrivateKey string `yaml:"paystack_private_key"`
-		ProPlanPrice       int8   `yaml:"pro_plan_price"`
+		SecretKey               string `yaml:"stripe_secret_key"`
+		PaystackPrivateKey      string `yaml:"paystack_private_key"`
+		ProPlanPrice            int8   `yaml:"pro_plan_price"`
+		StorePaystackWebhookURL string `yaml:"store_paystack_webhookURL"`
 	}
 )
 
