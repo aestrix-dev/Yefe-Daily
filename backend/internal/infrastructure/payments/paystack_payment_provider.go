@@ -50,7 +50,8 @@ func (uc *paystackPaymentProvider) CreatePaymentIntent(ctx context.Context, req 
 		Amount:   amount,
 		Currency: "NGN",
 	}
-	paystackReq.Metadata.UserID = req.UserID
+	paystackReq.Metadata["UserID"] = req.UserID
+	paystackReq.Metadata["FROM"] = "app"
 
 	paystackResp, err := uc.paystackClient.InitializeTransaction(ctx, paystackReq)
 	if err != nil {
@@ -199,7 +200,7 @@ func (u *paystackPaymentProvider) handlePaystackChargeSuccess(ctx context.Contex
 	}
 
 	// Handle package upgrade
-	if event.Data.Metadata.PackageID != "" {
+	if event.Data.Metadata["PackageID"] != "" {
 		err = u.adminUC.UpdateUserPlan(ctx, payment.UserID, "yefe_plus")
 		if err != nil {
 			logger.Log.WithError(err).Errorf("Could not update user %s plan", payment.UserID)

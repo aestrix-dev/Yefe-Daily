@@ -1,14 +1,11 @@
 package dto
 
 type PaystackInitializeRequest struct {
-	Email    string `json:"email"`
-	Amount   int64  `json:"amount"` // Amount in kobo (Nigerian cents)
-	Currency string `json:"currency,omitempty"`
-	Callback string `json:"callback_url,omitempty"`
-	Metadata struct {
-		UserID    string `json:"user_id"`
-		PackageID string `json:"package_id,omitempty"`
-	} `json:"metadata"`
+	Email    string         `json:"email"`
+	Amount   int64          `json:"amount"` // Amount in kobo (Nigerian cents)
+	Currency string         `json:"currency,omitempty"`
+	Callback string         `json:"callback_url,omitempty"`
+	Metadata map[string]any `json:"metadata"`
 }
 
 type PaystackInitializeResponse struct {
@@ -59,10 +56,7 @@ type PaystackVerifyResponse struct {
 			Reusable          bool   `json:"reusable"`
 			Signature         string `json:"signature"`
 		} `json:"authorization"`
-		Metadata struct {
-			UserID    string `json:"user_id"`
-			PackageID string `json:"package_id"`
-		} `json:"metadata"`
+		Metadata map[string]any `json:"metadata"`
 	} `json:"data"`
 }
 
@@ -103,9 +97,6 @@ type PaystackWebhookEvent struct {
 			Reusable          bool   `json:"reusable"`
 			Signature         string `json:"signature"`
 		} `json:"authorization"`
-		Metadata struct {
-			UserID    string `json:"user_id"`
-			PackageID string `json:"package_id"`
-		} `json:"metadata"`
+		Metadata map[string]any `json:"metadata"`
 	} `json:"data"`
 }
