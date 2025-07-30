@@ -81,7 +81,7 @@ func (h *adminUserHandler) getUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.adminUC.GetUserByID(r.Context(), userID)
 
 	if err != nil {
-		logger.Log.WithError(err).Error("Failed to get user")
+		logger.Log.WithError(err).Error("Failed to get admin user")
 		utils.ErrorResponse(w, http.StatusNotFound, "Failed to get user", nil)
 		return
 	}
@@ -130,6 +130,7 @@ func (h *adminUserHandler) listUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := h.adminUC.GetAllUsers(r.Context(), filter)
 	if err != nil {
+		logger.Log.WithError(err).Error("Failed to get users")
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get users", nil)
 		return
 	}
@@ -161,6 +162,7 @@ func (h *adminUserHandler) updateUserStatus(w http.ResponseWriter, r *http.Reque
 	}
 
 	if err := h.adminUC.UpdateUserStatus(r.Context(), userID, req.Status); err != nil {
+		logger.Log.WithError(err).Error("Could not update user")
 		utils.HandleDomainError(w, err)
 		return
 	}
@@ -192,6 +194,7 @@ func (h *adminUserHandler) updateUserPlan(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := h.adminUC.UpdateUserPlan(r.Context(), userID, req.Plan); err != nil {
+		logger.Log.WithError(err).Error("Failed to update user plan")
 		utils.HandleDomainError(w, err)
 		return
 	}
@@ -217,6 +220,7 @@ func (h *adminUserHandler) inviteNewAdmin(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := h.adminUC.InviteNewAdmin(r.Context(), req, userID); err != nil {
+		logger.Log.WithError(err).Error("Failed to send invite")
 		utils.HandleDomainError(w, err)
 		return
 	}
@@ -233,6 +237,7 @@ func (h *adminUserHandler) inviteNewAdmin(w http.ResponseWriter, r *http.Request
 func (h *adminUserHandler) getPendingInvitations(w http.ResponseWriter, r *http.Request) {
 	invitations, err := h.adminUC.GetPendingInvitations(r.Context())
 	if err != nil {
+		logger.Log.WithError(err).Error("Failed to get pending invites")
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get pending invitations", nil)
 		return
 	}
