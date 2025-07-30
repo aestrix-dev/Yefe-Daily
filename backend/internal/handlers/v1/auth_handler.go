@@ -16,6 +16,20 @@ type AuthHandler struct {
 	validator   *validator.Validate
 }
 
+func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
+	var dtoUser dto.User
+	user := getUserFromContext(r.Context())
+
+	err := utils.TypeConverter(user, &dtoUser)
+	if err != nil {
+		logger.Log.WithError(err).Error("Failed to get user")
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get users", nil)
+		return
+	}
+
+	utils.SuccessResponse(w, http.StatusOK, "user", user)
+}
+
 // Login handles user login
 func (a AuthHandler) LoginRoute(w http.ResponseWriter, r *http.Request) {
 	var req dto.LoginRequest
