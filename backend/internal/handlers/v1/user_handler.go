@@ -24,7 +24,7 @@ func NewAdminUserHandler(adminUC domain.AdminUserUseCase) *adminUserHandler {
 func (h *adminUserHandler) Handle() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/", h.listUsers)
-	router.Get("/{userID}", h.listUsers)
+	router.Get("/{userID}", h.getUser)
 	router.Get("/admins", h.getUser)
 	router.Put("/{userID}/status", h.updateUserStatus)
 	router.Put("/{userID}/plan", h.updateUserPlan)
