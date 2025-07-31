@@ -253,3 +253,21 @@ func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationRequ
 
 	return nil
 }
+
+func (uc *adminUserUseCase) DeleteUser(ctx context.Context, userID string) error {
+	// Check if user exists
+	_, err := uc.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, domain.ErrUserNotFound) {
+			return domain.ErrUserNotFound
+		}
+		return errors.New("failed to fetch user")
+	}
+
+	// Delete user
+	if err := uc.userRepo.Delete(ctx, userID); err != nil {
+		return errors.New("failed to delete user")
+	}
+
+	return nil
+}
