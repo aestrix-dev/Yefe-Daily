@@ -58,12 +58,6 @@ func (uc *adminUserUseCase) UpdateUserStatus(
 	userID string,
 	status string,
 ) error {
-	// Validate status input
-	validStatuses := map[string]bool{"active": true, "suspended": true, "deactivated": true}
-	if !validStatuses[status] {
-		return domain.ErrInvalidUserStatus
-	}
-
 	// Get current user data
 	user, err := uc.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -74,15 +68,14 @@ func (uc *adminUserUseCase) UpdateUserStatus(
 	}
 
 	// Prevent redundant updates
-	if (status == "active" && user.IsActive) ||
-		(status == "suspended" && !user.IsActive) {
+	user_active := user.IsActive
+	if (status == "active" && !user_active) ||
+		(status == "suspended" && !user_active) {
 		return nil // No change needed
 	}
 
 	// Update status
-	user.IsActive = (status == "active")
-
-	// Persist changes
+	user.IsActive = (status == "activate") // Persist changes
 	if err := uc.userRepo.Update(ctx, user); err != nil {
 		return errors.New("failed to update user status")
 	}
@@ -243,7 +236,6 @@ func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationRequ
 		Email:        invitation.Email,
 		Role:         invitation.Role,
 		PasswordHash: password_hash,
-		IsActive:     true,
 	}
 
 	err = uc.userRepo.CreateAdminUser(ctx, newUser, invitation.Role)
