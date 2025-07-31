@@ -74,7 +74,6 @@ func (a *authUseCase) Register(ctx context.Context, req dto.RegisterRequest) (*d
 		Name:         strings.TrimSpace(req.Name),
 		PasswordHash: passwordHash,
 		Salt:         salt,
-		IsActive:     true,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 	}
