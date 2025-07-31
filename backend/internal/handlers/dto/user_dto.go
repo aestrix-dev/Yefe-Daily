@@ -87,7 +87,7 @@ type UserListResponse struct {
 
 // UpdateStatusRequest for updating user status
 type UpdateStatusRequest struct {
-	Status string `json:"status" validate:"required,oneof=active suspended deactivated"`
+	Status string `json:"status" validate:"required,oneof=activte suspend deactivate"`
 }
 
 // UpdatePlanRequest for updating user plan
