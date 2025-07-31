@@ -147,6 +147,7 @@ type AdminUserUseCase interface {
 	AcceptInvitation(ctx context.Context, invitationRequst dto.AcceptInviteDTO) error
 	GetUserByID(ctx context.Context, userID string) (*User, error)
 	GetMonthlyAnylics(ctx context.Context) ([]MonthlyRegistrations, error)
+	DeleteUser(ctx context.Context, userID string) error
 }
 type AuthUseCase interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*User, error)
