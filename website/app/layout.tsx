@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 import AOSProvider from "@/components/aos-provider";
+import { ToastProvider } from "@/components/toast-provider";
+import { AuthInitializer } from "@/components/auth-initializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -107,7 +109,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+        {/* <link rel="manifest" href="/site.webmanifest" /> */}
         <meta name="theme-color" content="#000000" /> 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
@@ -139,9 +141,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${lato.variable} antialiased font-lato`}
       >
+        <AuthInitializer>
         <AOSProvider>
           {children}
+        <ToastProvider />
         </AOSProvider>
+        </AuthInitializer>
       </body>
     </html>
   );

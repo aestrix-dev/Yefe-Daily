@@ -1,4 +1,5 @@
 import { LoginForm } from "@/components/login-form"
+import { SetPassword } from "@/components/set-password"
 
 export default function Page() {
   return (
@@ -11,7 +12,7 @@ export default function Page() {
       
       {/* Content */}
       <div className="relative z-10 w-full max-w-sm">
-        <LoginForm />
+        <SetPassword />
       </div>
     </div>
   )
