@@ -44,7 +44,7 @@ All endpoints are prefixed with `/v1`.
 
 ### Get User by ID
 
-- **Endpoint:** `GET /admin/users/{userID}`
+- **Endpoint:** `GET /admin/{userID}`
 - **Description:** Retrieves a single user by their ID.
 - **Path Parameters:**
     - `userID` (string, required): The ID of the user to retrieve.
@@ -86,7 +86,7 @@ All endpoints are prefixed with `/v1`.
 
 ### Update User Status
 
-- **Endpoint:** `PUT /admin/users/{userID}/status`
+- **Endpoint:** `PUT /admin/{userID}/status`
 - **Description:** Updates the status of a user's account.
 - **Path Parameters:**
     - `userID` (string, required): The ID of the user to update.
@@ -100,7 +100,7 @@ All endpoints are prefixed with `/v1`.
 
 ### Update User Plan
 
-- **Endpoint:** `PUT /admin/users/{userID}/plan`
+- **Endpoint:** `PUT /admin/{userID}/plan`
 - **Description:** Updates the subscription plan of a user.
 - **Path Parameters:**
     - `userID` (string, required): The ID of the user to update.
@@ -114,7 +114,7 @@ All endpoints are prefixed with `/v1`.
 
 ### Delete User
 
-- **Endpoint:** `DELETE /admin/users/{userID}`
+- **Endpoint:** `DELETE /admin/{userID}`
 - **Description:** Deletes a user account.
 - **Path Parameters:**
     - `userID` (string, required): The ID of the user to delete.
