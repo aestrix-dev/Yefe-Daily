@@ -30,7 +30,33 @@ func (h *adminUserHandler) Handle() *chi.Mux {
 	router.Put("/{userID}/plan", h.updateUserPlan)
 	router.Post("/invite", h.inviteNewAdmin)
 	router.Get("/invitations", h.getPendingInvitations)
+	router.Delete("/{userID}", h.deleteUser)
 	return router
+}
+
+// @Summary Delete user
+// @Description Delete a user account
+// @Tags Admin
+// @Param userID path string true "User ID"
+// @Success 204
+// @Failure 400 {object} web.ErrorResponse
+// @Failure 404 {object} web.ErrorResponse
+// @Failure 500 {object} web.ErrorResponse
+// @Router /admin/users/{userID} [delete]
+func (h *adminUserHandler) deleteUser(w http.ResponseWriter, r *http.Request) {
+	userID := chi.URLParam(r, "userID")
+	if userID == "" {
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid user ID", nil)
+		return
+	}
+
+	if err := h.adminUC.DeleteUser(r.Context(), userID); err != nil {
+		logger.Log.WithError(err).Error("Could not delete user")
+		utils.HandleDomainError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // @Summary List users
