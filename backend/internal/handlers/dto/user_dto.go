@@ -87,7 +87,7 @@ type UserListResponse struct {
 
 // UpdateStatusRequest for updating user status
 type UpdateStatusRequest struct {
-	Status string `json:"status" validate:"required,oneof=activte suspend deactivate"`
+	Status string `json:"status" validate:"required,oneof=activte suspend"`
 }
 
 // UpdatePlanRequest for updating user plan
@@ -102,5 +102,5 @@ type AcceptNotificationRequest struct {
 type AcceptInviteDTO struct {
 	ConfirmPassword string `json:"confirm_password" validate:"required,eqfield=Password"`
 	Password        string `json:"password" validate:"required,min=8"`
-	Token           string `json:"token" validate:"required`
+	Token           string `json:"token" validate:"required"`
 }

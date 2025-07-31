@@ -170,8 +170,8 @@ func (r *adminUserRepository) GetUserStats(ctx context.Context) (dto.UserStats, 
 }
 
 // UpdateUserStatus updates a user's status
-func (r *adminUserRepository) UpdateUserStatus(ctx context.Context, userID string, status string) error {
-	result := r.db.WithContext(ctx).Model(models.User{}).Where("id = ?", userID).Update("status", status)
+func (r *adminUserRepository) UpdateUserStatus(ctx context.Context, userID string, status bool) error {
+	result := r.db.WithContext(ctx).Model(models.User{}).Where("id = ?", userID).Select("is_active").Update("is_active", status)
 	if result.Error != nil {
 		return result.Error
 	}

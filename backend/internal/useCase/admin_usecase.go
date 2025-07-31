@@ -73,10 +73,7 @@ func (uc *adminUserUseCase) UpdateUserStatus(
 		(status == "suspended" && !user_active) {
 		return nil // No change needed
 	}
-
-	// Update status
-	user.IsActive = (status == "activate") // Persist changes
-	if err := uc.userRepo.Update(ctx, user); err != nil {
+	if err := uc.adminRepo.UpdateUserStatus(ctx, user.ID, (status == "activate")); err != nil {
 		return errors.New("failed to update user status")
 	}
 

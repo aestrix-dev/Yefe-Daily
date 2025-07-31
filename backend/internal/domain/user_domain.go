@@ -127,7 +127,7 @@ type UserProfileRepository interface {
 type AdminUserRepository interface {
 	GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error)
 	GetUserStats(ctx context.Context) (dto.UserStats, error)
-	UpdateUserStatus(ctx context.Context, userID string, status string) error
+	UpdateUserStatus(ctx context.Context, userID string, status bool) error
 	UpdateUserPlan(ctx context.Context, userID string, plan string) error
 	// New methods for admin invitation
 	InviteAdmin(ctx context.Context, invitation AdminInvitation) error
