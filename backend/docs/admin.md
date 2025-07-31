@@ -93,7 +93,7 @@ All endpoints are prefixed with `/v1`.
 - **Request Body:**
     ```json
     {
-        "status": "suspended"
+        "status": "suspend"
     }
     ```
 - **Successful Response:** `204 No Content`
