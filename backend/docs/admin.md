@@ -112,6 +112,14 @@ All endpoints are prefixed with `/v1`.
     ```
 - **Successful Response:** `204 No Content`
 
+### Delete User
+
+- **Endpoint:** `DELETE /admin/users/{userID}`
+- **Description:** Deletes a user account.
+- **Path Parameters:**
+    - `userID` (string, required): The ID of the user to delete.
+- **Successful Response:** `204 No Content`
+
 ---
 
 ## Admin Invitations
