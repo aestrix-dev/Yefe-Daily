@@ -412,6 +412,35 @@ func (r *userRepository) IsUsernameTaken(ctx context.Context, username string, e
 	return count > 0, nil
 }
 
+// Delete soft deletes a user
+func (r *userRepository) Delete(ctx context.Context, id string) error {
+	if id == "" {
+		return errors.New("id cannot be empty")
+	}
+
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// Soft delete user
+		result := tx.Delete(&models.User{}, "id = ?", id)
+		if result.Error != nil {
+			return fmt.Errorf("failed to delete user: %w", result.Error)
+		}
+
+		if result.RowsAffected == 0 {
+			return domain.ErrUserNotFound
+		}
+
+		// Deactivate all sessions
+		tx.Model(&models.Session{}).
+			Where("user_id = ?", id).
+			Update("is_active", false)
+
+		// Log security event
+		r.secEventRepository.LogSecurityEvent(ctx, id, types.EventAccountDeleted, "", "", nil)
+
+		return nil
+	})
+}
+
 // isDuplicateError checks if error is due to duplicate key constraint
 func (r *userRepository) isDuplicateError(err error) bool {
 	if err == nil {
