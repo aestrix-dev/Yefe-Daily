@@ -103,7 +103,7 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 
 	// Check if session has expired
 	if session.ExpiresAt.Before(time.Now()) {
-		logger.Log.Errorf("Session expired: ", sessionID)
+		logger.Log.Errorf("Session expired: %s", sessionID)
 		return nil, nil, domain.ErrSessionExpired
 	}
 
@@ -113,7 +113,8 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 	}
 
 	// Check if user is active
-	if !user.IsActive {
+	user_active := user.IsActive
+	if !user_active {
 		m.secEventRepo.LogSecurityEvent(r.Context(), user.ID, types.EventAuthFailed, "", "", types.JSONMap{
 			"reason": "user_inactive",
 		})
