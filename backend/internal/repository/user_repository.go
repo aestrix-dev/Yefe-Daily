@@ -168,7 +168,7 @@ func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 		// Update user
 		result := tx.Model(&dbUser).
 			Where("id = ? AND deleted_at IS NULL", user.ID).
-			Updates(dbUser)
+			Updates(dbUser).Select("is_active").Update("is_active", dbUser.IsActive)
 
 		if result.Error != nil {
 			if r.isDuplicateError(result.Error) {
@@ -332,7 +332,6 @@ func (r *userRepository) CreateAdminUser(ctx context.Context, user *domain.User,
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// Set admin-specific fields
 		user.Role = role
-		user.IsActive = true
 		user.IsEmailVerified = true // Admins are pre-verified
 
 		err := utils.TypeConverter(user, &dbuser)
