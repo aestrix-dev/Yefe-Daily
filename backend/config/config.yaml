@@ -6,6 +6,8 @@ server:
   invite_url: ${INVITE_URL}
   environment: ${ENV}
   allowed_hosts: ${ALLOWED_HOSTS}
+  super_admin_email: ${SUPER_ADMIN_EMAIL}
+  super_admin_password: ${SUPER_ADMIN_PASSWORD}
 
 persistence:
   postgres:

@@ -56,13 +56,15 @@ type (
 	}
 
 	ServerSettings struct {
-		Name         string `yaml:"name"`
-		Port         int    `yaml:"port"`
-		Host         string `yaml:"host"`
-		Secret       string `yaml:"secret"`
-		InviteURL    string `yaml:"invite_url"`
-		Env          string `yaml:"environment"`
-		AllowedHosts string `yaml:"allowed_hosts"`
+		Name               string `yaml:"name"`
+		Port               int    `yaml:"port"`
+		Host               string `yaml:"host"`
+		Secret             string `yaml:"secret"`
+		InviteURL          string `yaml:"invite_url"`
+		Env                string `yaml:"environment"`
+		AllowedHosts       string `yaml:"allowed_hosts"`
+		SuperAdminEmail    string `yaml:"super_admin_email"`
+		SuperAdminPassword string `yaml:"super_admin_password"`
 	}
 	PersistenceSettings struct {
 		PostgresSQl DBSettings `yaml:"postgres"`

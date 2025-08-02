@@ -185,6 +185,8 @@ func main() {
 		log.Fatal("Failed to start FCM notification service:", err)
 	}
 
+	createSuperAdmin(serverCtx, userRepo, config.Server.SuperAdminEmail, config.Server.SuperAdminPassword)
+
 	// Setup router and server
 	router := infrastructure.NewRouter(serverConfig)
 	address := fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port)
@@ -223,4 +225,23 @@ func main() {
 
 	<-serverCtx.Done()
 	logger.Log.Info("Server context closed. Exiting.")
+}
+
+func createSuperAdmin(ctx context.Context, repo domain.UserRepository, email string, adminPassword string) {
+	salt := utils.GenerateSalt(utils.DefaultPasswordConfig.SaltLength)
+	password_hash := utils.HashPassword(adminPassword, salt, utils.DefaultPasswordConfig)
+	newUser := &domain.User{
+		ID:           utils.GenerateID(),
+		Email:        email,
+		Role:         "admin",
+		PasswordHash: password_hash,
+		Salt:         salt,
+	}
+
+	err := repo.CreateAdminUser(ctx, newUser, "admin")
+	if err != nil {
+		logger.Log.Debug("Super admin already exists")
+		return
+	}
+	logger.Log.Info("Created superadmin account")
 }
