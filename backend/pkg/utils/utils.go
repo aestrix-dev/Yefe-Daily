@@ -60,8 +60,7 @@ type (
 		Port         int    `yaml:"port"`
 		Host         string `yaml:"host"`
 		Secret       string `yaml:"secret"`
-		DevURl       string `yaml:"dev_url"`
-		ProdURL      string `yaml:"prod_url,omitempty"`
+		InviteURL    string `yaml:"invite_url"`
 		Env          string `yaml:"environment"`
 		AllowedHosts string `yaml:"allowed_hosts"`
 	}
@@ -78,6 +77,7 @@ type (
 		DataBase      string `yaml:"database"`
 	}
 	EmailConfig struct {
+		SMTPServer    string        `yaml:"smtp_server"`
 		SMTPHost      string        `yaml:"smtp_host"`
 		SMTPPort      string        `yaml:"smtp_port"`
 		SMTPUsername  string        `yaml:"smtp_username"`

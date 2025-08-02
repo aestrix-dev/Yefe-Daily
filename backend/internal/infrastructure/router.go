@@ -22,6 +22,7 @@ type ServerConfig struct {
 	DB            *gorm.DB
 	JWT_SECRET    string
 	AllowedHosts  string
+	InviteURL     string
 	EmailService  domain.EmailService
 	FMCService    *fire_base.FCMNotificationService
 	PaymentConfig utils.PaymentConfig
@@ -47,7 +48,7 @@ func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
 }
 
 func (conf ServerConfig) AdminUserUsecase() domain.AdminUserUseCase {
-	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo, conf.EmailService)
+	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo, conf.EmailService, conf.InviteURL)
 }
 
 func (conf ServerConfig) payment_usercase() domain.PaymentUseCase {

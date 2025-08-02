@@ -8,7 +8,6 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/logger"
-	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 )
 
@@ -16,18 +15,20 @@ type adminUserUseCase struct {
 	adminRepo    domain.AdminUserRepository
 	userRepo     domain.UserRepository
 	emailService domain.EmailService
-	config       utils.ServerSettings
+	inviteUrl    string
 }
 
 func NewAdminUserUseCase(
 	adminRepo domain.AdminUserRepository,
 	userRepo domain.UserRepository,
 	emailService domain.EmailService,
+  inviteUrl string,
 ) domain.AdminUserUseCase {
 	return &adminUserUseCase{
 		adminRepo:    adminRepo,
 		userRepo:     userRepo,
 		emailService: emailService,
+    inviteUrl: inviteUrl,
 	}
 }
 
@@ -137,11 +138,7 @@ func (uc *adminUserUseCase) UpdateUserPlan(
 func (uc *adminUserUseCase) InviteNewAdmin(ctx context.Context, invitation dto.AdminInvitationEmailRequest, invitedBy string) error {
 	var invitationLink string
 
-	if uc.config.Env == types.PROD {
-		invitationLink = uc.config.ProdURL
-	} else {
-		invitationLink = uc.config.DevURl
-	}
+	invitationLink = uc.inviteUrl
 
 	// Check if user already exists
 	_, err := uc.userRepo.GetByEmail(ctx, invitation.Email)

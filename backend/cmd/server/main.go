@@ -10,6 +10,7 @@ import (
 	"path"
 	"syscall"
 	"time"
+	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/infrastructure"
 	"yefe_app/v1/internal/repository"
 	usecase "yefe_app/v1/internal/useCase"
@@ -129,7 +130,7 @@ func main() {
 	}, 24*time.Hour)
 
 	logger.Log.WithFields(map[string]any{
-		"ID":   reflection,
+		"ID":   reflection.(domain.DailyReflection).ID,
 		"date": time.Now().String(),
 	}).Debug("Created new daily reflection")
 
@@ -144,7 +145,7 @@ func main() {
 		}, 24*time.Hour)
 
 		logger.Log.WithFields(map[string]any{
-			"ID":   reflection,
+			"ID":   reflection.(domain.DailyReflection).ID,
 			"date": time.Now().String(),
 		}).Debug("Created new daily reflection")
 		return nil
@@ -156,6 +157,7 @@ func main() {
 		JWT_SECRET:             config.Server.Secret,
 		EmailService:           emailService,
 		PaymentConfig:          paymentConfig,
+		InviteURL:              config.Server.InviteURL,
 		UserRepo:               userRepo,
 		SessionRepo:            sessionRepo,
 		SecEventRepo:           secEventRepo,
