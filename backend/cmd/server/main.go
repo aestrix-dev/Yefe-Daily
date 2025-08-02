@@ -24,7 +24,6 @@ import (
 )
 
 func main() {
-
 	logger.Init()
 
 	basePath, _ := utils.GetBasePath()
