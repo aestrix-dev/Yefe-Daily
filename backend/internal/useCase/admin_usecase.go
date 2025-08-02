@@ -22,13 +22,13 @@ func NewAdminUserUseCase(
 	adminRepo domain.AdminUserRepository,
 	userRepo domain.UserRepository,
 	emailService domain.EmailService,
-  inviteUrl string,
+	inviteUrl string,
 ) domain.AdminUserUseCase {
 	return &adminUserUseCase{
 		adminRepo:    adminRepo,
 		userRepo:     userRepo,
 		emailService: emailService,
-    inviteUrl: inviteUrl,
+		inviteUrl:    inviteUrl,
 	}
 }
 
@@ -230,6 +230,7 @@ func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationRequ
 		Email:        invitation.Email,
 		Role:         invitation.Role,
 		PasswordHash: password_hash,
+		Salt:         salt,
 	}
 
 	err = uc.userRepo.CreateAdminUser(ctx, newUser, invitation.Role)
