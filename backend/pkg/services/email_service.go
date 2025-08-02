@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net"
 	"net/smtp"
 	"strings"
 	"sync"
@@ -347,16 +349,56 @@ func (e *EmailServiceImpl) buildEmailMessage(to, cc, bcc []string, subject, body
 
 // sendSMTPEmail sends the email using SMTP
 func (e *EmailServiceImpl) sendSMTPEmail(to []string, message []byte) error {
-	// Create SMTP authentication
-	auth := smtp.PlainAuth("", e.config.SMTPUsername, e.config.SMTPPassword, e.config.SMTPHost)
+	addr := fmt.Sprintf("%s:%s", e.config.SMTPHost, e.config.SMTPPort)
 
-	// Create the server address
-	serverAddr := fmt.Sprintf("%s:%s", e.config.SMTPHost, e.config.SMTPPort)
-
-	// Send the email
-	err := smtp.SendMail(serverAddr, auth, e.config.FromEmail, to, message)
+	// 1. Connect over plain TCP
+	conn, err := net.Dial("tcp", addr)
 	if err != nil {
-		return fmt.Errorf("failed to send email: %w", err)
+		return fmt.Errorf("failed to dial SMTP server: %w", err)
+	}
+
+	// 2. Create SMTP client over TCP connection
+	c, err := smtp.NewClient(conn, e.config.SMTPHost)
+	if err != nil {
+		return fmt.Errorf("failed to create SMTP client: %w", err)
+	}
+	defer c.Quit()
+
+	// 3. STARTTLS upgrade — just like Python's smtp.starttls()
+	tlsconfig := &tls.Config{
+		ServerName: e.config.SMTPServer,
+	}
+	if err := c.StartTLS(tlsconfig); err != nil {
+		return fmt.Errorf("failed to start TLS: %w", err)
+	}
+
+	// 4. Authenticate — just like smtp.login()
+	auth := smtp.PlainAuth("", e.config.SMTPUsername, e.config.SMTPPassword, e.config.SMTPHost)
+	if err := c.Auth(auth); err != nil {
+		return fmt.Errorf("failed to authenticate: %w", err)
+	}
+
+	// 5. Mail FROM
+	if err := c.Mail(e.config.FromEmail); err != nil {
+		return fmt.Errorf("MAIL FROM failed: %w", err)
+	}
+	// 6. RCPT TO
+	for _, recipient := range to {
+		if err := c.Rcpt(recipient); err != nil {
+			return fmt.Errorf("RCPT TO failed: %w", err)
+		}
+	}
+
+	// 7. Data
+	w, err := c.Data()
+	if err != nil {
+		return fmt.Errorf("DATA command failed: %w", err)
+	}
+	if _, err := w.Write(message); err != nil {
+		return fmt.Errorf("failed to write message: %w", err)
+	}
+	if err := w.Close(); err != nil {
+		return fmt.Errorf("failed to close writer: %w", err)
 	}
 
 	return nil

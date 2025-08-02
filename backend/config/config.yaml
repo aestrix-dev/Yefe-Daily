@@ -3,8 +3,7 @@ server:
   host: "localhost"
   port: 8080
   secret: ${JWT_SECRET}
-  dev_url: ${DEV_URL}
-  prod_url: ${PRO_URL}
+  invite_url: ${INVITE_URL}
   environment: ${ENV}
   allowed_hosts: ${ALLOWED_HOSTS}
 
@@ -22,6 +21,7 @@ persistence:
     password: ${REDIS_PASSWORD}
 
 email_config:
+  smtp_server: ${SMTP_SERVER}
   smtp_host: ${SMTP_HOST}
   smtp_port: ${SMTP_PORT}
   smtp_username: ${SMTP_USERNAME}
