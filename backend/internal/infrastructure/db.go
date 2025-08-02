@@ -10,6 +10,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 func NewDB(cfg utils.DBSettings) (*gorm.DB, error) {
@@ -37,7 +38,9 @@ func (p postgresPersistence) connect() (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.New(
 		postgres.Config{
 			DSN:                  connectionDSN,
-			PreferSimpleProtocol: true}), &gorm.Config{})
+			PreferSimpleProtocol: true}), &gorm.Config{
+		Logger: gormLogger.Default.LogMode(gormLogger.Silent),
+	})
 	if err != nil {
 		logger.Log.WithError(err).Fatal("Could not open database")
 		return nil, err
