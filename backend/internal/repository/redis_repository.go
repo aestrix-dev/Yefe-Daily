@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -21,10 +20,10 @@ type RedisSessionRepository struct {
 func NewRedisSessionRepository(config utils.DBSettings) (*RedisSessionRepository, error) {
 	redisConnAddr := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	options := &redis.Options{
-		Username:  config.UserName,
-		Password:  config.Password,
-		Addr:      redisConnAddr,
-		TLSConfig: &tls.Config{},
+		Username: config.UserName,
+		Password: config.Password,
+		Addr:     redisConnAddr,
+		//	TLSConfig: &tls.Config{},
 	}
 
 	client := redis.NewClient(options)
