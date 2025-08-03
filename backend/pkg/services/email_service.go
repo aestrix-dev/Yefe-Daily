@@ -10,7 +10,10 @@ import (
 	"sync"
 	"time"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
+
+	"github.com/resend/resend-go/v2"
 )
 
 // EmailServiceImpl implements EmailService with background processing
@@ -210,8 +213,11 @@ func (w *EmailWorker) Run(ctx context.Context) error {
 
 func (w *EmailWorker) HealthCheck(ctx context.Context) error {
 	// Simple health check - verify SMTP connection
-	serverAddr := fmt.Sprintf("%s:%s", w.service.config.SMTPHost, w.service.config.SMTPPort)
-	auth := smtp.PlainAuth("", w.service.config.SMTPUsername, w.service.config.SMTPPassword, w.service.config.SMTPHost)
+	if w.service.config.UseSmtp == "0" {
+		return nil
+	}
+	serverAddr := fmt.Sprintf("%s:%s", w.service.config.SMTPConfig.SMTPHost, w.service.config.SMTPConfig.SMTPPort)
+	auth := smtp.PlainAuth("", w.service.config.SMTPConfig.SMTPUsername, w.service.config.SMTPConfig.SMTPPassword, w.service.config.SMTPConfig.SMTPHost)
 
 	// Try to connect and authenticate
 	client, err := smtp.Dial(serverAddr)
@@ -284,6 +290,7 @@ func (w *EmailWorker) processEmails(ctx context.Context, workerID int) {
 // sendEmailJob actually sends the email
 func (w *EmailWorker) sendEmailJob(job EmailJob) error {
 	// Create the email message
+	var err error
 	message := w.service.buildEmailMessage(
 		job.Request.To,
 		job.Request.CC,
@@ -292,9 +299,14 @@ func (w *EmailWorker) sendEmailJob(job EmailJob) error {
 		job.Request.Body,
 		job.Request.HTMLBody,
 	)
-
-	// Send the email
-	return w.service.sendSMTPEmail(job.Request.To, message)
+	if w.service.config.UseSmtp == "1" {
+    logger.Log.Info("Using smtp to send mail")
+		err = w.service.sendSMTPEmail(job.Request.To, message)
+	} else {
+    logger.Log.Info("Using api to send mail")
+		err = w.service.sendResendEmail(job.Request.To, job.Request.Subject, job.Request.Body, job.Request.HTMLBody)
+	}
+	return err
 }
 
 // buildEmailMessage creates the email message with proper headers
@@ -349,7 +361,7 @@ func (e *EmailServiceImpl) buildEmailMessage(to, cc, bcc []string, subject, body
 
 // sendSMTPEmail sends the email using SMTP
 func (e *EmailServiceImpl) sendSMTPEmail(to []string, message []byte) error {
-	addr := fmt.Sprintf("%s:%s", e.config.SMTPHost, e.config.SMTPPort)
+	addr := fmt.Sprintf("%s:%s", e.config.SMTPConfig.SMTPHost, e.config.SMTPConfig.SMTPPort)
 
 	// 1. Connect over plain TCP
 	conn, err := net.Dial("tcp", addr)
@@ -358,7 +370,7 @@ func (e *EmailServiceImpl) sendSMTPEmail(to []string, message []byte) error {
 	}
 
 	// 2. Create SMTP client over TCP connection
-	c, err := smtp.NewClient(conn, e.config.SMTPHost)
+	c, err := smtp.NewClient(conn, e.config.SMTPConfig.SMTPHost)
 	if err != nil {
 		return fmt.Errorf("failed to create SMTP client: %w", err)
 	}
@@ -366,14 +378,14 @@ func (e *EmailServiceImpl) sendSMTPEmail(to []string, message []byte) error {
 
 	// 3. STARTTLS upgrade — just like Python's smtp.starttls()
 	tlsconfig := &tls.Config{
-		ServerName: e.config.SMTPServer,
+		ServerName: e.config.SMTPConfig.SMTPServer,
 	}
 	if err := c.StartTLS(tlsconfig); err != nil {
 		return fmt.Errorf("failed to start TLS: %w", err)
 	}
 
 	// 4. Authenticate — just like smtp.login()
-	auth := smtp.PlainAuth("", e.config.SMTPUsername, e.config.SMTPPassword, e.config.SMTPHost)
+	auth := smtp.PlainAuth("", e.config.SMTPConfig.SMTPUsername, e.config.SMTPConfig.SMTPPassword, e.config.SMTPConfig.SMTPHost)
 	if err := c.Auth(auth); err != nil {
 		return fmt.Errorf("failed to authenticate: %w", err)
 	}
@@ -401,6 +413,28 @@ func (e *EmailServiceImpl) sendSMTPEmail(to []string, message []byte) error {
 		return fmt.Errorf("failed to close writer: %w", err)
 	}
 
+	return nil
+}
+
+func (e *EmailServiceImpl) sendResendEmail(to []string, subject, msgTXT, msgHTML string) error {
+
+	client := resend.NewClient(e.config.ResendConfig.APIKey)
+
+	params := &resend.SendEmailRequest{
+		From:    e.config.FromEmail,
+		To:      to,
+		Subject: subject,
+		Html:    msgHTML,
+		Text:    msgTXT,
+	}
+
+	sent, err := client.Emails.Send(params)
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not send email")
+		return err
+	}
+
+	fmt.Printf("Email sent successfully! ID: %s\n", sent.Id)
 	return nil
 }
 

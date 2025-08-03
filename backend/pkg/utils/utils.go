@@ -79,18 +79,26 @@ type (
 		DataBase      string `yaml:"database"`
 	}
 	EmailConfig struct {
-		SMTPServer    string        `yaml:"smtp_server"`
-		SMTPHost      string        `yaml:"smtp_host"`
-		SMTPPort      string        `yaml:"smtp_port"`
-		SMTPUsername  string        `yaml:"smtp_username"`
-		SMTPPassword  string        `yaml:"smtp_password"`
-		FromEmail     string        `yaml:"from_email"`
-		FromName      string        `yaml:"from_name"`
-		UseTLS        bool          `yaml:"use_tls"`
-		WorkerCount   int           `yaml:"worker_count"`
-		QueueSize     int           `yaml:"queue_size"`
-		RetryAttempts int           `yaml:"retry_attempts"`
-		RetryDelay    time.Duration `yaml:"retry_delay"`
+		UseSmtp       string            `yaml:"use_smtp"`
+		FromEmail     string            `yaml:"from_email"`
+		FromName      string            `yaml:"from_name"`
+		UseTLS        bool              `yaml:"use_tls"`
+		WorkerCount   int               `yaml:"worker_count"`
+		QueueSize     int               `yaml:"queue_size"`
+		RetryAttempts int               `yaml:"retry_attempts"`
+		RetryDelay    time.Duration     `yaml:"retry_delay"`
+		SMTPConfig    SMTPEmailConfig   `yaml:"smtp_email_config"`
+		ResendConfig  ResendEmailConfig `yaml:"resend_email_config"`
+	}
+	SMTPEmailConfig struct {
+		SMTPServer   string `yaml:"smtp_server"`
+		SMTPHost     string `yaml:"smtp_host"`
+		SMTPPort     string `yaml:"smtp_port"`
+		SMTPUsername string `yaml:"smtp_username"`
+		SMTPPassword string `yaml:"smtp_password"`
+	}
+	ResendEmailConfig struct {
+		APIKey string `yaml:"resend_api_key"`
 	}
 	PaymentConfig struct {
 		SecretKey               string `yaml:"stripe_secret_key"`

@@ -23,11 +23,6 @@ persistence:
     password: ${REDIS_PASSWORD}
 
 email_config:
-  smtp_server: ${SMTP_SERVER}
-  smtp_host: ${SMTP_HOST}
-  smtp_port: ${SMTP_PORT}
-  smtp_username: ${SMTP_USERNAME}
-  smtp_password: ${SMTP_PASSWORD}
   from_email: ${FROM_EMAIL}
   from_name: ${FROM_NAME}
   use_tls: false
@@ -35,6 +30,15 @@ email_config:
   queue_size: 100 
   retry_attempts: 2 
   retry_delay: 10s 
+  use_smtp: ${USE_SMTP}
+  smtp_email_config:
+      smtp_server: ${SMTP_SERVER}
+      smtp_host: ${SMTP_HOST}
+      smtp_port: ${SMTP_PORT}
+      smtp_username: ${SMTP_USERNAME}
+      smtp_password: ${SMTP_PASSWORD}
+  resend_email_config:
+    resend_api_key: ${RESEND_API_KEY}
 
 payment_config:
   stripe_secret_key: ${STRIPE_SECRET_KEY}
