@@ -195,18 +195,9 @@ func (w *EmailWorker) Name() string {
 func (w *EmailWorker) Run(ctx context.Context) error {
 	w.service.logger.Info("Email worker started")
 
-	// Start multiple worker goroutines
-	var wg sync.WaitGroup
-	for i := 0; i < w.service.workerCount; i++ {
-		wg.Add(1)
-		go func(workerID int) {
-			defer wg.Done()
-			w.service.logger.Debug("Email worker %d started", workerID)
-			w.processEmails(ctx, workerID)
-		}(i)
-	}
+	w.service.logger.Debug("Email worker %d started")
+	w.processEmails(ctx)
 
-	wg.Wait()
 	w.service.logger.Info("All email workers stopped")
 	return nil
 }
@@ -234,24 +225,24 @@ func (w *EmailWorker) HealthCheck(ctx context.Context) error {
 }
 
 // processEmails processes emails from the queue
-func (w *EmailWorker) processEmails(ctx context.Context, workerID int) {
+func (w *EmailWorker) processEmails(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			w.service.logger.Debug("Email worker %d stopping due to context cancellation", workerID)
+			w.service.logger.Debug("Email worker %d stopping due to context cancellation")
 			return
 		case job, ok := <-w.service.emailQueue:
 			if !ok {
-				w.service.logger.Debug("Email worker %d stopping due to closed queue", workerID)
+				w.service.logger.Debug("Email worker %d stopping due to closed queue")
 				return
 			}
 
-			w.service.logger.Debug("Worker %d processing email job: %s", workerID, job.ID)
+			w.service.logger.Debug("Processing email job: %s", job.ID)
 
 			// Process the email
 			err := w.sendEmailJob(job)
 			if err != nil {
-				w.service.logger.Error("Worker %d failed to send email %s: %v", workerID, job.ID, err)
+				w.service.logger.Error("Failed to send email %s: %v", job.ID, err)
 
 				// Retry logic
 				if job.Attempts < job.MaxRetry {
@@ -276,7 +267,7 @@ func (w *EmailWorker) processEmails(ctx context.Context, workerID int) {
 					w.service.logger.Error("Email %s failed after %d attempts, giving up", job.ID, job.MaxRetry)
 				}
 			} else {
-				w.service.logger.Debug("Worker %d successfully sent email: %s", workerID, job.ID)
+				w.service.logger.Debug("Successfully sent email: %s", job.ID)
 			}
 
 			// Call callback if provided
@@ -300,10 +291,10 @@ func (w *EmailWorker) sendEmailJob(job EmailJob) error {
 		job.Request.HTMLBody,
 	)
 	if w.service.config.UseSmtp == "1" {
-    logger.Log.Info("Using smtp to send mail")
+		logger.Log.Info("Using smtp to send mail")
 		err = w.service.sendSMTPEmail(job.Request.To, message)
 	} else {
-    logger.Log.Info("Using api to send mail")
+		logger.Log.Info("Using api to send mail")
 		err = w.service.sendResendEmail(job.Request.To, job.Request.Subject, job.Request.Body, job.Request.HTMLBody)
 	}
 	return err
