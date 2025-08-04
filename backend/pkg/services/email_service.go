@@ -23,6 +23,7 @@ type EmailServiceImpl struct {
 	backgroundSvc *BackgroundService
 	workerCount   int
 	isRunning     bool
+	useQueue      bool
 	mu            sync.RWMutex
 	logger        Logger
 }
@@ -66,17 +67,18 @@ func NewEmailService(config utils.EmailConfig, logger Logger) *EmailServiceImpl 
 		workerCount: config.WorkerCount,
 		logger:      logger,
 	}
+	if config.UseQueue == "1" {
+		// Create background service
+		worker := &EmailWorker{service: emailSvc}
+		bgConfig := DefaultServiceConfig("email-service")
+		bgConfig.Logger = logger
+		bgConfig.RestartOnPanic = true
+		bgConfig.MaxRestartAttempts = 5
+		bgConfig.RestartDelay = 10 * time.Second
+		bgConfig.HealthCheckInterval = 5 * time.Minute
 
-	// Create background service
-	worker := &EmailWorker{service: emailSvc}
-	bgConfig := DefaultServiceConfig("email-service")
-	bgConfig.Logger = logger
-	bgConfig.RestartOnPanic = true
-	bgConfig.MaxRestartAttempts = 5
-	bgConfig.RestartDelay = 10 * time.Second
-	bgConfig.HealthCheckInterval = 5 * time.Minute
-
-	emailSvc.backgroundSvc = NewBackgroundService(bgConfig, worker)
+		emailSvc.backgroundSvc = NewBackgroundService(bgConfig, worker)
+	}
 
 	return emailSvc
 }
@@ -89,11 +91,14 @@ func (e *EmailServiceImpl) Start() error {
 	if e.isRunning {
 		return fmt.Errorf("email service is already running")
 	}
+	if e.config.UseQueue == "1" {
+		e.logger.Info("Starting email service with %d workers", e.workerCount)
 
-	e.logger.Info("Starting email service with %d workers", e.workerCount)
-
-	if err := e.backgroundSvc.Start(); err != nil {
-		return fmt.Errorf("failed to start background service: %w", err)
+		if err := e.backgroundSvc.Start(); err != nil {
+			return fmt.Errorf("failed to start background service: %w", err)
+		}
+	} else {
+		e.logger.Info("Starting email service in direct sending mode")
 	}
 
 	e.isRunning = true
@@ -111,14 +116,15 @@ func (e *EmailServiceImpl) Stop() error {
 	}
 
 	e.logger.Info("Stopping email service...")
+	if e.config.UseQueue == "1" {
+		// Close the queue to signal workers to stop
+		close(e.emailQueue)
 
-	// Close the queue to signal workers to stop
-	close(e.emailQueue)
-
-	// Stop background service
-	if err := e.backgroundSvc.Stop(); err != nil {
-		e.logger.Error("Error stopping background service: %v", err)
-		return err
+		// Stop background service
+		if err := e.backgroundSvc.Stop(); err != nil {
+			e.logger.Error("Error stopping background service: %v", err)
+			return err
+		}
 	}
 
 	e.isRunning = false
@@ -142,15 +148,22 @@ func (e *EmailServiceImpl) SendEmail(ctx context.Context, req dto.EmailRequest) 
 		MaxRetry: e.config.RetryAttempts,
 	}
 
-	select {
-	case e.emailQueue <- job:
-		e.logger.Debug("Email queued successfully: %s", job.ID)
-		return nil
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-		return fmt.Errorf("email queue is full")
+	if e.config.UseQueue == "1" {
+		select {
+		case e.emailQueue <- job:
+			e.logger.Debug("Email queued successfully: %s", job.ID)
+			return nil
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			return fmt.Errorf("email queue is full")
+		}
 	}
+	// Send email directly
+	e.logger.Debug("Sending email directly: %s", job.ID)
+	worker := &EmailWorker{service: e}
+	return worker.sendEmailJob(job)
+
 }
 
 // SendAdminInvitation sends an admin invitation email
@@ -195,9 +208,18 @@ func (w *EmailWorker) Name() string {
 func (w *EmailWorker) Run(ctx context.Context) error {
 	w.service.logger.Info("Email worker started")
 
-	w.service.logger.Debug("Email worker %d started")
-	w.processEmails(ctx)
+	// Start multiple worker goroutines
+	var wg sync.WaitGroup
+	for i := 0; i < w.service.workerCount; i++ {
+		wg.Add(1)
+		go func(workerID int) {
+			defer wg.Done()
+			w.service.logger.Debug("Email worker %d started", workerID)
+			w.processEmails(ctx, workerID)
+		}(i)
+	}
 
+	wg.Wait()
 	w.service.logger.Info("All email workers stopped")
 	return nil
 }
@@ -225,24 +247,24 @@ func (w *EmailWorker) HealthCheck(ctx context.Context) error {
 }
 
 // processEmails processes emails from the queue
-func (w *EmailWorker) processEmails(ctx context.Context) {
+func (w *EmailWorker) processEmails(ctx context.Context, workerID int) {
 	for {
 		select {
 		case <-ctx.Done():
-			w.service.logger.Debug("Email worker %d stopping due to context cancellation")
+			w.service.logger.Debug("Email worker %d stopping due to context cancellation", workerID)
 			return
 		case job, ok := <-w.service.emailQueue:
 			if !ok {
-				w.service.logger.Debug("Email worker %d stopping due to closed queue")
+				w.service.logger.Debug("Email worker %d stopping due to closed queue", workerID)
 				return
 			}
 
-			w.service.logger.Debug("Processing email job: %s", job.ID)
+			w.service.logger.Debug("Worker %d processing email job: %s", workerID, job.ID)
 
 			// Process the email
 			err := w.sendEmailJob(job)
 			if err != nil {
-				w.service.logger.Error("Failed to send email %s: %v", job.ID, err)
+				w.service.logger.Error("Worker %d failed to send email %s: %v", workerID, job.ID, err)
 
 				// Retry logic
 				if job.Attempts < job.MaxRetry {
@@ -267,7 +289,7 @@ func (w *EmailWorker) processEmails(ctx context.Context) {
 					w.service.logger.Error("Email %s failed after %d attempts, giving up", job.ID, job.MaxRetry)
 				}
 			} else {
-				w.service.logger.Debug("Successfully sent email: %s", job.ID)
+				w.service.logger.Debug("Worker %d successfully sent email: %s", workerID, job.ID)
 			}
 
 			// Call callback if provided
@@ -280,6 +302,28 @@ func (w *EmailWorker) processEmails(ctx context.Context) {
 
 // sendEmailJob actually sends the email
 func (w *EmailWorker) sendEmailJob(job EmailJob) error {
+	// Create the email message
+	var err error
+	message := w.service.buildEmailMessage(
+		job.Request.To,
+		job.Request.CC,
+		job.Request.BCC,
+		job.Request.Subject,
+		job.Request.Body,
+		job.Request.HTMLBody,
+	)
+	if w.service.config.UseSmtp == "1" {
+		logger.Log.Info("Using smtp to send mail")
+		err = w.service.sendSMTPEmail(job.Request.To, message)
+	} else {
+		logger.Log.Info("Using api to send mail")
+		err = w.service.sendResendEmail(job.Request.To, job.Request.Subject, job.Request.Body, job.Request.HTMLBody)
+	}
+	return err
+}
+
+// sendEmailJob actually sends the email
+func (w *EmailWorker) SendEmail(job EmailJob) error {
 	// Create the email message
 	var err error
 	message := w.service.buildEmailMessage(

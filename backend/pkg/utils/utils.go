@@ -80,6 +80,7 @@ type (
 	}
 	EmailConfig struct {
 		UseSmtp       string            `yaml:"use_smtp"`
+		UseQueue      string            `yaml:"use_queue"`
 		FromEmail     string            `yaml:"from_email"`
 		FromName      string            `yaml:"from_name"`
 		UseTLS        bool              `yaml:"use_tls"`

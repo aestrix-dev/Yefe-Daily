@@ -54,8 +54,6 @@ const (
 // Create stores a new session in Redis
 func (r *RedisSessionRepository) Create(ctx context.Context, session *domain.Session) error {
 	sessionKey := sessionKeyPrefix + session.ID
-	tokenKey := tokenKeyPrefix + session.Token
-	userSessionsKey := userSessionsPrefix + session.UserID
 
 	// Serialize session
 	sessionData, err := json.Marshal(session)
@@ -64,23 +62,23 @@ func (r *RedisSessionRepository) Create(ctx context.Context, session *domain.Ses
 	}
 
 	// Calculate TTL
-	ttl := time.Until(session.ExpiresAt)
-	if ttl <= 0 {
-		return fmt.Errorf("session is already expired")
-	}
+	//ttl := time.Until(session.ExpiresAt)
+	//	if ttl <= 0 {
+	//	return fmt.Errorf("session is already expired")
+	//}
 
 	// Use pipeline for atomic operations
 	pipe := r.client.Pipeline()
 
 	// Store session data
-	pipe.Set(ctx, sessionKey, sessionData, ttl)
+	pipe.Set(ctx, sessionKey, sessionData, 0) //, ttl)
 
 	// Store token -> session ID mapping
-	pipe.Set(ctx, tokenKey, session.ID, ttl)
+	//	pipe.Set(ctx, tokenKey, session.ID, ttl)
 
 	// Add to user's session set
-	pipe.SAdd(ctx, userSessionsKey, session.ID)
-	pipe.Expire(ctx, userSessionsKey, ttl)
+	//pipe.SAdd(ctx, userSessionsKey, session.ID)
+	//	pipe.Expire(ctx, userSessionsKey, ttl)
 
 	// Add to expired sessions sorted set for cleanup
 	pipe.ZAdd(ctx, expiredSessionsKey, redis.Z{

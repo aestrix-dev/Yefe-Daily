@@ -63,8 +63,6 @@ type UserProfile struct {
 	Gender                  string                  `gorm:"type:varchar(20)" json:"gender"`
 	Location                string                  `gorm:"type:varchar(255);index" json:"location"`
 	Bio                     string                  `gorm:"type:text" json:"bio"`
-	AvatarURL               string                  `gorm:"type:varchar(500)" json:"avatar_url"`
-	Website                 string                  `gorm:"type:varchar(255)" json:"website"`
 	NotificationPreferences types.NotificationsPref `gorm:"embedded;embeddedPrefix:notification_" json:"notification_preferences"`
 	CreatedAt               time.Time               `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt               time.Time               `gorm:"autoUpdateTime" json:"updated_at"`

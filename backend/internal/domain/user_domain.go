@@ -89,7 +89,6 @@ type UserProfile struct {
 	UserID                  string                  `json:"user_id"`
 	DateOfBirth             *time.Time              `json:"date_of_birth"`
 	PhoneNumber             string                  `json:"phone_number"`
-	AvatarURL               string                  `json:"avatar_url"`
 	Bio                     string                  `json:"bio"`
 	Location                string                  `json:"location"`
 	NotificationPreferences types.NotificationsPref `json:"notification_preferences"`

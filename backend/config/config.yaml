@@ -26,6 +26,7 @@ email_config:
   from_email: ${FROM_EMAIL}
   from_name: ${FROM_NAME}
   use_tls: false
+  use_queue: ${UseQueue}
   worker_count: 2 
   queue_size: 100 
   retry_attempts: 2 
