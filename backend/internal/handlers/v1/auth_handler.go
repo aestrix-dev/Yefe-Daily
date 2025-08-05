@@ -98,7 +98,7 @@ func (a AuthHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 	// Validate request
 	if err := a.validator.Struct(&req); err != nil {
 		logger.Log.WithError(err).Error("")
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
@@ -107,9 +107,21 @@ func (a AuthHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 		utils.HandleDomainError(w, err)
 		return
 	}
+
+	token, err := a.authUseCase.Login(r.Context(), dto.LoginRequest{
+		Email:     user.Email,
+		Password:  req.Password,
+		IPAddress: req.IPAddress,
+		UserAgent: req.UserAgent,
+	})
+	if err != nil {
+		logger.Log.WithError(err).Error("Could not log user in after reg")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Could not log user in", err)
+		return
+	}
 	utils.SuccessResponse(w, http.StatusCreated, "User registered successfully", map[string]any{
-		"user":    user,
-		"message": "Please check your email to verify your account",
+		"user":  user,
+		"token": token,
 	})
 }
 
