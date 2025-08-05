@@ -14,7 +14,7 @@ class JournalViewModel extends BaseViewModel {
   List<String> get selectedTags => _selectedTags;
   bool get isPremiumUser => _isPremiumUser;
   bool get hasUpgraded => _hasUpgraded;
-  bool get isEveningTabSelected => _selectedTabIndex == 1;
+  bool get isEveningTabSelected => _selectedTabIndex == 2;
   bool get shouldShowUpgradeCard =>
       isEveningTabSelected && !isPremiumUser && !hasUpgraded;
 

@@ -6,4 +6,5 @@ class AppRoutes {
   static const String challenges = '/challenges';
   static const String audio = '/audio';
   static const String profile = '/profile';
+  static const String history = '/history';
 }
