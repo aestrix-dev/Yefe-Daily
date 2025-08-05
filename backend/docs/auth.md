@@ -50,8 +50,8 @@ All endpoints are prefixed with `/v1`.
             "challenge": true,
             "language": "English",
             "reminders": {
-                "morning_reminder": "08:00",
-                "evening_reminder": "20:00"
+                "morning_reminder": "08:00", # 12 hour format
+                "evening_reminder": "09:00" # 12 hour format
             }
         }
     }
