@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/logger"
@@ -35,7 +36,7 @@ func (a AuthHandler) LoginRoute(w http.ResponseWriter, r *http.Request) {
 	var req dto.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Log.WithError(err).Error("")
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
@@ -46,7 +47,7 @@ func (a AuthHandler) LoginRoute(w http.ResponseWriter, r *http.Request) {
 	// Validate request
 	if err := a.validator.Struct(&req); err != nil {
 		logger.Log.WithError(err).Error("")
-		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
@@ -98,6 +99,10 @@ func (a AuthHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 	// Validate request
 	if err := a.validator.Struct(&req); err != nil {
 		logger.Log.WithError(err).Error("")
+		if strings.Contains(err.Error(), "Key: 'RegisterRequest.ConfirmPassword'") {
+			utils.ErrorResponse(w, http.StatusBadRequest, "Passwords do not match", err)
+      return
+		}
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
