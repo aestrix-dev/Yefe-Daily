@@ -89,6 +89,7 @@ type ChallengeUseCase interface {
 	// Challenge management
 	CreateDailyChallenge(Challenge) (Challenge, error)
 	GetChallengeByDate(date time.Time) (Challenge, error)
+	GetChallengeByID(challengeID string) (Challenge, error)
 
 	// User challenge interactions
 	AssignChallengeToUser(userID string) error

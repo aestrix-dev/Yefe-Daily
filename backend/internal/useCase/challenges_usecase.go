@@ -64,11 +64,7 @@ func (c *ChallengeUseCaseImpl) AssignChallengeToUser(userID string) error {
 	}
 	challenge, err := c.GetTodaysChallenges()
 	if err != nil {
-		return err
-	}
-
-	if _, err := c.userChallengeRepo.GetTodaysUserChallenge(userID); err == nil {
-		return nil
+		return fmt.Errorf("Failed to get challenge %w", err)
 	}
 
 	// Assign challenges that don't already exist
@@ -94,12 +90,22 @@ func (c *ChallengeUseCaseImpl) GetUserChallengeForToday(userID string) (domain.U
 		return domain.UserChallenge{}, errors.New("user ID cannot be empty")
 	}
 
-	// First, ensure challenges are assigned for today
-	if err := c.AssignChallengeToUser(userID); err != nil {
-		return domain.UserChallenge{}, fmt.Errorf("error assigning today's challenges: %w", err)
+	userChallenge, err := c.userChallengeRepo.GetTodaysUserChallenge(userID)
+	if userChallenge.ChallengeID != "" {
+		return userChallenge, nil
 	}
+	if err := c.AssignChallengeToUser(userID); err != nil {
+		return domain.UserChallenge{}, err
+	}
+	userChallenge, err = c.userChallengeRepo.GetTodaysUserChallenge(userID)
+	if err != nil {
+		return domain.UserChallenge{}, err
+	}
+	return userChallenge, nil
+}
 
-	return c.userChallengeRepo.GetTodaysUserChallenge(userID)
+func (c *ChallengeUseCaseImpl) GetChallengeByID(challengeID string) (domain.Challenge, error) {
+	return c.challengeRepo.GetChallengeByID(challengeID)
 }
 
 // GetUserChallengeHistory retrieves user's challenge history

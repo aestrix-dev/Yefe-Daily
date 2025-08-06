@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
+	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 
 	"github.com/go-chi/chi/v5"
@@ -36,25 +37,45 @@ func (h *challengesHandler) Handle() *chi.Mux {
 
 // getTodaysChallenges gets today's challenges for the authenticated user
 func (h *challengesHandler) getTodaysChallenges(w http.ResponseWriter, r *http.Request) {
-	var dto dto.UserChallengeDTO
+	var userChallngeDto dto.UserChallengeDTO
+	var challengedto dto.ChallengeDTO
 	userID := getUserIDFromContext(r.Context())
 
-	challenges, err := h.challengeUseCase.GetUserChallengeForToday(userID)
+	userChallenge, err := h.challengeUseCase.GetUserChallengeForToday(userID)
 
 	if err != nil {
+		logger.Log.WithError(err).Error("Failed to get challange")
 		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
 		return
 	}
 
-	err = utils.TypeConverter(challenges, &dto)
+	err = utils.TypeConverter(userChallenge, &userChallngeDto)
 
 	if err != nil {
+		logger.Log.WithError(err).Error("Failed to get challange")
 		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
 		return
 	}
+
+	challenge, err := h.challengeUseCase.GetChallengeByID(userChallenge.ChallengeID)
+
+	if err != nil {
+		logger.Log.WithError(err).Error("Failed to get challange")
+		http.Error(w, "Failed to get challenge", http.StatusInternalServerError)
+		return
+	}
+
+	err = utils.TypeConverter(challenge, &challengedto)
+
+	if err != nil {
+		logger.Log.WithError(err).Error("Failed to get challange")
+		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
+		return
+	}
+	userChallngeDto.Challenge = challengedto
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{
-		"challenge": dto,
+		"challenge": userChallngeDto,
 	})
 }
 
@@ -82,6 +103,7 @@ func (h *challengesHandler) getChallengeHistory(w http.ResponseWriter, r *http.R
 		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{
 		"challenge": dto,

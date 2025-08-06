@@ -119,6 +119,48 @@ func main() {
 	}
 	paymentRepo := repository.NewPaymentRepository(db)
 
+	dailyChallenge := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-challenge", func() any {
+		var dchallange domain.Challenge
+		dchallange, err := challengeRepo.GetTodaysChallenge()
+		if err != nil {
+			challenge := challengeRepo.GetRandomChallange()
+			err = challengeRepo.CreateChallenge(&challenge)
+			if err != nil {
+				logger.Log.WithError(err).Error("Could not generate daily challenge")
+				return err
+			}
+			dchallange = challenge
+		}
+		return dchallange
+	}, 24*time.Hour)
+
+	logger.Log.WithFields(map[string]any{
+		"ID":   dailyChallenge.(domain.Challenge).ID,
+		"date": time.Now().String(),
+	}).Debug("Created new daily challenge")
+
+	err = scheduler.AddJob("set-daily-challenge", "Daily challenge", utils.DAILY, func(ctx context.Context) error {
+		dailyChallenge := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-challenge", func() any {
+			challenge := challengeRepo.GetRandomChallange()
+			if err != nil {
+				logger.Log.WithError(err).Error("Could not generate daily challenge")
+				return err
+			}
+			err = challengeRepo.CreateChallenge(&challenge)
+			if err != nil {
+				logger.Log.WithError(err).Error("Could not generate daily challenge")
+				return err
+			}
+			return challenge
+		}, 24*time.Hour)
+
+		logger.Log.WithFields(map[string]any{
+			"ID":   dailyChallenge.(domain.Challenge).ID,
+			"date": time.Now().String(),
+		}).Debug("Created new daily reflection")
+		return nil
+	})
+
 	reflection := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-reflection", func() any {
 		ref := dailyRelectionUsecase.GetRandomDailyReflection()
 		if err != nil {
