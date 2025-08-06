@@ -13,7 +13,7 @@ class OnboardingPageOne extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Background image that fills the entire screen
+        
         Positioned.fill(
           child: Opacity(
             opacity: 0.01,

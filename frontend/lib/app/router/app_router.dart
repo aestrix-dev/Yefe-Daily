@@ -12,7 +12,11 @@ import '../../presentation/views/home/home_view.dart';
 import '../../presentation/views/journal/journal_view.dart';
 import '../../presentation/views/challenges/challenges_view.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+import 'package:stacked_services/stacked_services.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = StackedService.navigatorKey as GlobalKey<NavigatorState>;
+
+// final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: navigatorKey,

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:stacked/stacked.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
+import '../onboarding_viewmodel.dart';
 
-class OnboardingPageTwo extends StatefulWidget {
+class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
   final VoidCallback onContinue;
   final VoidCallback onBack;
 
@@ -16,22 +18,9 @@ class OnboardingPageTwo extends StatefulWidget {
   });
 
   @override
-  State<OnboardingPageTwo> createState() => _OnboardingPageTwoState();
-}
-
-class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
-  String selectedLanguage = 'Select language';
-  String userName = '';
-  bool morningPrompt = true;
-  bool eveningReflection = true;
-  bool challenge = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, OnboardingViewModel viewModel) {
     return Stack(
-      
       children: [
-       
         Positioned.fill(
           child: Opacity(
             opacity: 0.01,
@@ -41,21 +30,18 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
             ),
           ),
         ),
-
-        // Original content on top
         Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(
             child: Column(
               children: [
-                // SizedBox(height: 3.h),
                 // Back button section
                 Padding(
                   padding: EdgeInsets.all(20.w),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
-                      onTap: widget.onBack,
+                      onTap: onBack,
                       child: Container(
                         width: 40.w,
                         height: 40.h,
@@ -115,7 +101,7 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
 
                             SizedBox(height: 32.h),
 
-                            // Name field
+                            // Email field
                             Text(
                               'Email address',
                               style: TextStyle(
@@ -127,14 +113,12 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                             SizedBox(height: 8.h),
                             CustomTextField(
                               hintText: 'Enter email address',
-                              onChanged: (value) {
-                                setState(() {
-                                  userName = value;
-                                });
-                              },
+                              initialValue: viewModel.email,
+                              onChanged: viewModel.setEmail,
                             ),
 
                             SizedBox(height: 24.h),
+
                             // Name field
                             Text(
                               'Name',
@@ -147,11 +131,46 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                             SizedBox(height: 8.h),
                             CustomTextField(
                               hintText: 'Enter name',
-                              onChanged: (value) {
-                                setState(() {
-                                  userName = value;
-                                });
-                              },
+                              initialValue: viewModel.name,
+                              onChanged: viewModel.setName,
+                            ),
+
+                            SizedBox(height: 24.h),
+
+                            // Password field
+                            Text(
+                              'Password',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.black,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            CustomTextField(
+                              hintText: 'Enter password',
+                              initialValue: viewModel.password,
+                              isPassword: true,
+                              onChanged: viewModel.setPassword,
+                            ),
+
+                            SizedBox(height: 24.h),
+
+                            // Confirm Password field
+                            Text(
+                              'Confirm Password',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.black,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            CustomTextField(
+                              hintText: 'Confirm password',
+                              initialValue: viewModel.confirmPassword,
+                              isPassword: true,
+                              onChanged: viewModel.setConfirmPassword,
                             ),
 
                             SizedBox(height: 24.h),
@@ -167,7 +186,8 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                             ),
                             SizedBox(height: 8.h),
                             GestureDetector(
-                              onTap: () => _showLanguageBottomSheet(context),
+                              onTap: () =>
+                                  _showLanguageBottomSheet(context, viewModel),
                               child: Container(
                                 width: double.infinity,
                                 height: 50.h,
@@ -186,11 +206,11 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        selectedLanguage,
+                                        viewModel.selectedLanguage,
                                         style: TextStyle(
                                           fontSize: 14.sp,
                                           color:
-                                              selectedLanguage ==
+                                              viewModel.selectedLanguage ==
                                                   'Select language'
                                               ? AppColors.grey
                                               : AppColors.black,
@@ -225,12 +245,8 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                             _buildNotificationToggle(
                               '🌅',
                               'Morning Prompt',
-                              morningPrompt,
-                              (value) {
-                                setState(() {
-                                  morningPrompt = value;
-                                });
-                              },
+                              viewModel.morningPrompt,
+                              viewModel.setMorningPrompt,
                             ),
 
                             SizedBox(height: 12.h),
@@ -239,12 +255,8 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                             _buildNotificationToggle(
                               '🌙',
                               'Evening Reflection',
-                              eveningReflection,
-                              (value) {
-                                setState(() {
-                                  eveningReflection = value;
-                                });
-                              },
+                              viewModel.eveningReflection,
+                              viewModel.setEveningReflection,
                             ),
 
                             SizedBox(height: 12.h),
@@ -253,13 +265,31 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                             _buildNotificationToggle(
                               '🎯',
                               'Challenge',
-                              challenge,
-                              (value) {
-                                setState(() {
-                                  challenge = value;
-                                });
-                              },
+                              viewModel.challenge,
+                              viewModel.setChallenge,
                             ),
+
+                            // Show error message if any
+                            if (viewModel.errorMessage != null) ...[
+                              SizedBox(height: 16.h),
+                              Container(
+                                padding: EdgeInsets.all(12.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border: Border.all(
+                                    color: Colors.red.withOpacity(0.3),
+                                  ),
+                                ),
+                                child: Text(
+                                  viewModel.errorMessage!,
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              ),
+                            ],
 
                             // Extra space at bottom for scroll
                             SizedBox(height: 20.h),
@@ -276,7 +306,14 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
                   padding: EdgeInsets.all(16.w),
                   child: CustomButton(
                     text: 'Continue',
-                    onPressed: widget.onContinue,
+                    onPressed: () {
+                      if (viewModel.canProceedFromPageTwo()) {
+                        onContinue();
+                      } else {
+                        // Trigger validation
+                        viewModel.authenticateAndComplete(context);
+                      }
+                    },
                     width: double.infinity,
                     height: 50.h,
                   ),
@@ -289,7 +326,6 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
     );
   }
 
-  // Rest of your methods remain the same...
   Widget _buildNotificationToggle(
     String emoji,
     String title,
@@ -315,24 +351,23 @@ class _OnboardingPageTwoState extends State<OnboardingPageTwo> {
     );
   }
 
-  void _showLanguageBottomSheet(BuildContext context) {
+  void _showLanguageBottomSheet(
+    BuildContext context,
+    OnboardingViewModel viewModel,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.accentLight(context),
       isScrollControlled: true,
       builder: (context) => LanguageBottomSheet(
-        selectedLanguage: selectedLanguage,
-        onLanguageSelected: (language) {
-          setState(() {
-            selectedLanguage = language;
-          });
-        },
+        selectedLanguage: viewModel.selectedLanguage,
+        onLanguageSelected: viewModel.setSelectedLanguage,
       ),
     );
   }
 }
 
-// Keep all your other classes (_CustomSwitch, LanguageBottomSheet) exactly the same...
+// Keep your existing _CustomSwitch and LanguageBottomSheet classes
 class _CustomSwitch extends StatefulWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -482,11 +517,17 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w500,
-                    color: isSelected ? AppColors.primary(context) : AppColors.black,
+                    color: isSelected
+                        ? AppColors.primary(context)
+                        : AppColors.black,
                   ),
                 ),
                 if (isSelected)
-                  Icon(Icons.check, color: AppColors.primary(context), size: 20.sp),
+                  Icon(
+                    Icons.check,
+                    color: AppColors.primary(context),
+                    size: 20.sp,
+                  ),
               ],
             ),
           ),

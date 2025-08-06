@@ -8,7 +8,7 @@ class JournalApiService extends BaseApiService {
     Map<String, dynamic> data,
   ) async {
     return safeApiCall(
-      () => dioService.post('/journal/entries', data: data),
+      () => dioService.post('v1/journal/entries', data: data),
       (json) => JournalModel.fromJson(json),
     );
   }

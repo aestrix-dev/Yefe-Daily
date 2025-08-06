@@ -1,6 +1,7 @@
 class JournalModel {
   final String id;
   final String content;
+  final String type;
   final List<String> tags;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -8,6 +9,7 @@ class JournalModel {
   const JournalModel({
     required this.id,
     required this.content,
+    required this.type,
     required this.tags,
     required this.createdAt,
     required this.updatedAt,
@@ -17,6 +19,7 @@ class JournalModel {
     return JournalModel(
       id: json['id'] ?? '',
       content: json['content'] ?? '',
+      type: json['type'] ?? '',
       tags: List<String>.from(json['tags'] ?? []),
       createdAt: DateTime.parse(
         json['created_at'] ??
@@ -35,6 +38,7 @@ class JournalModel {
     return {
       'id': id,
       'content': content,
+      'type' : type,
       'tags': tags,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),

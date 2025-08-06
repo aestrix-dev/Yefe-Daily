@@ -40,7 +40,7 @@ class OnboardingView extends StackedView<OnboardingViewModel> {
 
             // Page 3
             OnboardingPageThree(
-              onContinue: viewModel.completeOnboarding,
+              onContinue: () => viewModel.completeOnboarding(context),
               onBack: viewModel.previousPage,
             ),
           ],

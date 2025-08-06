@@ -1,10 +1,12 @@
 import 'package:get_it/get_it.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:yefa/data/repositories/audio_repository.dart';
+import 'package:yefa/data/repositories/auth_repository.dart';
 import 'package:yefa/data/repositories/challenge_repository.dart';
 import 'package:yefa/data/repositories/journal_repository.dart';
 import 'package:yefa/data/repositories/user_repository.dart';
 import 'package:yefa/data/services/audio_api_service.dart';
+import 'package:yefa/data/services/auth_service.dart';
 import 'package:yefa/data/services/challenge_api_service.dart';
 import 'package:yefa/data/services/dio_service.dart';
 import 'package:yefa/data/services/journal_api_service.dart';
@@ -48,6 +50,7 @@ class AppSetup {
 
     //  Register API services (depend on DioService)
     print('🔌 Registering API services...');
+    locator.registerLazySingleton<AuthApiService>(() => AuthApiService());
     locator.registerLazySingleton<AudioApiService>(() => AudioApiService());
     locator.registerLazySingleton<ChallengeApiService>(() => ChallengeApiService());
     locator.registerLazySingleton<UserApiService>(() => UserApiService());
@@ -55,6 +58,7 @@ class AppSetup {
 
     //  Register repositories (depend on API services)
     print('📚 Registering repositories...');
+    locator.registerLazySingleton<AuthRepository>(() => AuthRepository());
     locator.registerLazySingleton<AudioRepository>(() => AudioRepository());
     locator.registerLazySingleton<ChallengeRepository>(() => ChallengeRepository());
     locator.registerLazySingleton<UserRepository>(() => UserRepository());
@@ -77,12 +81,14 @@ class AppSetup {
       locator<DioService>();
       
       // Test API services
+      locator<AuthApiService>();
       locator<AudioApiService>();
       locator<ChallengeApiService>();
       locator<UserApiService>();
       locator<JournalApiService>();
       
       // Test repositories
+      locator<AuthRepository>();
       locator<AudioRepository>();
       locator<ChallengeRepository>();
       locator<UserRepository>();

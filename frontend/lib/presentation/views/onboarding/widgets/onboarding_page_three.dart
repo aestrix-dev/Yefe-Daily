@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:yefa/app/app_setup.dart';
-import 'package:yefa/core/constants/app_routes.dart';
-import 'package:yefa/data/services/storage_service.dart';
+import 'package:stacked/stacked.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../shared/widgets/custom_button.dart';
-import 'package:go_router/go_router.dart';
+import '../onboarding_viewmodel.dart';
 
-class OnboardingPageThree extends StatefulWidget {
+class OnboardingPageThree extends ViewModelWidget<OnboardingViewModel> {
   final VoidCallback onContinue;
   final VoidCallback onBack;
 
@@ -19,31 +17,9 @@ class OnboardingPageThree extends StatefulWidget {
   });
 
   @override
-  State<OnboardingPageThree> createState() => _OnboardingPageThreeState();
-}
-
-class _OnboardingPageThreeState extends State<OnboardingPageThree> {
-  TimeOfDay? morningTime;
-  TimeOfDay? eveningTime;
-  bool _isNavigating = false;
-
-  // Check if both times are selected
-  bool get isFormValid => morningTime != null && eveningTime != null;
-
-  @override
-  void initState() {
-    super.initState();
-    // Set default times
-    morningTime = const TimeOfDay(hour: 6, minute: 0); // 6:00 AM
-    eveningTime = const TimeOfDay(hour: 21, minute: 0); // 9:00 PM
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, OnboardingViewModel viewModel) {
     return Stack(
-      // Changed from Scaffold to Stack for background
       children: [
-        // Background image that fills the entire screen
         Positioned.fill(
           child: Opacity(
             opacity: 0.01,
@@ -53,137 +29,237 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
             ),
           ),
         ),
-
-        // Original content on top
         Scaffold(
-          backgroundColor: Colors.transparent, // Make scaffold transparent
+          backgroundColor: Colors.transparent,
           body: SafeArea(
-            child: Column(
-              children: [
-                SizedBox(height: 58.h),
-                // Back button section
-                Padding(
-                  padding: EdgeInsets.all(15.w),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: GestureDetector(
-                      onTap: widget.onBack,
-                      child: Container(
-                        width: 40.w,
-                        height: 40.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.accentDark(context),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.arrow_back_ios_new,
-                          size: 18.sp,
-                          color: AppColors.black,
-                        ),
-                      ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
                     ),
-                  ),
-                ),
-
-                // Card section
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14.w),
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: AppColors.accentDark(context),
-                        borderRadius: BorderRadius.circular(20.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
+                          SizedBox(height: 58.h),
+                          // Back button section
+                          Padding(
+                            padding: EdgeInsets.all(15.w),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: GestureDetector(
+                                onTap: onBack,
+                                child: Container(
+                                  width: 40.w,
+                                  height: 40.h,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accentDark(context),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.arrow_back_ios_new,
+                                    size: 18.sp,
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
+
+                          // Card section - now flexible
+                          Flexible(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 14.w),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: AppColors.accentDark(context),
+                                  borderRadius: BorderRadius.circular(20.r),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(15.w),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Title
+                                      Text(
+                                        'Reminders Setup',
+                                        style: TextStyle(
+                                          fontSize: 24.sp,
+                                          fontWeight: FontWeight.w900,
+                                          color: AppColors.black,
+                                          height: 1.2,
+                                        ),
+                                      ),
+
+                                      SizedBox(height: 40.h),
+
+                                      // Morning Reminder
+                                      Text(
+                                        'Morning Reminder',
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+
+                                      SizedBox(height: 12.h),
+
+                                      _buildTimeSelector(
+                                        context: context,
+                                        time: _parseTimeString(
+                                          viewModel.morningReminder,
+                                        ),
+                                        onTap: () => _selectTime(
+                                          context,
+                                          viewModel,
+                                          true,
+                                        ),
+                                      ),
+
+                                      SizedBox(height: 32.h),
+
+                                      // Evening Reminder
+                                      Text(
+                                        'Evening Reminder',
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+
+                                      SizedBox(height: 12.h),
+
+                                      _buildTimeSelector(
+                                        context: context,
+                                        time: _parseTimeString(
+                                          viewModel.eveningReminder,
+                                        ),
+                                        onTap: () => _selectTime(
+                                          context,
+                                          viewModel,
+                                          false,
+                                        ),
+                                      ),
+
+                                      // Animated error message container
+                                      AnimatedContainer(
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        curve: Curves.easeInOut,
+                                        height: viewModel.errorMessage != null
+                                            ? null
+                                            : 0,
+                                        child: AnimatedOpacity(
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
+                                          opacity:
+                                              viewModel.errorMessage != null
+                                              ? 1.0
+                                              : 0.0,
+                                          child: viewModel.errorMessage != null
+                                              ? Container(
+                                                  margin: EdgeInsets.only(
+                                                    top: 24.h,
+                                                  ),
+                                                  padding: EdgeInsets.all(12.w),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red
+                                                        .withOpacity(0.1),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8.r,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: Colors.red
+                                                          .withOpacity(0.3),
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.error_outline,
+                                                        color: Colors.red,
+                                                        size: 20.sp,
+                                                      ),
+                                                      SizedBox(width: 8.w),
+                                                      Expanded(
+                                                        child: Text(
+                                                          viewModel
+                                                              .errorMessage!,
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                            fontSize: 14.sp,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              : const SizedBox.shrink(),
+                                        ),
+                                      ),
+
+                                      // Add some bottom padding to the card content
+                                      SizedBox(height: 20.h),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Spacer to push button to bottom
+                          // const Spacer(),
+
+                          // Set Reminder button - fixed at bottom
+                          Padding(
+                            padding: EdgeInsets.all(20.w),
+                            child: CustomButton(
+                              text: viewModel.isAuthenticating
+                                  ? 'Authenticating...'
+                                  : 'Set Reminder',
+                              onPressed: viewModel.isAuthenticating
+                                  ? null
+                                  : () => viewModel.authenticateAndComplete(context),
+                              width: double.infinity,
+                              height: 56.h,
+                              backgroundColor: AppColors.accentLight(context),
+                            ),
+                          ),
+
+                          // Bottom safe area
+                          SizedBox(height: 20.h),
+                          
                         ],
                       ),
-                      child: Padding(
-                        padding: EdgeInsets.all(15.w),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Title
-                            Text(
-                              'Reminders Setup',
-                              style: TextStyle(
-                                fontSize: 24.sp,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.black,
-                                height: 1.2,
-                              ),
-                            ),
-
-                            SizedBox(height: 40.h),
-
-                            // Morning Reminder
-                            Text(
-                              'Morning Reminder',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
-                              ),
-                            ),
-
-                            SizedBox(height: 12.h),
-
-                            _buildTimeSelector(
-                              time: morningTime,
-                              onTap: () => _selectTime(context, true),
-                            ),
-
-                            SizedBox(height: 32.h),
-
-                            // Evening Reminder
-                            Text(
-                              'Evening Reminder',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
-                              ),
-                            ),
-
-                            SizedBox(height: 12.h),
-
-                            _buildTimeSelector(
-                              time: eveningTime,
-                              onTap: () => _selectTime(context, false),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
-                ),
-
-                SizedBox(height: 40.h),
-
-                // Set Reminder button
-                Padding(
-                  padding: EdgeInsets.all(20.w),
-                  child: CustomButton(
-                    text: _isNavigating ? 'Setting...' : 'Set Reminder',
-                    onPressed: _isNavigating ? () {} : _handleSetReminder,
-                    width: double.infinity,
-                    height: 56.h,
-                    backgroundColor: AppColors.accentLight(context),
-                  ),
-                ),
-                SizedBox(height: 120.h),
-              ],
+                );
+              },
             ),
           ),
         ),
@@ -192,6 +268,7 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
   }
 
   Widget _buildTimeSelector({
+    required BuildContext context,
     required TimeOfDay? time,
     required VoidCallback onTap,
   }) {
@@ -238,12 +315,22 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
     );
   }
 
-  Future<void> _selectTime(BuildContext context, bool isMorning) async {
+  Future<void> _selectTime(
+    BuildContext context,
+    OnboardingViewModel viewModel,
+    bool isMorning,
+  ) async {
+    final currentTime = isMorning
+        ? _parseTimeString(viewModel.morningReminder)
+        : _parseTimeString(viewModel.eveningReminder);
+
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: isMorning
-          ? (morningTime ?? const TimeOfDay(hour: 6, minute: 0))
-          : (eveningTime ?? const TimeOfDay(hour: 21, minute: 0)),
+      initialTime:
+          currentTime ??
+          (isMorning
+              ? const TimeOfDay(hour: 6, minute: 0)
+              : const TimeOfDay(hour: 21, minute: 0)),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -260,7 +347,8 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
               helpTextStyle: TextStyle(color: AppColors.black, fontSize: 16.sp),
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: AppColors.primary(context),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary(context),
               ),
             ),
           ),
@@ -270,13 +358,12 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
     );
 
     if (picked != null) {
-      setState(() {
-        if (isMorning) {
-          morningTime = picked;
-        } else {
-          eveningTime = picked;
-        }
-      });
+      final timeString = _formatTimeToString(picked);
+      if (isMorning) {
+        viewModel.setMorningReminder(timeString);
+      } else {
+        viewModel.setEveningReminder(timeString);
+      }
     }
   }
 
@@ -289,27 +376,23 @@ class _OnboardingPageThreeState extends State<OnboardingPageThree> {
     return '$displayHour:$minute $period';
   }
 
-  void _handleSetReminder() async {
-    if (isFormValid && !_isNavigating) {
-      setState(() {
-        _isNavigating = true;
-      });
+  String _formatTimeToString(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
 
-      // Print the reminder times
-      print('Morning reminder set for: ${_formatTime(morningTime!)}');
-      print('Evening reminder set for: ${_formatTime(eveningTime!)}');
-
-      // Save to storage directly here
-      final storageService = locator<StorageService>();
-      await storageService.setBool('hasSeenOnboarding', true);
-      await storageService.setBool('isLoggedIn', true);
-
-      print('OnboardingPageThree: Storage values set, navigating to home');
-
-      // Navigate directly using the widget's context
-      if (mounted) {
-        context.pushReplacement(AppRoutes.home);
+  TimeOfDay? _parseTimeString(String timeString) {
+    try {
+      final parts = timeString.split(':');
+      if (parts.length == 2) {
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        return TimeOfDay(hour: hour, minute: minute);
       }
+    } catch (e) {
+      print('Error parsing time string: $timeString');
     }
+    return null;
   }
 }
