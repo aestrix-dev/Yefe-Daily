@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 import 'package:go_router/go_router.dart';
 
+
 import '../../../core/constants/app_colors.dart';
 import '../../shared/widgets/custom_bottom_nav.dart';
 import 'journal_viewmodel.dart';
@@ -20,6 +21,12 @@ class JournalView extends StackedView<JournalViewModel> {
     Widget? child,
   ) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (viewModel.contextAlreadySet != true) {
+        viewModel.setContext(context);
+      }
+    });
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -119,6 +126,7 @@ class JournalView extends StackedView<JournalViewModel> {
               ),
 
               SizedBox(height: 14.h),
+
               // Content
               Center(
                 child: viewModel.shouldShowUpgradeCard
@@ -130,6 +138,7 @@ class JournalView extends StackedView<JournalViewModel> {
                         onContentChanged: viewModel.updateJournalContent,
                         onTagToggle: viewModel.toggleTag,
                         onSave: viewModel.saveJournalEntry,
+                        isSaving: viewModel.isSaving,
                       ),
               ),
             ],
@@ -142,4 +151,7 @@ class JournalView extends StackedView<JournalViewModel> {
 
   @override
   JournalViewModel viewModelBuilder(BuildContext context) => JournalViewModel();
+
+  
 }
+

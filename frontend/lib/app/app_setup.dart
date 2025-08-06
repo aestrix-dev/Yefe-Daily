@@ -10,6 +10,7 @@ import 'package:yefa/data/services/auth_service.dart';
 import 'package:yefa/data/services/challenge_api_service.dart';
 import 'package:yefa/data/services/dio_service.dart';
 import 'package:yefa/data/services/journal_api_service.dart';
+import 'package:yefa/data/services/toast_service.dart';
 import 'package:yefa/data/services/user_api_service.dart';
 
 import '../core/utils/navigation_service.dart';
@@ -43,6 +44,10 @@ class AppSetup {
     //  Register theme service
     print('🎨 Registering theme service...');
     locator.registerSingleton<ThemeService>(ThemeService());
+
+     // Register toast service
+    print('🍞 Registering toast service...');
+    locator.registerSingleton<ToastService>(ToastService.instance);
 
     // Register HTTP client service
     print('🌐 Registering HTTP client...');

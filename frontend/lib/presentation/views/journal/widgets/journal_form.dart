@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_colors.dart';
 
-class JournalForm extends StatelessWidget {
+class JournalForm extends StatefulWidget {
   final String content;
   final List<String> selectedTags;
   final List<String> availableTags;
   final ValueChanged<String> onContentChanged;
   final ValueChanged<String> onTagToggle;
   final VoidCallback onSave;
+  final bool isSaving;
 
   const JournalForm({
     super.key,
@@ -18,7 +19,37 @@ class JournalForm extends StatelessWidget {
     required this.onContentChanged,
     required this.onTagToggle,
     required this.onSave,
+    required this.isSaving,
   });
+
+  @override
+  State<JournalForm> createState() => _JournalFormState();
+}
+
+class _JournalFormState extends State<JournalForm> {
+  late TextEditingController _textController;
+
+  @override
+  void initState() {
+    super.initState();
+    _textController = TextEditingController(text: widget.content);
+  }
+
+  @override
+  void didUpdateWidget(JournalForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update controller when content changes (like when form is cleared)
+    if (widget.content != oldWidget.content &&
+        widget.content != _textController.text) {
+      _textController.text = widget.content;
+    }
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +90,9 @@ class JournalForm extends StatelessWidget {
                     border: Border.all(color: AppColors.primary(context)),
                   ),
                   child: TextField(
-                    onChanged: onContentChanged,
+                    controller: _textController,
+                    onChanged: widget.onContentChanged,
+                    enabled: !widget.isSaving, // Disable while saving
                     maxLines: null,
                     expands: true,
                     textAlignVertical: TextAlignVertical.top,
@@ -72,7 +105,9 @@ class JournalForm extends StatelessWidget {
                         fontSize: 14.sp,
                       ),
                     ),
-                    style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary(context),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                 ),
@@ -95,10 +130,12 @@ class JournalForm extends StatelessWidget {
                 Wrap(
                   spacing: 8.w,
                   runSpacing: 8.h,
-                  children: availableTags.map((tag) {
-                    final isSelected = selectedTags.contains(tag);
+                  children: widget.availableTags.map((tag) {
+                    final isSelected = widget.selectedTags.contains(tag);
                     return GestureDetector(
-                      onTap: () => onTagToggle(tag),
+                      onTap: widget.isSaving
+                          ? null
+                          : () => widget.onTagToggle(tag),
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 16.w,
@@ -115,7 +152,9 @@ class JournalForm extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w500,
-                            color: isSelected ? AppColors.primary(context) : Colors.black,
+                            color: isSelected
+                                ? AppColors.primary(context)
+                                : Colors.black,
                           ),
                         ),
                       ),
@@ -133,7 +172,9 @@ class JournalForm extends StatelessWidget {
             width: double.infinity,
             height: 38.h,
             child: ElevatedButton(
-              onPressed: content.trim().isNotEmpty ? onSave : null,
+              onPressed: (widget.content.trim().isNotEmpty && !widget.isSaving)
+                  ? widget.onSave
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary(context),
                 disabledBackgroundColor: AppColors.accentLight(context),
@@ -141,14 +182,38 @@ class JournalForm extends StatelessWidget {
                   borderRadius: BorderRadius.circular(26.r),
                 ),
               ),
-              child: Text(
-                'Save',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
+              child: widget.isSaving
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 14.w,
+                          height: 14.h,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Saving...',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      'Save',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
           ),
         ],

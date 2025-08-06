@@ -1,115 +1,126 @@
+import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
-import 'models/history_model.dart';
+import '../../../data/models/journal_model.dart';
+import '../../../data/repositories/journal_repository.dart';
+import '../../../core/utils/api_result.dart';
+import '../../../app/app_setup.dart';
+import '../../shared/widgets/toast_overlay.dart';
 
 class HistoryViewModel extends BaseViewModel {
-  List<HistoryItemModel> _historyItems = [];
+  final JournalRepository _journalRepository = locator<JournalRepository>();
+
+  List<JournalModel> _entries = [];
+  String? _errorMessage;
+  BuildContext? _context;
 
   // Getters
-  List<HistoryItemModel> get historyItems => _historyItems;
+  List<JournalModel> get historyItems => _entries;
+  String? get errorMessage => _errorMessage;
+  bool get hasError => _errorMessage != null;
 
-  void onModelReady() {
-    _loadHistoryData();
+  void setContext(BuildContext context) {
+    if (_context != null) return;
+    _context = context;
   }
 
-  void _loadHistoryData() async {
+  void onModelReady() {
+    fetchJournalEntries();
+  }
+
+  Future<void> fetchJournalEntries() async {
+    print('🔄 Fetching journal entries...');
     setBusy(true);
+    _errorMessage = null;
 
-    // Simulate loading delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    final result = await _journalRepository.getJournalEntries();
 
-    _historyItems = [
-      HistoryItemModel(
-        id: '1',
-        title: 'Morning Reflection + Faith',
-        description:
-            'Today I choose to be patient with my family and I focus and lay my purpose...',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-        type: HistoryType.reflection,
-        status: HistoryStatus.completed,
-      ),
-      HistoryItemModel(
-        id: '2',
-        title: 'Morning Reflection + Faith',
-        description:
-            'Grateful for the challenges that shape me into who I\'m becoming.',
-        timestamp: DateTime.now().subtract(const Duration(hours: 1)),
-        type: HistoryType.reflection,
-        status: HistoryStatus.completed,
-      ),
-      HistoryItemModel(
-        id: '3',
-        title: 'Evening Reflection',
-        description:
-            'Grateful for the challenges that shape me into who I\'m becoming.',
-        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        type: HistoryType.reflection,
-        status: HistoryStatus.completed,
-      ),
-      HistoryItemModel(
-        id: '4',
-        title: 'Morning Reflection + Faith',
-        description:
-            'Grateful for the challenges that shape me into who I\'m becoming.',
-        timestamp: DateTime.now().subtract(const Duration(hours: 4)),
-        type: HistoryType.reflection,
-        status: HistoryStatus.completed,
-      ),
-      HistoryItemModel(
-        id: '5',
-        title: 'Evening Reflection',
-        description:
-            'Grateful for the challenges that shape me into who I\'m becoming.',
-        timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        type: HistoryType.reflection,
-        status: HistoryStatus.completed,
-      ),
-      HistoryItemModel(
-        id: '6',
-        title: 'Evening Reflection',
-        description:
-            'Grateful for the challenges that shape me into who I\'m becoming.',
-        timestamp: DateTime.now().subtract(const Duration(days: 2)),
-        type: HistoryType.reflection,
-        status: HistoryStatus.completed,
-      ),
-    ];
+    if (result.isSuccess) {
+      _entries = result.data ?? [];
+
+      // Debug Logging
+      print('🟢 API Call Success');
+      print('📊 Entries Count: ${_entries.length}');
+      for (var entry in _entries) {
+        print('➡️ Entry ID: ${entry.id}');
+        print('    Type: ${entry.type}');
+        print('    Content: ${entry.content}');
+        print('    Tags: ${entry.tags}');
+        print('    Created At: ${entry.createdAt}');
+      }
+
+      if (_entries.isEmpty) {
+        print('⚠️ Entries list is empty!');
+      } else {
+        print('✅ Entries loaded into ViewModel');
+      }
+    } else {
+      _errorMessage = result.error ?? 'Failed to fetch entries';
+      print('❌ API Call Failed: $_errorMessage');
+      _showErrorToast(_errorMessage!);
+    }
 
     setBusy(false);
     notifyListeners();
   }
 
-  void onHistoryItemTap(HistoryItemModel item) {
-    print('History item tapped: ${item.title}');
-    // TODO: Navigate to detail view or show more info
+  Future<void> onDeleteEntry(String entryId) async {
+    final confirm = await _showDeleteConfirmation();
+    if (!confirm) return;
+
+    setBusy(true);
+    final result = await _journalRepository.deleteJournalEntry(entryId);
+
+    if (result.isSuccess) {
+      _entries.removeWhere((entry) => entry.id == entryId);
+      _showSuccessToast('Entry deleted successfully');
+    } else {
+      _showErrorToast(result.error ?? 'Failed to delete entry');
+    }
+
+    setBusy(false);
+    notifyListeners();
   }
 
-  String formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
+  Future<bool> _showDeleteConfirmation() async {
+    if (_context == null) return false;
 
-    if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} mins ago, ${_formatTime(timestamp)}';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours} hours ago, ${_formatTime(timestamp)}';
-    } else if (difference.inDays == 1) {
-      return 'Yesterday, ${_formatTime(timestamp)}';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago, ${_formatTime(timestamp)}';
-    } else {
-      return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
+    return await showDialog<bool>(
+          context: _context!,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Delete Entry?'),
+              content: const Text(
+                'Are you sure you want to delete this entry?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
+
+  void _showSuccessToast(String message) {
+    if (_context != null) {
+      ToastOverlay.showSuccess(context: _context!, message: message);
     }
   }
 
-  String _formatTime(DateTime dateTime) {
-    final hour = dateTime.hour;
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-
-    return '$displayHour:$minute $period';
+  void _showErrorToast(String message) {
+    if (_context != null) {
+      ToastOverlay.showError(context: _context!, message: message);
+    }
   }
 
-  void refreshHistory() {
-    _loadHistoryData();
+  Future<void> refreshHistory() async {
+    await fetchJournalEntries();
   }
 }

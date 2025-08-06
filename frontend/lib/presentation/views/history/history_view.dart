@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../../core/constants/app_colors.dart';
-
 import 'history_viewmodel.dart';
 import 'widgets/history_item_card.dart';
 
@@ -19,8 +18,13 @@ class HistoryView extends StackedView<HistoryViewModel> {
   ) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
+    // Pass context safely once
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      viewModel.setContext(context);
+    });
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-       value: SystemUiOverlayStyle(
+      value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDarkMode
             ? Brightness.light
@@ -59,22 +63,29 @@ class HistoryView extends StackedView<HistoryViewModel> {
                 )
               : viewModel.historyItems.isEmpty
               ? _buildEmptyState(context)
-              : ListView.builder(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 16.h,
+              : RefreshIndicator(
+                  onRefresh: viewModel.refreshHistory,
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.w,
+                      vertical: 16.h,
+                    ),
+                    itemCount: viewModel.historyItems.length,
+                    itemBuilder: (context, index) {
+                      final item = viewModel.historyItems[index];
+                      return HistoryItemCard(
+                        entry: item,
+                        onTap: () {
+                          print('Tapped entry: ${item.id}');
+                        },
+                        onDelete: () {
+                          viewModel.onDeleteEntry(item.id);
+                        },
+                      );
+                    },
                   ),
-                  itemCount: viewModel.historyItems.length,
-                  itemBuilder: (context, index) {
-                    final item = viewModel.historyItems[index];
-                    return HistoryItemCard(
-                      item: item,
-                      onTap: () => viewModel.onHistoryItemTap(item),
-                    );
-                  },
                 ),
         ),
-      
       ),
     );
   }
