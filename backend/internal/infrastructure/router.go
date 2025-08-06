@@ -138,6 +138,7 @@ func NewRouter(config ServerConfig) http.Handler {
 			r.Mount("/challenges", challenges_handler.Handle())
 			r.Mount("/songs", song_handler.Handle())
 			r.Mount("/payments", payments_handler.Handle())
+			r.Get("/reflection", dailyRefelction_handler.GetTodaysReflection)
 		})
 
 		r.Group(func(r chi.Router) {
@@ -159,7 +160,6 @@ func NewRouter(config ServerConfig) http.Handler {
 		r.Post("/auth/register", auth_handlers.RegisterRoute)
 		r.Post("/accept-invitation", admin_user_handelrs.AcceptInvitation)
 		r.Post("/webhooks/stripe", payments_handler.StripeWebhook)
-		r.Get("/reflection", dailyRefelction_handler.GetTodaysReflection)
 	})
 
 	return r
