@@ -113,11 +113,16 @@ func (r *journalRepository) GetByUserIDAndTags(ctx context.Context, userID strin
 }
 
 func (r *journalRepository) Update(ctx context.Context, entry *domain.JournalEntry) error {
-	return r.db.WithContext(ctx).Save(entry).Error
+  var dbJournal models.JournalEntry
+  err := utils.TypeConverter(entry, &dbJournal)
+  if err != nil{
+    return err
+  }
+	return r.db.WithContext(ctx).Save(dbJournal).Error
 }
 
 func (r *journalRepository) Delete(ctx context.Context, id string) error {
-	return r.db.WithContext(ctx).Delete(&domain.JournalEntry{}, "id = ?", id).Error
+	return r.db.WithContext(ctx).Delete(&models.JournalEntry{}, "id = ?", id).Error
 }
 
 func (r *journalRepository) Count(ctx context.Context, userID string) (int64, error) {
