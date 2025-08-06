@@ -91,8 +91,6 @@ func autoMigrate(db *gorm.DB) error {
 func createIndexes(db *gorm.DB) error {
 	indexes := []string{
 		"CREATE INDEX IF NOT EXISTS idx_users_email_active ON users(email, is_active)",
-		"CREATE INDEX IF NOT EXISTS idx_sessions_user_active ON sessions(user_id, is_active)",
-		"CREATE INDEX IF NOT EXISTS idx_sessions_expires_active ON sessions(expires_at, is_active)",
 		"CREATE INDEX IF NOT EXISTS idx_security_events_user_type ON security_events(user_id, event_type)",
 		"CREATE INDEX IF NOT EXISTS idx_security_events_created_severity ON security_events(created_at, severity)",
 		"CREATE INDEX IF NOT EXISTS idx_content_search ON journal_entries USING gin(to_tsvector('english',' ' || content));",
