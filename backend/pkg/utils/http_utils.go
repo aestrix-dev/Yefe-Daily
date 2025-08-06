@@ -42,8 +42,8 @@ func GetClientIP(r *http.Request) string {
 
 func HandleDomainError(w http.ResponseWriter, err error) {
 	switch {
-	case errors.Is(err, domain.ErrUserNotFound):
-		ErrorResponse(w, http.StatusNotFound, "User not found", nil)
+	case errors.Is(err, domain.ErrUserNotFound) || errors.Is(err, domain.ErrEntryNotFound):
+		ErrorResponse(w, http.StatusNotFound, "Resource not found", nil)
 
 	case errors.Is(err, domain.ErrInvalidPlanType),
 		errors.Is(err, domain.ErrInvalidUserStatus),
@@ -84,7 +84,7 @@ func HandleDomainError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrEmailAlreadyExists),
 		errors.Is(err, domain.ErrUsernameAlreadyExists):
 		fmt.Println(err)
-		ErrorResponse(w, http.StatusConflict, "Resource already exists", nil)
+		ErrorResponse(w, http.StatusConflict, "User already exists", nil)
 
 	case errors.Is(err, domain.ErrInvalidToken):
 		fmt.Println(err)
