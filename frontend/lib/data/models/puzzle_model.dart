@@ -131,12 +131,12 @@ class PuzzleSubmissionResponse {
   });
 
   factory PuzzleSubmissionResponse.fromJson(Map<String, dynamic> json) {
+    final innerData = json['data']?['data'];
+
     return PuzzleSubmissionResponse(
       success: json['success'] ?? false,
       message: json['message'] ?? '',
-      data: json['data'] != null
-          ? PuzzleSubmissionData.fromJson(json['data'])
-          : null,
+      data: innerData != null ? PuzzleSubmissionData.fromJson(innerData) : null,
       timestamp: DateTime.parse(
         json['timestamp'] ?? DateTime.now().toIso8601String(),
       ),

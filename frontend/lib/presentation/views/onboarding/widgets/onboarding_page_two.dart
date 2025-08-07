@@ -357,7 +357,7 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
   ) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.accentLight(context),
+      backgroundColor: AppColors.accentDark(context),
       isScrollControlled: true,
       builder: (context) => LanguageBottomSheet(
         selectedLanguage: viewModel.selectedLanguage,
@@ -367,7 +367,6 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
   }
 }
 
-// Keep your existing _CustomSwitch and LanguageBottomSheet classes
 class _CustomSwitch extends StatefulWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -457,7 +456,7 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.accentLight(context),
+        color: AppColors.accentDark(context),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Column(

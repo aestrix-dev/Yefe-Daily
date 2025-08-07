@@ -20,14 +20,12 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
     Widget? child,
   ) {
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (viewModel.context == null) {
-        final overlayContext = Navigator.of(context).overlay?.context;
-        if (overlayContext != null) {
-          viewModel.setContext(overlayContext);
-        }
+       WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (viewModel.contextAlreadySet != true) {
+        viewModel.setContext(context);
       }
     });
+
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -205,7 +203,5 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
     super.onViewModelReady(viewModel);
     viewModel.onModelReady(); 
   }
-
-
 
 }

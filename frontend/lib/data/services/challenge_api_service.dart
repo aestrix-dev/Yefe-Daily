@@ -84,12 +84,26 @@ class ChallengeApiService extends BaseApiService {
       print('✅ Submit Answer Response: ${response.statusCode}');
       print('📥 Response Data: ${response.data}');
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final submissionResponse = PuzzleSubmissionResponse.fromJson(
-          response.data,
+     if (response.statusCode == 200 || response.statusCode == 201) {
+        final fullJson = response.data as Map<String, dynamic>;
+
+        final innerData = fullJson['data']?['data'];
+        final submissionData = innerData != null
+            ? PuzzleSubmissionData.fromJson(innerData)
+            : null;
+
+        final submissionResponse = PuzzleSubmissionResponse(
+          success: fullJson['success'] ?? false,
+          message: fullJson['message'] ?? '',
+          timestamp: DateTime.parse(
+            fullJson['timestamp'] ?? DateTime.now().toIso8601String(),
+          ),
+          data: submissionData,
         );
+
         return Success(submissionResponse);
-      } else {
+      }
+        else {
         return Failure(
           'Failed to submit puzzle answer with status ${response.statusCode}',
           statusCode: response.statusCode,

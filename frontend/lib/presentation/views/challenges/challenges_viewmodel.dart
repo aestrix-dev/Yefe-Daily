@@ -35,7 +35,13 @@ class ChallengesViewModel extends BaseViewModel {
   // Store context for toast usage
   BuildContext? _context;
 
-  BuildContext? get context => _context;
+  bool contextAlreadySet = false;
+
+  void setContext(BuildContext context) {
+    if (contextAlreadySet) return;
+    _context = context;
+    contextAlreadySet = true;
+  }
 
 
   // Existing getters
@@ -71,10 +77,6 @@ class ChallengesViewModel extends BaseViewModel {
     super.dispose();
   }
 
-  // Set context when view is ready
-  void setContext(BuildContext context) {
-    _context = context;
-  }
 
   void onModelReady() {
     _setupTimerCallbacks();

@@ -397,63 +397,69 @@ class PuzzleSection extends StatelessWidget {
     );
   }
 
-  Widget _buildCountdownCard(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppColors.accentLight(context),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            Icons.access_time,
-            size: 48.sp,
-            color: AppColors.primary(context),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'Daily Puzzle',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary(context),
+Widget _buildCountdownCard(BuildContext context) {
+    return SizedBox(
+      width: double.infinity, // 💡 Ensures full width
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+        padding: EdgeInsets.all(20.w),
+        decoration: BoxDecoration(
+          color: AppColors.accentLight(context),
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center, // 💡 Center contents
+          children: [
+            Icon(
+              Icons.access_time,
+              size: 48.sp,
+              color: AppColors.primary(context),
             ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Come back for your next puzzle in:',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: AppColors.textSecondary(context),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 16.h),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-            decoration: BoxDecoration(
-              color: AppColors.primary(context).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(25.r),
-              border: Border.all(
-                color: AppColors.primary(context).withOpacity(0.3),
-              ),
-            ),
-            child: Text(
-              puzzleState.timeUntilNextPuzzle,
+            SizedBox(height: 16.h),
+            Text(
+              'Daily Puzzle',
               style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary(context),
-                fontFamily: 'monospace',
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary(context),
               ),
             ),
-          ),
-        ],
+            SizedBox(height: 8.h),
+            Text(
+              'Come back for your next puzzle in:',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.textSecondary(context),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 16.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+              decoration: BoxDecoration(
+                color: AppColors.primary(context).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(25.r),
+                border: Border.all(
+                  color: AppColors.primary(context).withOpacity(0.3),
+                ),
+              ),
+              child: Text(
+                puzzleState.timeUntilNextPuzzle,
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary(context),
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
 
   Widget _buildEmptyState(BuildContext context) {
     return Container(

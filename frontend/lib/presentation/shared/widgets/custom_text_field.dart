@@ -74,11 +74,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
       controller: _controller,
       onChanged: widget.onChanged,
       keyboardType: widget.keyboardType,
+      
       obscureText: _isObscured,
       style: TextStyle(fontSize: 14.sp, color: AppColors.black),
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: TextStyle(fontSize: 14.sp, color: AppColors.grey),
+        fillColor: Colors.white,
+        filled: true,
         suffixIcon: _buildSuffixIcon(),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20.r),
