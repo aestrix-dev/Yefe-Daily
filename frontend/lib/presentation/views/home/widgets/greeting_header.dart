@@ -29,7 +29,7 @@ class GreetingHeader extends StatelessWidget {
                 Text(
                   'Good Morning, $userName 🌤️',
                   style: TextStyle(
-                    fontSize: 24.sp,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary(context),
                   ),

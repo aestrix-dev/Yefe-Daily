@@ -1,6 +1,8 @@
 
 import 'package:dio/dio.dart';
+import 'package:yefa/app/app_setup.dart';
 import 'package:yefa/data/models/auth_model.dart';
+import 'package:yefa/data/services/storage_service.dart';
 
 import '../../core/utils/api_result.dart';
 import 'base_api_service.dart';
@@ -23,6 +25,9 @@ class AuthApiService extends BaseApiService {
 
       // Parse the response
       final registerResponse = RegisterResponse.fromJson(response.data);
+      final user = registerResponse.data.user;
+      await locator<StorageService>().saveUser(user);
+      print('👤 User saved: ${user.toJson()}');
       return Success(registerResponse);
     } catch (e) {
       print('❌ AuthApiService Error: $e');

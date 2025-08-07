@@ -17,20 +17,15 @@ class HomeView extends StackedView<HomeViewModel> {
 
   @override
   Widget builder(BuildContext context, HomeViewModel viewModel, Widget? child) {
-    
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDarkMode
-            ? Brightness
-                  .light 
-            : Brightness.dark, 
-        statusBarBrightness: isDarkMode
-            ? Brightness
-                  .dark 
-            : Brightness.light, 
+            ? Brightness.light
+            : Brightness.dark,
+        statusBarBrightness: isDarkMode ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
         backgroundColor: AppColors.accentDark(context),
@@ -39,24 +34,37 @@ class HomeView extends StackedView<HomeViewModel> {
             children: [
               Expanded(
                 child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: 16.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      /// Greeting
                       GreetingHeader(
                         userName: viewModel.userName,
                         subtitle: viewModel.todaySubtitle,
                         fireCount: viewModel.fireCount,
                       ),
 
+                      /// Verse Card
                       VerseCard(
                         verse: viewModel.todaysVerse,
                         onBookmarkTap: viewModel.toggleBookmark,
                       ),
 
+                      /// Quick Actions
                       const QuickActions(),
 
-                      ChallengeCard(challenge: viewModel.todaysChallenge),
+                      /// Challenge Card or fallback
+                      Padding(
+                        padding: EdgeInsets.only(top: 8.h),
+                        child: viewModel.todaysChallenge != null
+                            ? ChallengeCard(
+                                challenge: viewModel.todaysChallenge!,
+                              )
+                            : _buildNoChallengeCard(context),
+                      ),
 
+                      /// Recent Activities
                       RecentActivities(activities: viewModel.recentActivities),
 
                       SizedBox(height: 20.h),
@@ -72,6 +80,46 @@ class HomeView extends StackedView<HomeViewModel> {
     );
   }
 
+  /// No Challenge Available Fallback UI
+  Widget _buildNoChallengeCard(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppColors.accentLight(context),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Today's Challenge",
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary(context),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'No challenge available for today. Please check back tomorrow!',
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: AppColors.textSecondary(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   HomeViewModel viewModelBuilder(BuildContext context) => HomeViewModel();
+
+  @override
+  void onViewModelReady(HomeViewModel viewModel) {
+    super.onViewModelReady(viewModel);
+    viewModel.initialize();
+  }
 }

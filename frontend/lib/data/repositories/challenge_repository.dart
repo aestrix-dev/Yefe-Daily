@@ -12,6 +12,10 @@ class ChallengeRepository extends BaseRepository {
   Future<ApiResult<List<ChallengeModel>>> getActiveChallenges() async {
     return await _apiService.getActiveChallenges();
   }
+  // Get today challenges
+  Future<ApiResult<List<ChallengeModel>>> getTodayChallenge() async {
+    return await _apiService.getTodayChallenge();
+  }
 
   // Get completed challenges
   Future<ApiResult<List<ChallengeModel>>> getCompletedChallenges() async {

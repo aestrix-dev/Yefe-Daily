@@ -1,15 +1,14 @@
 import 'package:stacked/stacked.dart';
+import 'package:yefa/app/app_setup.dart';
 import 'package:yefa/data/services/storage_service.dart';
 import 'package:yefa/data/services/theme_service.dart';
-import '../../../app/app_setup.dart';
-
 
 class ProfileViewModel extends BaseViewModel {
   final _themeService = locator<ThemeService>();
   final _storageService = locator<StorageService>();
 
   // User data
-  String _userName = 'John Doe';
+  String _userName = 'Guest';
   final String _avatarUrl = 'assets/images/avatar.png';
   bool _isPremium = false;
   bool _showUpgrade = false;
@@ -29,27 +28,25 @@ class ProfileViewModel extends BaseViewModel {
     _loadUserData();
   }
 
-  void _loadUserData() {
-    // Load user data from storage or API
+  Future<void> _loadUserData() async {
+    final user = await _storageService.getUser();
+    _userName = user?.name ?? 'Guest';
+
     _isPremium = _storageService.getBool('isPremium') ?? false;
     _isNotificationsEnabled =
         _storageService.getBool('isNotificationsEnabled') ?? true;
-    _userName = _storageService.getString('userName') ?? 'John Doe';
 
+    print('👤 User loaded: $_userName');
     notifyListeners();
   }
 
   void showUpgradeCard() {
-    // This method will now be used to trigger the popup
-    // The actual popup showing will be handled in the view
     notifyListeners();
   }
 
   void upgradeToPremium() {
     _isPremium = true;
     _showUpgrade = false;
-
-    // Save to storage
     _storageService.setBool('isPremium', true);
 
     print('=== UPGRADED TO PREMIUM ===');
@@ -78,16 +75,16 @@ class ProfileViewModel extends BaseViewModel {
 
   void navigateToVerseLanguage() {
     print('Navigate to Verse Language settings');
-    // TODO: Implement navigation to verse language selection
+    // TODO: Implement navigation
   }
 
   void navigateToYefaManCave() {
-    print('Navigate to Yefa Man Cave WhatsApp group');
-    // TODO: Implement WhatsApp group navigation
+    print('Navigate to WhatsApp group');
+    // TODO: Implement navigation
   }
 
   void navigateToTowelTalk() {
     print('Navigate to Towel Talk');
-    // TODO: Implement Towel Talk navigation
+    // TODO: Implement navigation
   }
 }

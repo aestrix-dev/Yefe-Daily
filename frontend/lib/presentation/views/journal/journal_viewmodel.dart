@@ -1,8 +1,9 @@
-// File: ui/views/journal/journal_viewmodel.dart (fixed to pass context directly)
+// File: ui/views/journal/journal_viewmodel.dart
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:yefa/core/utils/api_result.dart';
 import '../../../data/repositories/journal_repository.dart';
+import '../../shared/widgets/payment_provider_sheet.dart';
 import '../../shared/widgets/toast_overlay.dart';
 import '../../../app/app_setup.dart';
 
@@ -13,11 +14,18 @@ class JournalViewModel extends BaseViewModel {
   String _journalContent = '';
   final List<String> _selectedTags = [];
   final bool _isPremiumUser = false;
-  bool _hasUpgraded = false;
+  final bool _hasUpgraded = false;
   bool _isSaving = false;
 
-  // Store context for toast usage
   BuildContext? _context;
+  bool contextAlreadySet = false;
+
+  void setContext(BuildContext context) {
+    if (!contextAlreadySet) {
+      _context = context;
+      contextAlreadySet = true;
+    }
+  }
 
   // Getters
   int get selectedTabIndex => _selectedTabIndex;
@@ -27,7 +35,7 @@ class JournalViewModel extends BaseViewModel {
   bool get hasUpgraded => _hasUpgraded;
   bool get isEveningTabSelected => _selectedTabIndex == 2;
   bool get shouldShowUpgradeCard =>
-      isEveningTabSelected && !isPremiumUser && !hasUpgraded;
+      isEveningTabSelected && !_isPremiumUser && !_hasUpgraded;
   bool get isSaving => _isSaving;
 
   final List<String> availableTags = [
@@ -41,16 +49,6 @@ class JournalViewModel extends BaseViewModel {
 
   final List<String> tabTitles = ['Morning', 'Evening', 'Wisdom Note'];
 
-  bool contextAlreadySet = false;
-
-  void setContext(BuildContext context) {
-    if (contextAlreadySet) return;
-    _context = context;
-    contextAlreadySet = true;
-  }
-
-
-  // Methods
   void selectTab(int index) {
     _selectedTabIndex = index;
     notifyListeners();
@@ -70,13 +68,26 @@ class JournalViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  void handleUpgrade() {
-    _hasUpgraded = true;
-    notifyListeners();
-    print('User clicked upgrade button - simulating premium access');
+void showPaymentSheet() {
+    if (_context == null) return;
+
+    showModalBottomSheet(
+      context: _context!,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => PaymentProviderSheet(
+        onStripeTap: () {
+          print('Stripe selected');
+          // TODO: implement Stripe payment logic
+        },
+        onPaystackTap: () {
+          print('Paystack selected');
+          // TODO: implement Paystack payment logic
+        },
+      ),
+    );
   }
 
-  // Save journal entry to API with toast notifications
   Future<void> saveJournalEntry() async {
     if (_journalContent.trim().isEmpty) {
       if (_context != null) {
@@ -91,11 +102,6 @@ class JournalViewModel extends BaseViewModel {
     _setSaving(true);
 
     try {
-      print('🚀 Saving journal entry...');
-      print('📝 Content: ${_journalContent.trim()}');
-      print('🏷️ Tags: ${_selectedTags}');
-      print('📂 Type: ${_getJournalTypeString()}');
-
       final result = await _journalRepository.createJournalEntry(
         content: _journalContent.trim(),
         type: _getJournalTypeString(),
@@ -103,11 +109,6 @@ class JournalViewModel extends BaseViewModel {
       );
 
       if (result.isSuccess) {
-        print('✅ Journal entry saved successfully!');
-        print('📝 Entry ID: ${result.data!.id}');
-        print('📅 Created: ${result.data!.createdAt}');
-
-        // Show success toast
         if (_context != null) {
           ToastOverlay.showSuccess(
             context: _context!,
@@ -115,13 +116,8 @@ class JournalViewModel extends BaseViewModel {
           );
         }
 
-        // Clear form after successful save
         _clearForm();
-        print('🧹 Form cleared for next entry');
       } else {
-        print('❌ Failed to save: ${result.error}');
-
-        // Show error toast
         if (_context != null) {
           ToastOverlay.showError(
             context: _context!,
@@ -130,9 +126,6 @@ class JournalViewModel extends BaseViewModel {
         }
       }
     } catch (e) {
-      print('❌ Error saving: $e');
-
-      // Show error toast
       if (_context != null) {
         ToastOverlay.showError(
           context: _context!,
@@ -144,7 +137,6 @@ class JournalViewModel extends BaseViewModel {
     }
   }
 
-  // Helper methods
   String _getJournalTypeString() {
     switch (_selectedTabIndex) {
       case 0:
@@ -167,10 +159,5 @@ class JournalViewModel extends BaseViewModel {
   void _setSaving(bool value) {
     _isSaving = value;
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

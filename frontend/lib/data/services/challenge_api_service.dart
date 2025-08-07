@@ -13,6 +13,25 @@ class ChallengeApiService extends BaseApiService {
     );
   }
 
+Future<ApiResult<List<ChallengeModel>>> getTodayChallenge() async {
+    try {
+      final response = await dioService.get('/v1/challenges/today');
+
+      print('📥 Today Challenge Raw Response: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final outer = response.data['challenge'];
+        final inner = outer['challenge'];
+        final challenge = ChallengeModel.fromJson(inner);
+        return Success([challenge]);
+      } else {
+        return Failure('Failed to load today challenge');
+      }
+    } catch (e) {
+      return Failure('Error fetching today challenge: $e');
+    }
+  }
+
   // Get completed challenges
   Future<ApiResult<List<ChallengeModel>>> getCompletedChallenges() async {
     return safeApiCallList(
@@ -129,4 +148,5 @@ class ChallengeApiService extends BaseApiService {
       return Failure('An unexpected error occurred: $e');
     }
   }
+
 }

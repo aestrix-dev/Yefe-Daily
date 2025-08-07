@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yefa/data/models/user_model.dart';
 
 class StorageService {
   late SharedPreferences _prefs;
@@ -45,5 +48,27 @@ class StorageService {
 
   bool containsKey(String key) {
     return _prefs.containsKey(key);
+  }
+}
+
+extension UserStorage on StorageService {
+  static const String _userKey = 'user';
+
+  Future<void> saveUser(UserModel user) async {
+    final jsonString = jsonEncode(user.toJson());
+    await setString(_userKey, jsonString);
+  }
+
+  Future<UserModel?> getUser() async {
+    final jsonString = getString(_userKey);
+    if (jsonString == null) return null;
+
+    try {
+      final jsonMap = jsonDecode(jsonString);
+      return UserModel.fromJson(jsonMap);
+    } catch (e) {
+      print('❌ Error decoding user: $e');
+      return null;
+    }
   }
 }

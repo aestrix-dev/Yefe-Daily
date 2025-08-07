@@ -10,11 +10,10 @@ class UpgradeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-      height: 170.h, 
+      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+      height: 170.h,
       child: Stack(
         children: [
-   
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16.r),
@@ -24,29 +23,20 @@ class UpgradeCard extends StatelessWidget {
               ),
             ),
           ),
-
-          // Semi-transparent overlay (middle z-index)
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                 color: AppColors.primary(
-                  context,
-                ).withOpacity(
-                  0.97,
-                ), // Light overlay
+                color: AppColors.primary(context).withOpacity(0.97),
                 borderRadius: BorderRadius.circular(16.r),
               ),
             ),
           ),
-
-          // Content (highest z-index)
           Positioned.fill(
             child: Padding(
               padding: EdgeInsets.all(16.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with lock icon and "Yefa Plus"
                   Row(
                     children: [
                       Image.asset(
@@ -54,7 +44,6 @@ class UpgradeCard extends StatelessWidget {
                         width: 20.w,
                         height: 20.h,
                       ),
-                      
                       SizedBox(width: 8.w),
                       Text(
                         'Yefa Plus',
@@ -66,10 +55,7 @@ class UpgradeCard extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   SizedBox(height: 14.h),
-
-                  // Body text
                   Expanded(
                     child: Text(
                       'Upgrade to Premium for exclusive content, advanced features, and ad-free experience.',
@@ -80,10 +66,6 @@ class UpgradeCard extends StatelessWidget {
                       ),
                     ),
                   ),
-
-               
-
-                  // Upgrade button
                   SizedBox(
                     width: double.infinity,
                     height: 38.h,
