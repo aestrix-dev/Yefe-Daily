@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yefa/presentation/views/journal/widgets/upgrade_card.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../models/audio_model.dart';
-import 'upgrade_card.dart';
 
 class AudioCategorySection extends StatelessWidget {
   final AudioCategoryModel category;

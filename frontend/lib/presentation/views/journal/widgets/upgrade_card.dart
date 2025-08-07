@@ -11,7 +11,7 @@ class UpgradeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-      height: 170.h,
+      height: 180.h,
       child: Stack(
         children: [
           Positioned.fill(
@@ -66,6 +66,7 @@ class UpgradeCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  SizedBox(height: 8.h),
                   SizedBox(
                     width: double.infinity,
                     height: 38.h,

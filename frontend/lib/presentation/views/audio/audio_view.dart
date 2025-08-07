@@ -19,6 +19,13 @@ class AudioView extends StackedView<AudioViewModel> {
     AudioViewModel viewModel,
     Widget? child,
   ) {
+
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!viewModel.contextAlreadySet) {
+        viewModel.setContext(context);
+      }
+    });
+    
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -61,7 +68,7 @@ class AudioView extends StackedView<AudioViewModel> {
                         showUpgradeCard:
                             viewModel.showUpgradeCardForCategory == category.id,
                         isPremiumUser: viewModel.isPremiumUser,
-                        onUpgrade: viewModel.upgradeToPremium,
+                        onUpgrade: viewModel.showPaymentSheet,
                       ),
                       SizedBox(height: 20.h),
                     ],

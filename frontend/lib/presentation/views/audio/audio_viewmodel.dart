@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+import 'package:yefa/presentation/shared/widgets/payment_provider_sheet.dart';
 import 'models/audio_model.dart';
 
 class AudioViewModel extends BaseViewModel {
@@ -10,6 +12,16 @@ class AudioViewModel extends BaseViewModel {
   List<AudioCategoryModel> get audioCategories => _audioCategories;
   String? get showUpgradeCardForCategory => _showUpgradeCardForCategory;
   bool get isPremiumUser => _isPremiumUser;
+
+   BuildContext? _context;
+  bool contextAlreadySet = false;
+
+  void setContext(BuildContext context) {
+    if (!contextAlreadySet) {
+      _context = context;
+      contextAlreadySet = true;
+    }
+  }
 
   void onModelReady() {
     _loadAudioData();
@@ -89,6 +101,27 @@ class AudioViewModel extends BaseViewModel {
 
     notifyListeners();
   }
+
+  void showPaymentSheet() {
+    if (_context == null) return;
+
+    showModalBottomSheet(
+      context: _context!,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => PaymentProviderSheet(
+        onStripeTap: () {
+          print('Stripe selected');
+          // TODO: implement Stripe payment logic
+        },
+        onPaystackTap: () {
+          print('Paystack selected');
+          // TODO: implement Paystack payment logic
+        },
+      ),
+    );
+  }
+
 
   void toggleUpgradeCard(String categoryId) {
     if (_showUpgradeCardForCategory == categoryId) {
