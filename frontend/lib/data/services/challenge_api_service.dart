@@ -1,7 +1,6 @@
-
-import 'package:yefa/data/models/puzzle_model.dart';
-
+import 'package:dio/dio.dart';
 import '../models/challenge_model.dart';
+import '../models/puzzle_model.dart';
 import '../../core/utils/api_result.dart';
 import 'base_api_service.dart';
 
@@ -9,7 +8,7 @@ class ChallengeApiService extends BaseApiService {
   // Get active challenges
   Future<ApiResult<List<ChallengeModel>>> getActiveChallenges() async {
     return safeApiCallList(
-      () => dioService.get('/challenges/active'),
+      () => dioService.get('/v1/challenges/active'),
       (json) => ChallengeModel.fromJson(json),
     );
   }
@@ -17,7 +16,7 @@ class ChallengeApiService extends BaseApiService {
   // Get completed challenges
   Future<ApiResult<List<ChallengeModel>>> getCompletedChallenges() async {
     return safeApiCallList(
-      () => dioService.get('/challenges/completed'),
+      () => dioService.get('/v1/challenges/completed'),
       (json) => ChallengeModel.fromJson(json),
     );
   }
@@ -25,28 +24,95 @@ class ChallengeApiService extends BaseApiService {
   // Mark challenge as complete
   Future<ApiResult<bool>> markChallengeComplete(String challengeId) async {
     return safeApiCallBool(
-      () => dioService.post('/challenges/$challengeId/complete'),
+      () => dioService.post('/v1/challenges/$challengeId/complete'),
     );
   }
 
   // Get daily puzzle
-  Future<ApiResult<PuzzleModel>> getDailyPuzzle() async {
-    return safeApiCall(
-      () => dioService.get('/challenges/daily-puzzle'),
-      (json) => PuzzleModel.fromJson(json),
-    );
+  Future<ApiResult<PuzzleResponse>> getDailyPuzzle() async {
+    try {
+      print('🧩 Getting daily puzzle...');
+
+      final response = await dioService.get('/v1/puzzle/daily');
+
+      print('✅ Daily Puzzle Response: ${response.statusCode}');
+      print('📥 Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final puzzleResponse = PuzzleResponse.fromJson(response.data);
+        return Success(puzzleResponse);
+      } else {
+        return Failure(
+          'Failed to get daily puzzle with status ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      print('❌ Daily Puzzle Error: ${e.message}');
+      print('📍 Status: ${e.response?.statusCode}');
+      print('📦 Response: ${e.response?.data}');
+
+      String errorMessage = 'Failed to get daily puzzle';
+      if (e.response?.data != null) {
+        final responseData = e.response!.data;
+        if (responseData is Map<String, dynamic>) {
+          errorMessage =
+              responseData['message'] ?? responseData['error'] ?? errorMessage;
+        }
+      }
+
+      return Failure(errorMessage, statusCode: e.response?.statusCode);
+    } catch (e) {
+      print('❌ General Error in getDailyPuzzle: $e');
+      return Failure('An unexpected error occurred: $e');
+    }
   }
 
   // Submit puzzle answer
-  Future<ApiResult<bool>> submitPuzzleAnswer(
-    String puzzleId,
-    String answer,
+  Future<ApiResult<PuzzleSubmissionResponse>> submitPuzzleAnswer(
+    SubmitPuzzleRequest request,
   ) async {
-    return safeApiCallBool(
-      () => dioService.post(
-        '/challenges/puzzle/$puzzleId/answer',
-        data: {'answer': answer},
-      ),
-    );
+    try {
+      print('📝 Submitting puzzle answer...');
+      print('📤 Request: ${request.toJson()}');
+
+      final response = await dioService.put(
+        '/v1/puzzle/submit',
+        data: request.toJson(),
+      );
+
+      print('✅ Submit Answer Response: ${response.statusCode}');
+      print('📥 Response Data: ${response.data}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final submissionResponse = PuzzleSubmissionResponse.fromJson(
+          response.data,
+        );
+        return Success(submissionResponse);
+      } else {
+        return Failure(
+          'Failed to submit puzzle answer with status ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      print('❌ Submit Answer Error: ${e.message}');
+      print('📍 Status: ${e.response?.statusCode}');
+      print('📦 Response: ${e.response?.data}');
+
+      String errorMessage = 'Failed to submit puzzle answer';
+      if (e.response?.data != null) {
+        final responseData = e.response!.data;
+        if (responseData is Map<String, dynamic>) {
+          errorMessage =
+              responseData['message'] ?? responseData['error'] ?? errorMessage;
+        }
+      }
+
+      return Failure(errorMessage, statusCode: e.response?.statusCode);
+    } catch (e) {
+      print('❌ General Error in submitPuzzleAnswer: $e');
+      return Failure('An unexpected error occurred: $e');
+    }
   }
 }

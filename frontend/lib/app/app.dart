@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
           valueListenable: themeService.themeModeNotifier,
           builder: (context, themeMode, child) {
             return MaterialApp.router(
-              title: 'Yefa',
+              title: 'Yefa Daily',
               debugShowCheckedModeBanner: false,
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,

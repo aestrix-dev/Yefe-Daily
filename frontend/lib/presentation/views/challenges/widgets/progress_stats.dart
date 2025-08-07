@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yefa/data/models/puzzle_model.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../models/puzzle_model.dart';
 
 class ProgressStats extends StatelessWidget {
   final ProgressStatsModel stats;

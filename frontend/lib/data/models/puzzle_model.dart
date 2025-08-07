@@ -1,87 +1,58 @@
 class PuzzleModel {
   final String id;
+  final String title;
   final String question;
-  final List<String> options;
-  final int correctAnswerIndex;
-  final String? selectedAnswer;
-  final bool isAnswered;
+  final Map<String, String> options;
+  final int? correctAnswer;
+  final String? difficulty;
+  final String? category;
+  final int? points;
+  final String? explanation;
 
   const PuzzleModel({
     required this.id,
+    required this.title,
     required this.question,
     required this.options,
-    required this.correctAnswerIndex,
-    this.selectedAnswer,
-    this.isAnswered = false,
+    this.correctAnswer,
+    this.difficulty,
+    this.category,
+    this.points,
+    this.explanation,
   });
 
-  // JSON serialization - Convert from API JSON to Dart object
   factory PuzzleModel.fromJson(Map<String, dynamic> json) {
     return PuzzleModel(
       id: json['id'] ?? '',
+      title: json['title'] ?? '',
       question: json['question'] ?? '',
-      options: List<String>.from(json['options'] ?? []),
-      correctAnswerIndex:
-          json['correct_answer_index'] ??
-          json['correctAnswerIndex'] ??
-          json['correct_answer'] ??
-          0,
-      selectedAnswer: json['selected_answer'] ?? json['selectedAnswer'],
-      isAnswered: json['is_answered'] ?? json['isAnswered'] ?? false,
+      options: Map<String, String>.from(json['options'] ?? {}),
+      correctAnswer: json['correctAnswer'],
+      difficulty: json['difficulty'],
+      category: json['category'],
+      points: json['points'],
+      explanation: json['explanation'],
     );
   }
 
-  // Convert Dart object to JSON for API requests
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'title': title,
       'question': question,
       'options': options,
-      'correct_answer_index': correctAnswerIndex,
-      'selected_answer': selectedAnswer,
-      'is_answered': isAnswered,
+      'correctAnswer': correctAnswer,
+      'difficulty': difficulty,
+      'category': category,
+      'points': points,
+      'explanation': explanation,
     };
   }
 
-  PuzzleModel copyWith({
-    String? id,
-    String? question,
-    List<String>? options,
-    int? correctAnswerIndex,
-    String? selectedAnswer,
-    bool? isAnswered,
-  }) {
-    return PuzzleModel(
-      id: id ?? this.id,
-      question: question ?? this.question,
-      options: options ?? this.options,
-      correctAnswerIndex: correctAnswerIndex ?? this.correctAnswerIndex,
-      selectedAnswer: selectedAnswer ?? this.selectedAnswer,
-      isAnswered: isAnswered ?? this.isAnswered,
-    );
-  }
-
-  bool get isCorrect => selectedAnswer == options[correctAnswerIndex];
-
-  // Helper getter to get correct answer text
-  String get correctAnswer => options[correctAnswerIndex];
-
-  // Helper method to check if a specific option is correct
-  bool isOptionCorrect(String option) => option == correctAnswer;
-
   @override
   String toString() {
-    return 'PuzzleModel(id: $id, question: $question, isAnswered: $isAnswered, isCorrect: $isCorrect)';
+    return 'PuzzleModel(id: $id, title: $title, question: $question, difficulty: $difficulty, points: $points)';
   }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is PuzzleModel && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
 }
 
 class ProgressStatsModel {
@@ -96,76 +67,166 @@ class ProgressStatsModel {
     required this.totalChallenges,
     required this.topStreak,
   });
+}
+class PuzzleResponse {
+  final bool success;
+  final String message;
+  final PuzzleData data;
+  final DateTime timestamp;
 
-  // JSON serialization - Convert from API JSON to Dart object
-  factory ProgressStatsModel.fromJson(Map<String, dynamic> json) {
-    return ProgressStatsModel(
-      currentStreak: json['current_streak'] ?? json['currentStreak'] ?? 0,
-      totalBadges: json['total_badges'] ?? json['totalBadges'] ?? 0,
-      totalChallenges: json['total_challenges'] ?? json['totalChallenges'] ?? 0,
-      topStreak:
-          json['top_streak'] ?? json['topStreak'] ?? json['best_streak'] ?? 0,
+  const PuzzleResponse({
+    required this.success,
+    required this.message,
+    required this.data,
+    required this.timestamp,
+  });
+
+  factory PuzzleResponse.fromJson(Map<String, dynamic> json) {
+    return PuzzleResponse(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+      data: PuzzleData.fromJson(json['data'] ?? {}),
+      timestamp: DateTime.parse(
+        json['timestamp'] ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
+}
 
-  // Convert Dart object to JSON for API requests
+class PuzzleData {
+  final PuzzleModel data;
+
+  const PuzzleData({required this.data});
+
+  factory PuzzleData.fromJson(Map<String, dynamic> json) {
+    return PuzzleData(data: PuzzleModel.fromJson(json['data'] ?? {}));
+  }
+}
+
+class SubmitPuzzleRequest {
+  final String puzzleId;
+  final int selectedAnswer;
+
+  const SubmitPuzzleRequest({
+    required this.puzzleId,
+    required this.selectedAnswer,
+  });
+
   Map<String, dynamic> toJson() {
-    return {
-      'current_streak': currentStreak,
-      'total_badges': totalBadges,
-      'total_challenges': totalChallenges,
-      'top_streak': topStreak,
-    };
+    return {'puzzle_id': puzzleId, 'selectedAnswer': selectedAnswer};
   }
+}
 
-  // Copy with method for updates
-  ProgressStatsModel copyWith({
-    int? currentStreak,
-    int? totalBadges,
-    int? totalChallenges,
-    int? topStreak,
+class PuzzleSubmissionResponse {
+  final bool success;
+  final String message;
+  final PuzzleSubmissionData? data;
+  final DateTime timestamp;
+
+  const PuzzleSubmissionResponse({
+    required this.success,
+    required this.message,
+    this.data,
+    required this.timestamp,
+  });
+
+  factory PuzzleSubmissionResponse.fromJson(Map<String, dynamic> json) {
+    return PuzzleSubmissionResponse(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+      data: json['data'] != null
+          ? PuzzleSubmissionData.fromJson(json['data'])
+          : null,
+      timestamp: DateTime.parse(
+        json['timestamp'] ?? DateTime.now().toIso8601String(),
+      ),
+    );
+  }
+}
+
+class PuzzleSubmissionData {
+  final bool isCorrect;
+  final int correctAnswer;
+  final String explanation;
+  final int? pointsEarned;
+  final bool? isFirstAttempt;
+
+  const PuzzleSubmissionData({
+    required this.isCorrect,
+    required this.correctAnswer,
+    required this.explanation,
+    this.pointsEarned,
+    this.isFirstAttempt,
+  });
+
+  factory PuzzleSubmissionData.fromJson(Map<String, dynamic> json) {
+    return PuzzleSubmissionData(
+      isCorrect: json['isCorrect'] ?? false,
+      correctAnswer: json['correctAnswer'] ?? 0,
+      explanation: json['explanation'] ?? '',
+      pointsEarned: json['pointsEarned'] ?? json['points_earned'] ?? 0,
+      isFirstAttempt:
+          json['isFirstAttempt'] ?? json['is_first_attempt'] ?? true,
+    );
+  }
+}
+
+class PuzzleState {
+  final PuzzleModel? puzzle;
+  final int? selectedAnswer;
+  final bool hasSubmitted;
+  final PuzzleSubmissionData? submissionResult;
+  final DateTime? submissionTime;
+  final bool isOnCooldown;
+  final Duration? remainingCooldown;
+
+  const PuzzleState({
+    this.puzzle,
+    this.selectedAnswer,
+    this.hasSubmitted = false,
+    this.submissionResult,
+    this.submissionTime,
+    this.isOnCooldown = false,
+    this.remainingCooldown,
+  });
+
+  PuzzleState copyWith({
+    PuzzleModel? puzzle,
+    int? selectedAnswer,
+    bool? hasSubmitted,
+    PuzzleSubmissionData? submissionResult,
+    DateTime? submissionTime,
+    bool? isOnCooldown,
+    Duration? remainingCooldown,
   }) {
-    return ProgressStatsModel(
-      currentStreak: currentStreak ?? this.currentStreak,
-      totalBadges: totalBadges ?? this.totalBadges,
-      totalChallenges: totalChallenges ?? this.totalChallenges,
-      topStreak: topStreak ?? this.topStreak,
+    return PuzzleState(
+      puzzle: puzzle ?? this.puzzle,
+      selectedAnswer: selectedAnswer ?? this.selectedAnswer,
+      hasSubmitted: hasSubmitted ?? this.hasSubmitted,
+      submissionResult: submissionResult ?? this.submissionResult,
+      submissionTime: submissionTime ?? this.submissionTime,
+      isOnCooldown: isOnCooldown ?? this.isOnCooldown,
+      remainingCooldown: remainingCooldown ?? this.remainingCooldown,
     );
   }
 
-  // Helper methods for display
-  String get streakText =>
-      currentStreak == 1 ? '$currentStreak day' : '$currentStreak days';
-  String get badgesText =>
-      totalBadges == 1 ? '$totalBadges badge' : '$totalBadges badges';
-  String get challengesText => totalChallenges == 1
-      ? '$totalChallenges challenge'
-      : '$totalChallenges challenges';
+  bool get canSubmit =>
+      selectedAnswer != null && !hasSubmitted && !isOnCooldown;
+  bool get canSelectAnswer => !hasSubmitted && !isOnCooldown;
 
-  // Calculate progress percentage (assuming a target)
-  double getStreakProgress({int target = 30}) {
-    return (currentStreak / target).clamp(0.0, 1.0);
+  String get timeUntilNextPuzzle {
+    if (remainingCooldown == null) return '';
+
+    final hours = remainingCooldown!.inHours;
+    final minutes = remainingCooldown!.inMinutes % 60;
+    final seconds = remainingCooldown!.inSeconds % 60;
+
+    if (hours > 0) {
+      return '${hours}h ${minutes}m ${seconds}s';
+    } else if (minutes > 0) {
+      return '${minutes}m ${seconds}s';
+    } else {
+      return '${seconds}s';
+    }
   }
-
-  // Check if current streak is a personal best
-  bool get isPersonalBest => currentStreak >= topStreak;
-
-  @override
-  String toString() {
-    return 'ProgressStatsModel(currentStreak: $currentStreak, totalBadges: $totalBadges, totalChallenges: $totalChallenges, topStreak: $topStreak)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is ProgressStatsModel &&
-        other.currentStreak == currentStreak &&
-        other.totalBadges == totalBadges &&
-        other.totalChallenges == totalChallenges &&
-        other.topStreak == topStreak;
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(currentStreak, totalBadges, totalChallenges, topStreak);
 }

@@ -19,6 +19,15 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
     ChallengesViewModel viewModel,
     Widget? child,
   ) {
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (viewModel.context == null) {
+        final overlayContext = Navigator.of(context).overlay?.context;
+        if (overlayContext != null) {
+          viewModel.setContext(overlayContext);
+        }
+      }
+    });
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -35,20 +44,20 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
           child: Column(
             children: [
               // Header
-             Align(
-              alignment: Alignment.centerLeft,
-              child:  Padding(
-                padding: EdgeInsets.all(14.w),
-                child: Text(
-                  'Puzzles & Challenges',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary(context),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(14.w),
+                  child: Text(
+                    'Puzzles & Challenges',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary(context),
+                    ),
                   ),
                 ),
               ),
-             ),
 
               // Tab bar
               Container(
@@ -125,13 +134,13 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (viewModel.isActiveTab) ...[
-                        // Daily Puzzle
-                        if (viewModel.dailyPuzzle != null)
-                          PuzzleSection(
-                            puzzle: viewModel.dailyPuzzle!,
-                            onAnswerSelected: viewModel.selectPuzzleAnswer,
-                            onSubmit: viewModel.submitPuzzleAnswer,
-                          ),
+                        // Daily Puzzle - now using new puzzle system
+                        PuzzleSection(
+                          puzzleState: viewModel.puzzleState,
+                          isSubmitting: viewModel.isSubmittingAnswer,
+                          onAnswerSelected: viewModel.selectPuzzleAnswer,
+                          onSubmit: viewModel.submitPuzzleAnswer,
+                        ),
 
                         SizedBox(height: 20.h),
 
@@ -141,7 +150,6 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                             challenge: challenge,
                             onMarkComplete: () =>
                                 viewModel.markChallengeAsComplete(challenge.id),
-                            
                             isEnabled: viewModel.isPuzzleCompleted,
                           ),
                         ),
@@ -192,9 +200,12 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
   ChallengesViewModel viewModelBuilder(BuildContext context) =>
       ChallengesViewModel();
 
-  @override
+ @override
   void onViewModelReady(ChallengesViewModel viewModel) {
     super.onViewModelReady(viewModel);
     viewModel.onModelReady(); 
   }
+
+
+
 }

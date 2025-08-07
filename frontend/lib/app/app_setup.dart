@@ -10,6 +10,7 @@ import 'package:yefa/data/services/auth_service.dart';
 import 'package:yefa/data/services/challenge_api_service.dart';
 import 'package:yefa/data/services/dio_service.dart';
 import 'package:yefa/data/services/journal_api_service.dart';
+import 'package:yefa/data/services/puzzle_timer_service.dart';
 import 'package:yefa/data/services/toast_service.dart';
 import 'package:yefa/data/services/user_api_service.dart';
 
@@ -48,6 +49,10 @@ class AppSetup {
      // Register toast service
     print('🍞 Registering toast service...');
     locator.registerSingleton<ToastService>(ToastService.instance);
+
+     // Register puzzle timer service
+    print('⏰ Registering puzzle timer service...');
+    locator.registerSingleton<PuzzleTimerService>(PuzzleTimerService());
 
     // Register HTTP client service
     print('🌐 Registering HTTP client...');
