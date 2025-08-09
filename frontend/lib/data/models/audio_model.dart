@@ -1,66 +1,43 @@
 class AudioModel {
-  final String id;
+  final String uuid;
   final String title;
-  final String duration;
-  final String audioUrl;
-  final String categoryId;
-  final bool isPremium;
-  final String? subtitle;
+  final String feel;
+  final String description;
+  final String genre;
+  final String length;
+  final String access;
+  final String downloadUrl;
 
-  const AudioModel({
-    required this.id,
+  AudioModel({
+    required this.uuid,
     required this.title,
-    required this.duration,
-    required this.audioUrl,
-    required this.categoryId,
-    required this.isPremium,
-    this.subtitle,
+    required this.feel,
+    required this.description,
+    required this.genre,
+    required this.length,
+    required this.access,
+    required this.downloadUrl,
   });
 
-  // JSON serialization
   factory AudioModel.fromJson(Map<String, dynamic> json) {
     return AudioModel(
-      id: json['id'] ?? '',
+      uuid: json['uuid'] ?? '',
       title: json['title'] ?? '',
-      duration: json['duration'] ?? '',
-      audioUrl: json['audio_url'] ?? json['audioUrl'] ?? '',
-      categoryId: json['category_id'] ?? json['categoryId'] ?? '',
-      isPremium: json['is_premium'] ?? json['isPremium'] ?? false,
-      subtitle: json['subtitle'],
+      feel: json['feel'] ?? '',
+      description: json['description'] ?? '',
+      genre: json['genre'] ?? '',
+      length: json['length'] ?? '',
+      access: json['access'] ?? '',
+      downloadUrl: json['download_url'] ?? '',
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'duration': duration,
-      'audio_url': audioUrl,
-      'category_id': categoryId,
-      'is_premium': isPremium,
-      'subtitle': subtitle,
-    };
-  }
-
-  AudioModel copyWith({
-    String? id,
-    String? title,
-    String? duration,
-    String? audioUrl,
-    String? categoryId,
-    bool? isPremium,
-    String? subtitle,
-  }) {
-    return AudioModel(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      duration: duration ?? this.duration,
-      audioUrl: audioUrl ?? this.audioUrl,
-      categoryId: categoryId ?? this.categoryId,
-      isPremium: isPremium ?? this.isPremium,
-      subtitle: subtitle ?? this.subtitle,
-    );
-  }
+  // Helper getters for UI compatibility
+  String get id => uuid;
+  String get duration => length;
+  String get audioUrl => downloadUrl;
+  bool get isPremium => access != 'free';
+  String? get subtitle => feel.isNotEmpty ? feel : null;
 }
 
 class AudioCategoryModel {
@@ -68,29 +45,9 @@ class AudioCategoryModel {
   final String title;
   final List<AudioModel> audios;
 
-  const AudioCategoryModel({
+  AudioCategoryModel({
     required this.id,
     required this.title,
     required this.audios,
   });
-
-  factory AudioCategoryModel.fromJson(Map<String, dynamic> json) {
-    return AudioCategoryModel(
-      id: json['id'] ?? '',
-      title: json['title'] ?? '',
-      audios:
-          (json['audios'] as List<dynamic>?)
-              ?.map((audio) => AudioModel.fromJson(audio))
-              .toList() ??
-          [],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'audios': audios.map((audio) => audio.toJson()).toList(),
-    };
-  }
 }

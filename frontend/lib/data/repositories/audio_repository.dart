@@ -7,16 +7,12 @@ import 'base_repository.dart';
 class AudioRepository extends BaseRepository {
   final AudioApiService _apiService = locator<AudioApiService>();
 
-  Future<ApiResult<List<AudioCategoryModel>>> getAudioCategories() async {
-    return handleApiResult(_apiService.getAudioCategories());
+  // Get all audios
+  Future<ApiResult<List<AudioModel>>> getAudios() async {
+    return handleApiResult(_apiService.getAudios());
   }
 
-  Future<ApiResult<List<AudioModel>>> getAudioByCategory(
-    String categoryId,
-  ) async {
-    return handleApiResult(_apiService.getAudioByCategory(categoryId));
-  }
-
+  // Search
   Future<ApiResult<List<AudioModel>>> searchAudio(String query) async {
     return handleApiResult(_apiService.searchAudio(query));
   }

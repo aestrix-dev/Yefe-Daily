@@ -6,6 +6,8 @@ import 'package:yefa/data/repositories/challenge_repository.dart';
 import 'package:yefa/data/repositories/journal_repository.dart';
 import 'package:yefa/data/repositories/user_repository.dart';
 import 'package:yefa/data/services/audio_api_service.dart';
+import 'package:yefa/data/services/audio_download_service.dart';
+import 'package:yefa/data/services/audio_player_service.dart';
 import 'package:yefa/data/services/auth_service.dart';
 import 'package:yefa/data/services/challenge_api_service.dart';
 import 'package:yefa/data/services/dio_service.dart';
@@ -58,6 +60,11 @@ class AppSetup {
     print('🌐 Registering HTTP client...');
     locator.registerLazySingleton<DioService>(() => DioService());
 
+// Add these in your setupServices() method, probably after the API services section:
+
+    print('🎵 Registering audio services...');
+    locator.registerSingleton<AudioDownloadService>(AudioDownloadService());
+    locator.registerSingleton<AudioPlayerService>(AudioPlayerService());
     //  Register API services (depend on DioService)
     print('🔌 Registering API services...');
     locator.registerLazySingleton<AuthApiService>(() => AuthApiService());
@@ -84,6 +91,10 @@ class AppSetup {
   static void _validateServices() {
     try {
       print('🔍 Validating service registration...');
+
+      // Audio services
+      locator<AudioDownloadService>();
+      locator<AudioPlayerService>();
       
       // Test core services
       locator<StorageService>();

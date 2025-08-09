@@ -1,41 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:yefa/data/models/audio_model.dart';
+import 'package:yefa/data/services/audio_player_service.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../models/audio_model.dart';
+
 
 class AudioPlayerBottomSheet extends StatefulWidget {
   final AudioModel audio;
+  final AudioPlayerService playerService;
   final VoidCallback onClose;
+  final VoidCallback onPlayTap;
+  final VoidCallback onPreviousTap;
+  final VoidCallback onNextTap;
+  final VoidCallback onSeekForward;
+  final VoidCallback onSeekBackward;
 
   const AudioPlayerBottomSheet({
     super.key,
     required this.audio,
+    required this.playerService,
     required this.onClose,
+    required this.onPlayTap,
+    required this.onPreviousTap,
+    required this.onNextTap,
+    required this.onSeekForward,
+    required this.onSeekBackward,
   });
-
-  static void show(BuildContext context, AudioModel audio) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      elevation: 10,
-      builder: (context) => AudioPlayerBottomSheet(
-        audio: audio,
-        onClose: () => Navigator.of(context).pop(),
-      ),
-    );
-  }
 
   @override
   State<AudioPlayerBottomSheet> createState() => _AudioPlayerBottomSheetState();
 }
 
 class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
-  bool isPlaying = false;
-  double currentPosition = 25.0; // Mock current position
-  double totalDuration = 100.0;
-  String currentTime = '2:14';
-  String totalTime = '10:00';
+  bool _isDownloading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +61,7 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
 
           SizedBox(height: 20.h),
 
-          // Header with title and download
+          // Header with title (no download button as per your requirements)
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w),
             child: Row(
@@ -81,7 +79,6 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                         ),
                       ),
                       if (widget.audio.subtitle != null) ...[
-                        // SizedBox(height: 4.h),
                         Text(
                           widget.audio.subtitle!,
                           style: TextStyle(
@@ -93,91 +90,73 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                     ],
                   ),
                 ),
-                // Download icon
-                GestureDetector(
-                  onTap: () {
-                    print('Download audio: ${widget.audio.title}');
-                  },
-                  child: Container(
-                    width: 36.w,
-                    height: 36.h,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Image.asset(
-                      'assets/icons/download.png',
-                      width: 36.w,
-                      height: 36.h,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Icons.download,
-                          size: 20.sp,
-                          color: Colors.grey[700],
-                        );
-                      },
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
-
-          // SizedBox(height: 40.h),
 
           // Progress bar section
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w),
-            child: Column(
-              children: [
-                // Progress bar
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: AppColors.primary(context),
-                    inactiveTrackColor: Colors.grey[300],
-                    thumbColor: AppColors.primary(context),
-                    overlayColor: AppColors.primary(context).withOpacity(0.2),
-                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.r),
-                    trackHeight: 6.h,
-                  ),
-                  child: Slider(
-                    value: currentPosition,
-                    max: totalDuration,
-                    onChanged: (value) {
-                      setState(() {
-                        currentPosition = value;
-                      });
-                    },
-                  ),
-                ),
-
-                // Time labels
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: StreamBuilder<PositionData>(
+              stream: _positionDataStream,
+              builder: (context, snapshot) {
+                final positionData = snapshot.data ?? PositionData.zero;
+                return Column(
                   children: [
-                    Text(
-                      currentTime,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: AppColors.textPrimary(context),
-                        fontWeight: FontWeight.w500,
+                    // Progress bar
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primary(context),
+                        inactiveTrackColor: Colors.grey[300],
+                        thumbColor: AppColors.primary(context),
+                        overlayColor: AppColors.primary(
+                          context,
+                        ).withOpacity(0.2),
+                        thumbShape: RoundSliderThumbShape(
+                          enabledThumbRadius: 8.r,
+                        ),
+                        trackHeight: 6.h,
+                      ),
+                      child: Slider(
+                        value: positionData.position.inMilliseconds.toDouble(),
+                        max: positionData.duration.inMilliseconds
+                            .toDouble()
+                            .clamp(1.0, double.infinity),
+                        onChanged: (value) {
+                          widget.playerService.seek(
+                            Duration(milliseconds: value.round()),
+                          );
+                        },
                       ),
                     ),
-                    Text(
-                      totalTime,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: AppColors.textPrimary(context),
-                        fontWeight: FontWeight.w500,
-                      ),
+
+                    // Time labels
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _formatDuration(positionData.position),
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: AppColors.textPrimary(context),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          _formatDuration(positionData.duration),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.textPrimary(context),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ],
+                );
+              },
             ),
           ),
-
-          // SizedBox(height: 50.h),
 
           // Control buttons
           Padding(
@@ -186,29 +165,38 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 // Previous button
-                GestureDetector(
-                  onTap: () {
-                    print('Previous track');
-                  },
-                  child: Image.asset(
-                    'assets/icons/previous.png',
-                    width: 20.w,
-                    height: 20.h,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(
-                        Icons.skip_previous,
-                        size: 30.sp,
-                        color: Colors.grey[700],
-                      );
-                    },
+                StreamBuilder<bool>(
+                  stream: widget.playerService.playlist.map(
+                    (_) => widget.playerService.hasPrevious,
                   ),
+                  builder: (context, snapshot) {
+                    final hasPrevious = snapshot.data ?? false;
+                    return GestureDetector(
+                      onTap: hasPrevious ? widget.onPreviousTap : null,
+                      child: Opacity(
+                        opacity: hasPrevious ? 1.0 : 0.5,
+                        child: Image.asset(
+                          'assets/icons/previous.png',
+                          width: 20.w,
+                          height: 20.h,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.skip_previous,
+                              size: 30.sp,
+                              color: hasPrevious
+                                  ? Colors.grey[700]
+                                  : Colors.grey[400],
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
 
                 // Rewind button
                 GestureDetector(
-                  onTap: () {
-                    print('Rewind 10 seconds');
-                  },
+                  onTap: widget.onSeekBackward,
                   child: Image.asset(
                     'assets/icons/rewind.png',
                     width: 20.w,
@@ -223,36 +211,56 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                   ),
                 ),
 
-                // Play/Pause button (larger)
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isPlaying = !isPlaying;
-                    });
-                    print(
-                      '${isPlaying ? 'Playing' : 'Paused'}: ${widget.audio.audioUrl}',
+                // Play/Pause button with loading state
+                StreamBuilder<bool>(
+                  stream: widget.playerService.audioPlayer.playingStream,
+                  builder: (context, playingSnapshot) {
+                    final isPlaying = playingSnapshot.data ?? false;
+
+                    return GestureDetector(
+                      onTap: () {
+                        if (isPlaying) {
+                          widget.playerService.togglePlayPause();
+                        } else {
+                          setState(() => _isDownloading = true);
+                          widget.onPlayTap();
+                          // Reset downloading state after a delay (you might want to listen to actual completion)
+                          Future.delayed(const Duration(seconds: 2), () {
+                            if (mounted) setState(() => _isDownloading = false);
+                          });
+                        }
+                      },
+                      child: Container(
+                        width: 50.w,
+                        height: 50.h,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary(context),
+                          shape: BoxShape.circle,
+                        ),
+                        child: _isDownloading
+                            ? SizedBox(
+                                width: 25.w,
+                                height: 25.h,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.w,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Icon(
+                                isPlaying ? Icons.pause : Icons.play_arrow,
+                                size: 35.sp,
+                                color: Colors.white,
+                              ),
+                      ),
                     );
                   },
-                  child: Container(
-                    width: 50.w,
-                    height: 50.h,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary(context),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      isPlaying ? Icons.pause : Icons.play_arrow,
-                      size: 35.sp,
-                      color: Colors.white,
-                    ),
-                  ),
                 ),
 
                 // Forward button
                 GestureDetector(
-                  onTap: () {
-                    print('Forward 10 seconds');
-                  },
+                  onTap: widget.onSeekForward,
                   child: Image.asset(
                     'assets/icons/forward.png',
                     width: 20.w,
@@ -268,30 +276,82 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                 ),
 
                 // Next button
-                GestureDetector(
-                  onTap: () {
-                    print('Next track');
-                  },
-                  child: Image.asset(
-                    'assets/icons/next.png',
-                    width: 20.w,
-                    height: 20.h,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(
-                        Icons.skip_next,
-                        size: 10.sp,
-                        color: Colors.grey[700],
-                      );
-                    },
+                StreamBuilder<bool>(
+                  stream: widget.playerService.playlist.map(
+                    (_) => widget.playerService.hasNext,
                   ),
+                  builder: (context, snapshot) {
+                    final hasNext = snapshot.data ?? false;
+                    return GestureDetector(
+                      onTap: hasNext ? widget.onNextTap : null,
+                      child: Opacity(
+                        opacity: hasNext ? 1.0 : 0.5,
+                        child: Image.asset(
+                          'assets/icons/next.png',
+                          width: 20.w,
+                          height: 20.h,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.skip_next,
+                              size: 10.sp,
+                              color: hasNext
+                                  ? Colors.grey[700]
+                                  : Colors.grey[400],
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
           ),
-
-        
         ],
       ),
     );
   }
+
+  Stream<PositionData> get _positionDataStream =>
+      Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+        widget.playerService.audioPlayer.positionStream,
+        widget.playerService.audioPlayer.bufferedPositionStream,
+        widget.playerService.audioPlayer.durationStream,
+        (position, bufferedPosition, duration) => PositionData(
+          position: position,
+          bufferedPosition: bufferedPosition,
+          duration: duration ?? Duration.zero,
+        ),
+      );
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    if (hours > 0) {
+      return '${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}';
+    } else {
+      return '${twoDigits(minutes)}:${twoDigits(seconds)}';
+    }
+  }
+}
+
+class PositionData {
+  const PositionData({
+    required this.position,
+    required this.bufferedPosition,
+    required this.duration,
+  });
+
+  final Duration position;
+  final Duration bufferedPosition;
+  final Duration duration;
+
+  static const PositionData zero = PositionData(
+    position: Duration.zero,
+    bufferedPosition: Duration.zero,
+    duration: Duration.zero,
+  );
 }

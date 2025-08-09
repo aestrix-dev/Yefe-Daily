@@ -40,16 +40,26 @@ class PaymentProviderSheet extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 24.h),
                       decoration: BoxDecoration(
-                        color: Colors.purple.withOpacity(0.1),
+                        color: const Color(
+                          0xFF635BFF,
+                        ).withOpacity(0.1), // Stripe brand color
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.credit_card,
-                            color: Colors.purple,
-                            size: 32.sp,
+                          // Stripe logo
+                          Image.asset(
+                            'assets/icons/stripe.png',
+                            width: 40.w,
+                            height: 43.h,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.payment,
+                                color: const Color(0xFF635BFF),
+                                size: 32.sp,
+                              );
+                            },
                           ),
                           SizedBox(height: 8.h),
                           Text(
@@ -71,17 +81,28 @@ class PaymentProviderSheet extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 24.h),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: const Color(
+                          0xFF0FA958,
+                        ).withOpacity(0.1), 
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.account_balance_wallet,
-                            color: Colors.green,
-                            size: 32.sp,
+                          // Paystack logo
+                          Image.asset(
+                            'assets/icons/paystack.png',
+                            width: 50.w,
+                            height: 45.h,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.account_balance,
+                                color: const Color(0xFF0FA958),
+                                size: 32.sp,
+                              );
+                            },
                           ),
+                          
                           SizedBox(height: 8.h),
                           Text(
                             'Paystack',
