@@ -49,7 +49,7 @@ func (uc *paystackPaymentProvider) CreatePaymentIntent(ctx context.Context, req 
 		Email:    user.Email,
 		Amount:   amount,
 		Currency: "NGN",
-    Metadata: make(map[string]any),
+		Metadata: make(map[string]any),
 	}
 	paystackReq.Metadata["UserID"] = req.UserID
 	paystackReq.Metadata["FROM"] = "mobile_app"
@@ -81,6 +81,8 @@ func (uc *paystackPaymentProvider) CreatePaymentIntent(ctx context.Context, req 
 		PaymentRef:   paystackResp.Data.Reference,
 		ClientSecret: paystackResp.Data.AccessCode,
 		PaymentURL:   paystackResp.Data.AuthorizationURL,
+		Amount:       amount,
+		Currency:     "NGN",
 		Status:       payment.Status,
 	}, nil
 }
