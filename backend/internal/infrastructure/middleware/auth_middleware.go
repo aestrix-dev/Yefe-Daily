@@ -101,12 +101,6 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 		return nil, nil, domain.ErrSessionInactive
 	}
 
-	// Check if session has expired
-	if session.ExpiresAt.Before(time.Now()) {
-		logger.Log.Errorf("Session expired: %s", sessionID)
-		return nil, nil, domain.ErrSessionExpired
-	}
-
 	user, err := m.userRepo.GetByID(r.Context(), session.UserID)
 	if err != nil || user == nil {
 		return nil, nil, domain.ErrUserNotFound

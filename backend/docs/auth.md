@@ -27,8 +27,6 @@ All endpoints are prefixed with `/v1`.
         "message": "User logined-in successfully",
         "data": {
             "access_token": "your_access_token",
-            "refresh_token": "your_refresh_token",
-            "expires_in": 3600
         }
     }
     ```

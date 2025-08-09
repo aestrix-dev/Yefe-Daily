@@ -75,7 +75,6 @@ type Session struct {
 	User         User          `gorm:"foreignKey:UserID" json:"-"`
 	Token        string        `gorm:"type:varchar(255);uniqueIndex;not null" json:"-"`
 	RefreshToken string        `gorm:"type:varchar(255);uniqueIndex;not null" json:"-"`
-	ExpiresAt    time.Time     `gorm:"index;not null" json:"expires_at"`
 	IPAddress    string        `gorm:"type:varchar(45);index" json:"ip_address"`
 	UserAgent    string        `gorm:"type:text" json:"user_agent"`
 	IsActive     bool          `gorm:"default:true;index" json:"is_active"`

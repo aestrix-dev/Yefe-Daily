@@ -166,8 +166,6 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 		ID:           uuid.New().String(),
 		UserID:       user.ID,
 		Token:        utils.GenerateSecureToken(),
-		RefreshToken: utils.GenerateSecureToken(),
-		ExpiresAt:    time.Now().Add(time.Hour * 24), // 24 hours
 		IPAddress:    req.IPAddress,
 		UserAgent:    req.UserAgent,
 		IsActive:     true,
@@ -192,8 +190,6 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 	}
 	return &dto.LoginResponse{
 		AccessToken:  accessToken,
-		RefreshToken: session.RefreshToken,
-		ExpiresIn:    int64(time.Hour * 24 / time.Second),
 	}, nil
 }
 
@@ -209,11 +205,6 @@ func (a *authUseCase) Logout(ctx context.Context, req dto.LogoutRequest) error {
 	// Check if session is already inactive
 	if !session.IsActive {
 		return domain.ErrSessionAlreadyInactive
-	}
-
-	// Check if session has expired
-	if time.Now().After(session.ExpiresAt) {
-		return domain.ErrAccountInactive
 	}
 
 	// Deactivate the session

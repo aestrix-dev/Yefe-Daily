@@ -12,7 +12,6 @@ type Session struct {
 	UserID       string    `json:"user_id"`
 	Token        string    `json:"-"`
 	RefreshToken string    `json:"-"`
-	ExpiresAt    time.Time `json:"expires_at"`
 	IPAddress    string    `json:"ip_address"`
 	UserAgent    string    `json:"user_agent"`
 	IsActive     bool      `json:"is_active"`
