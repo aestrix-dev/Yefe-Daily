@@ -82,7 +82,7 @@ func (r *RedisSessionRepository) Create(ctx context.Context, session *domain.Ses
 
 	// Add to expired sessions sorted set for cleanup
 	pipe.ZAdd(ctx, expiredSessionsKey, redis.Z{
-		Score:  float64(session.ExpiresAt.Unix()),
+		//	Score:  float64(session.ExpiresAt.Unix()),
 		Member: session.ID,
 	})
 
@@ -171,7 +171,7 @@ func (r *RedisSessionRepository) Update(ctx context.Context, session *domain.Ses
 	session.UpdatedAt = time.Now()
 
 	sessionKey := sessionKeyPrefix + session.ID
-	tokenKey := tokenKeyPrefix + session.Token
+	//tokenKey := tokenKeyPrefix + session.Token
 	userSessionsKey := userSessionsPrefix + session.UserID
 
 	// Check if session exists
@@ -190,27 +190,23 @@ func (r *RedisSessionRepository) Update(ctx context.Context, session *domain.Ses
 	}
 
 	// Calculate TTL
-	ttl := time.Until(session.ExpiresAt)
-	if ttl <= 0 {
-		return fmt.Errorf("session is already expired")
-	}
+	//ttl := time.Until(session.ExpiresAt)
+	//if ttl <= 0 {
+	//return fmt.Errorf("session is already expired")
+	//	}
 
 	// Use pipeline for atomic operations
 	pipe := r.client.Pipeline()
 
 	// Update session data
-	pipe.Set(ctx, sessionKey, sessionData, ttl)
-
-	// Update token mapping
-	pipe.Set(ctx, tokenKey, session.ID, ttl)
+	pipe.Set(ctx, sessionKey, sessionData, 0)
 
 	// Update user sessions set
 	pipe.SAdd(ctx, userSessionsKey, session.ID)
-	pipe.Expire(ctx, userSessionsKey, ttl)
 
 	// Update expired sessions sorted set
 	pipe.ZAdd(ctx, expiredSessionsKey, redis.Z{
-		Score:  float64(session.ExpiresAt.Unix()),
+		//	Score:  float64(session.ExpiresAt.Unix()),
 		Member: session.ID,
 	})
 
