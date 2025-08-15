@@ -89,37 +89,13 @@ func (u *stripePaymentProvider) ConfirmPayment(ctx context.Context, req dto.Conf
 		return dto.ConfirmPaymentResponse{}, fmt.Errorf("failed to get payment intent: %w", err)
 	}
 
-	if pi.Status != stripe.PaymentIntentStatusSucceeded {
-		return dto.ConfirmPaymentResponse{}, fmt.Errorf("payment not successful: %s", pi.Status)
-	}
-
 	// Update payment status
 	now := time.Now()
-	payment.Status = "completed"
-	payment.ProcessedAt = &now
-	payment.UpdatedAt = now
-
-	err = u.repo.UpdatePayment(ctx, payment)
-	if err != nil {
-		return dto.ConfirmPaymentResponse{}, fmt.Errorf("failed to update payment: %w", err)
-	}
-	err = u.adminUC.UpdateUserPlan(ctx, payment.UserID, "yefe_plus")
-
-	if err != nil {
-		logger.Log.WithError(err).Error("Could not update user %s plan", payment.UserID)
-		return dto.ConfirmPaymentResponse{}, err
-	}
-	err = u.securityRepo.LogSecurityEvent(ctx, payment.UserID, types.EventConfirmPayment, "", "", types.JSONMap{
-		"payment_id": payment.ID,
-	})
-	if err != nil {
-		logger.Log.WithError(err).Error("Could not log event")
-	}
 	return dto.ConfirmPaymentResponse{
 		PaymentID:   payment.ID,
-		Status:      "completed",
+		Status:      string(pi.Status),
 		ProcessedAt: now,
-		Message:     "Package upgraded successfully",
+		Message:     "Payment",
 	}, nil
 }
 

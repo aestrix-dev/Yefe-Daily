@@ -111,27 +111,11 @@ func (uc *paystackPaymentProvider) ConfirmPayment(ctx context.Context, req dto.C
 		status = "processing"
 	}
 
-	payment.Status = status
-	payment.UpdatedAt = time.Now()
-
-	if err := uc.repo.UpdatePayment(ctx, payment); err != nil {
-		return dto.ConfirmPaymentResponse{}, fmt.Errorf("failed to update payment: %w", err)
-	}
-	err = uc.adminUC.UpdateUserPlan(ctx, payment.UserID, "yefe_plus")
-
-	if err != nil {
-		logger.Log.WithError(err).Errorf("Could not update user %s plan", payment.UserID)
-		return dto.ConfirmPaymentResponse{}, err
-	}
-	err = uc.securityRepo.LogSecurityEvent(ctx, payment.UserID, types.EventConfirmPayment, "", "", types.JSONMap{
-		"payment_id": payment.ID,
-	})
-
 	return dto.ConfirmPaymentResponse{
 		PaymentID:   payment.ID,
 		Status:      status,
 		ProcessedAt: payment.UpdatedAt,
-		Message:     "Package upgraded successfully",
+		Message:     "Payment",
 	}, nil
 }
 
