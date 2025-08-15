@@ -85,6 +85,7 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 	// Parse and validate JWT
 	sessionID, err := utils.ExtractSessionIDFromToken(token, m.jwtSecret)
 	if err != nil {
+		logger.Log.WithError(err).Error("JWT Token error")
 		return nil, nil, domain.ErrInvalidToken
 	}
 

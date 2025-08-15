@@ -282,7 +282,6 @@ func (a *authUseCase) generateJWT(userID, sessionID string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":    userID,
 		"session_id": sessionID,
-		"exp":        time.Now().Add(time.Hour * 24).Unix(),
 		"iat":        time.Now().Unix(),
 	}
 
