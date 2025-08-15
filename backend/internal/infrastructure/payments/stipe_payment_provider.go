@@ -74,6 +74,7 @@ func (u *stripePaymentProvider) CreatePaymentIntent(ctx context.Context, req dto
 		Amount:       int64(u.paymentConfig.ProPlanPrice) * 100,
 		Currency:     "USD", // TODO make global
 		Status:       "pending",
+		PaymentRef:   payment.PaymentIntentID,
 	}, nil
 }
 func (u *stripePaymentProvider) ConfirmPayment(ctx context.Context, req dto.ConfirmPaymentRequest) (dto.ConfirmPaymentResponse, error) {
