@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yefa/core/constants/app_colors.dart';
-import '../models/activity_model.dart';
+import 'package:yefa/data/models/journal_model.dart';
+import 'package:intl/intl.dart';
 
 class RecentActivities extends StatelessWidget {
-  final List<ActivityModel> activities;
+  final List<JournalModel> activities;
 
   const RecentActivities({super.key, required this.activities});
 
@@ -24,12 +25,57 @@ class RecentActivities extends StatelessWidget {
             ),
           ),
         ),
-        ...activities.map((activity) => _buildActivityItem(context, activity)),
+        if (activities.isEmpty)
+          _buildEmptyState(context)
+        else
+          ...activities.map(
+            (activity) => _buildActivityItem(context, activity),
+          ),
       ],
     );
   }
 
-  Widget _buildActivityItem(BuildContext context, ActivityModel activity) {
+  Widget _buildEmptyState(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+      padding: EdgeInsets.all(24.w),
+      decoration: BoxDecoration(
+        color: AppColors.accentLight(context),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(
+              Icons.history,
+              size: 32.sp,
+              color: AppColors.textSecondary(context),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'No activities yet',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary(context),
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              'Your spiritual activities will appear here',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: AppColors.textSecondary(context),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActivityItem(BuildContext context, JournalModel activity) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.h),
       padding: EdgeInsets.all(16.w),
@@ -47,7 +93,7 @@ class RecentActivities extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  activity.title,
+                  _formatActivityTitle(activity),
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
@@ -56,8 +102,10 @@ class RecentActivities extends StatelessWidget {
                 ),
               ),
               Text(
-                activity.time,
-                style: TextStyle(fontSize: 12.sp, color: AppColors.textSecondary(context)
+                _formatTime(activity.createdAt),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: AppColors.textSecondary(context),
                 ),
               ),
             ],
@@ -67,7 +115,7 @@ class RecentActivities extends StatelessWidget {
 
           // Subtitle/description
           Text(
-            activity.subtitle,
+            activity.content,
             style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -75,5 +123,38 @@ class RecentActivities extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatActivityTitle(JournalModel activity) {
+    // Capitalize the type (e.g., "morning" -> "Morning")
+    String capitalizedType = activity.type.isNotEmpty
+        ? activity.type[0].toUpperCase() + activity.type.substring(1)
+        : '';
+
+    // Get first tag if available
+    String firstTag = '';
+    if (activity.tags.isNotEmpty) {
+      firstTag = ' • ${activity.tags[0]}';
+    }
+
+    return '$capitalizedType Reflection$firstTag';
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    } else {
+      // Format as "Aug 15"
+      return DateFormat('MMM d').format(dateTime);
+    }
   }
 }

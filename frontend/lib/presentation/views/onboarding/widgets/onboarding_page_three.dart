@@ -244,7 +244,9 @@ class OnboardingPageThree extends ViewModelWidget<OnboardingViewModel> {
                                   : 'Set Reminder',
                               onPressed: viewModel.isAuthenticating
                                   ? null
-                                  : () => viewModel.authenticateAndComplete(context),
+                                  : () => viewModel.authenticateAndComplete(
+                                      context,
+                                    ),
                               width: double.infinity,
                               height: 56.h,
                               backgroundColor: AppColors.accentLight(context),
@@ -253,7 +255,6 @@ class OnboardingPageThree extends ViewModelWidget<OnboardingViewModel> {
 
                           // Bottom safe area
                           SizedBox(height: 20.h),
-                          
                         ],
                       ),
                     ),
@@ -367,6 +368,7 @@ class OnboardingPageThree extends ViewModelWidget<OnboardingViewModel> {
     }
   }
 
+  // Display format (what user sees)
   String _formatTime(TimeOfDay time) {
     final hour = time.hourOfPeriod;
     final minute = time.minute.toString().padLeft(2, '0');
@@ -376,22 +378,56 @@ class OnboardingPageThree extends ViewModelWidget<OnboardingViewModel> {
     return '$displayHour:$minute $period';
   }
 
+  // Storage format (what gets saved) - now in 12-hour format with AM/PM
   String _formatTimeToString(TimeOfDay time) {
-    final hour = time.hour.toString().padLeft(2, '0');
+    final hour = time.hourOfPeriod;
     final minute = time.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
+    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+    final displayHour = hour == 0 ? 12 : hour;
+
+    return '$displayHour:$minute $period';
   }
 
+  // Parse 12-hour format string back to TimeOfDay
   TimeOfDay? _parseTimeString(String timeString) {
     try {
-      final parts = timeString.split(':');
-      if (parts.length == 2) {
-        final hour = int.parse(parts[0]);
-        final minute = int.parse(parts[1]);
+      if (timeString.isEmpty) return null;
+
+      // Handle both 12-hour and 24-hour formats for backward compatibility
+      if (timeString.contains('AM') || timeString.contains('PM')) {
+        // 12-hour format: "6:30 AM" or "9:45 PM"
+        final parts = timeString.split(' ');
+        if (parts.length != 2) return null;
+
+        final timePart = parts[0];
+        final period = parts[1];
+
+        final timeParts = timePart.split(':');
+        if (timeParts.length != 2) return null;
+
+        int hour = int.parse(timeParts[0]);
+        final minute = int.parse(timeParts[1]);
+
+        // Convert to 24-hour format for TimeOfDay
+        if (period == 'AM') {
+          if (hour == 12) hour = 0; // 12 AM is 0 hours
+        } else {
+          // PM
+          if (hour != 12) hour += 12; // PM times except 12 PM
+        }
+
         return TimeOfDay(hour: hour, minute: minute);
+      } else {
+        // 24-hour format: "06:30" (for backward compatibility)
+        final parts = timeString.split(':');
+        if (parts.length == 2) {
+          final hour = int.parse(parts[0]);
+          final minute = int.parse(parts[1]);
+          return TimeOfDay(hour: hour, minute: minute);
+        }
       }
     } catch (e) {
-      print('Error parsing time string: $timeString');
+      print('Error parsing time string: $timeString - $e');
     }
     return null;
   }

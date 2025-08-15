@@ -22,14 +22,14 @@ class OnboardingViewModel extends BaseViewModel {
   // User data from onboarding pages
   String _email = '';
   String _name = '';
-  String _password = '';
-  String _confirmPassword = '';
+  String _password = 'Password@123';
+  String _confirmPassword = 'Password@123';
   String _selectedLanguage = 'English';
   bool _morningPrompt = true;
   bool _eveningReflection = true;
   bool _challenge = false;
   String _morningReminder = '08:00';
-  String _eveningReminder = '20:00';
+  String _eveningReminder = '09:00';
 
   // Getters
   int get currentIndex => _currentIndex;

@@ -14,7 +14,7 @@ class VerseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-      height: 150.h, 
+      height: 167.h, 
       child: Stack(
         children: [
          

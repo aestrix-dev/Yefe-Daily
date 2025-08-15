@@ -138,96 +138,96 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
                             SizedBox(height: 24.h),
 
                             // Password field
-                            Text(
-                              'Password',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            CustomTextField(
-                              hintText: 'Enter password',
-                              initialValue: viewModel.password,
-                              isPassword: true,
-                              onChanged: viewModel.setPassword,
-                            ),
+                            // Text(
+                            //   'Password',
+                            //   style: TextStyle(
+                            //     fontSize: 16.sp,
+                            //     fontWeight: FontWeight.w600,
+                            //     color: AppColors.black,
+                            //   ),
+                            // ),
+                            // SizedBox(height: 8.h),
+                            // CustomTextField(
+                            //   hintText: 'Enter password',
+                            //   initialValue: viewModel.password,
+                            //   isPassword: true,
+                            //   onChanged: viewModel.setPassword,
+                            // ),
 
-                            SizedBox(height: 24.h),
+                            // SizedBox(height: 24.h),
 
-                            // Confirm Password field
-                            Text(
-                              'Confirm Password',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            CustomTextField(
-                              hintText: 'Confirm password',
-                              initialValue: viewModel.confirmPassword,
-                              isPassword: true,
-                              onChanged: viewModel.setConfirmPassword,
-                            ),
+                            // // Confirm Password field
+                            // Text(
+                            //   'Confirm Password',
+                            //   style: TextStyle(
+                            //     fontSize: 16.sp,
+                            //     fontWeight: FontWeight.w600,
+                            //     color: AppColors.black,
+                            //   ),
+                            // ),
+                            // SizedBox(height: 8.h),
+                            // CustomTextField(
+                            //   hintText: 'Confirm password',
+                            //   initialValue: viewModel.confirmPassword,
+                            //   isPassword: true,
+                            //   onChanged: viewModel.setConfirmPassword,
+                            // ),
 
                             SizedBox(height: 24.h),
 
                             // Preferred Language
-                            Text(
-                              'Preferred Language',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            GestureDetector(
-                              onTap: () =>
-                                  _showLanguageBottomSheet(context, viewModel),
-                              child: Container(
-                                width: double.infinity,
-                                height: 50.h,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColors.greyLight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(30.r),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 16.w,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        viewModel.selectedLanguage,
-                                        style: TextStyle(
-                                          fontSize: 14.sp,
-                                          color:
-                                              viewModel.selectedLanguage ==
-                                                  'Select language'
-                                              ? AppColors.grey
-                                              : AppColors.black,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.keyboard_arrow_down,
-                                        color: AppColors.grey,
-                                        size: 20.sp,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
+                            // Text(
+                            //   'Preferred Language',
+                            //   style: TextStyle(
+                            //     fontSize: 16.sp,
+                            //     fontWeight: FontWeight.w600,
+                            //     color: AppColors.black,
+                            //   ),
+                            // ),
+                            // SizedBox(height: 8.h),
+                            // GestureDetector(
+                            //   onTap: () =>
+                            //       _showLanguageBottomSheet(context, viewModel),
+                            //   child: Container(
+                            //     width: double.infinity,
+                            //     height: 50.h,
+                            //     decoration: BoxDecoration(
+                            //       border: Border.all(
+                            //         color: AppColors.greyLight,
+                            //       ),
+                            //       borderRadius: BorderRadius.circular(30.r),
+                            //     ),
+                            //     child: Padding(
+                            //       padding: EdgeInsets.symmetric(
+                            //         horizontal: 16.w,
+                            //       ),
+                            //       child: Row(
+                            //         mainAxisAlignment:
+                            //             MainAxisAlignment.spaceBetween,
+                            //         children: [
+                            //           Text(
+                            //             viewModel.selectedLanguage,
+                            //             style: TextStyle(
+                            //               fontSize: 14.sp,
+                            //               color:
+                            //                   viewModel.selectedLanguage ==
+                            //                       'Select language'
+                            //                   ? AppColors.grey
+                            //                   : AppColors.black,
+                            //             ),
+                            //           ),
+                            //           Icon(
+                            //             Icons.keyboard_arrow_down,
+                            //             color: AppColors.grey,
+                            //             size: 20.sp,
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
 
-                            SizedBox(height: 32.h),
+                            // SizedBox(height: 32.h),
 
                             // Notifications section
                             Text(
@@ -351,20 +351,6 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
     );
   }
 
-  void _showLanguageBottomSheet(
-    BuildContext context,
-    OnboardingViewModel viewModel,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.accentDark(context),
-      isScrollControlled: true,
-      builder: (context) => LanguageBottomSheet(
-        selectedLanguage: viewModel.selectedLanguage,
-        onLanguageSelected: viewModel.setSelectedLanguage,
-      ),
-    );
-  }
 }
 
 class _CustomSwitch extends StatefulWidget {
@@ -429,117 +415,3 @@ class _CustomSwitchState extends State<_CustomSwitch> {
   }
 }
 
-class LanguageBottomSheet extends StatefulWidget {
-  final String selectedLanguage;
-  final ValueChanged<String> onLanguageSelected;
-
-  const LanguageBottomSheet({
-    super.key,
-    required this.selectedLanguage,
-    required this.onLanguageSelected,
-  });
-
-  @override
-  State<LanguageBottomSheet> createState() => _LanguageBottomSheetState();
-}
-
-class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
-  final List<String> languages = ['English', 'French', 'Spanish', 'Portuguese'];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.only(
-        left: 20.w,
-        right: 20.w,
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.accentDark(context),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: 20.h),
-
-          Container(
-            width: 40.w,
-            height: 4.h,
-            decoration: BoxDecoration(
-              color: AppColors.greyLight,
-              borderRadius: BorderRadius.circular(2.r),
-            ),
-          ),
-
-          SizedBox(height: 20.h),
-
-          Text(
-            'Select Language',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-              color: AppColors.black,
-            ),
-          ),
-
-          SizedBox(height: 20.h),
-
-          ...languages.map((language) => _buildLanguageOption(language)),
-
-          SizedBox(height: 20.h),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLanguageOption(String language) {
-    final isSelected = widget.selectedLanguage == language;
-    final isLast = language == languages.last;
-
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            widget.onLanguageSelected(language);
-            Navigator.pop(context);
-          },
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  language,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                    color: isSelected
-                        ? AppColors.primary(context)
-                        : AppColors.black,
-                  ),
-                ),
-                if (isSelected)
-                  Icon(
-                    Icons.check,
-                    color: AppColors.primary(context),
-                    size: 20.sp,
-                  ),
-              ],
-            ),
-          ),
-        ),
-        if (!isLast)
-          Divider(
-            height: 1.h,
-            thickness: 0.5,
-            color: AppColors.greyLight,
-            indent: 24.w,
-            endIndent: 24.w,
-          ),
-      ],
-    );
-  }
-}

@@ -118,7 +118,14 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                         trackHeight: 6.h,
                       ),
                       child: Slider(
-                        value: positionData.position.inMilliseconds.toDouble(),
+                        value: positionData.position.inMilliseconds
+                            .toDouble()
+                            .clamp(
+                              0.0,
+                              positionData.duration.inMilliseconds
+                                  .toDouble()
+                                  .clamp(1.0, double.infinity),
+                            ),
                         max: positionData.duration.inMilliseconds
                             .toDouble()
                             .clamp(1.0, double.infinity),

@@ -12,6 +12,11 @@ dependencies:
   flutter:
     sdk: flutter
 
+  
+  # Payment packages 
+  webview_flutter: ^4.4.2            
+  flutter_stripe: ^10.1.0 
+
   # Audio packages
   just_audio: ^0.9.39
   audio_service: ^0.18.13
