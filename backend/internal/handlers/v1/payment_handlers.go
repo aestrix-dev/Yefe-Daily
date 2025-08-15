@@ -142,14 +142,7 @@ func (h *paymentHandler) StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 	req.Signature = r.Header.Get("Stripe-Signature")
 
-	provider, err := h.getProviderFromRequest(r)
-
-	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
-		return
-	}
-
-	paymentPovider, ok := h.paymentProvider[provider]
+	paymentPovider, ok := h.paymentProvider["stripe"]
 	if !ok {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid payment provider", nil)
 
@@ -180,13 +173,7 @@ func (h *paymentHandler) PaystackWebhook(w http.ResponseWriter, r *http.Request)
 	req.Body = body
 	req.Signature = r.Header.Get("X-Paystack-Signature")
 
-	provider, err := h.getProviderFromRequest(r)
-	if err != nil {
-		utils.ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
-		return
-	}
-
-	paymentProvider, ok := h.paymentProvider[provider]
+	paymentProvider, ok := h.paymentProvider["paystack"]
 	if !ok {
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid payment provider", nil)
 		return
