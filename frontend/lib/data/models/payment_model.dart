@@ -1,47 +1,16 @@
-// Payment Models
-class PaymentRequest {
-  final String paymentMethod;
-
-  PaymentRequest({required this.paymentMethod});
-
-  Map<String, dynamic> toJson() => {'payment_method': paymentMethod};
-}
-
-class PaymentResponse {
-  final bool success;
-  final String message;
-  final PaymentData data;
-  final String timestamp;
-
-  PaymentResponse({
-    required this.success,
-    required this.message,
-    required this.data,
-    required this.timestamp,
-  });
-
-  factory PaymentResponse.fromJson(Map<String, dynamic> json) {
-    return PaymentResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
-      data: PaymentData.fromJson(json['data'] ?? {}),
-      timestamp: json['timestamp'] ?? '',
-    );
-  }
-}
-
-class PaymentData {
+// Response models
+class PaymentIntentResponse {
   final String paymentId;
-  final String? clientSecret; 
+  final String clientSecret;
   final String? paymentRef;
-  final String? paymentUrl; 
+  final String? paymentUrl;
   final int amount;
   final String currency;
   final String status;
 
-  PaymentData({
+  PaymentIntentResponse({
     required this.paymentId,
-    this.clientSecret,
+    required this.clientSecret,
     this.paymentRef,
     this.paymentUrl,
     required this.amount,
@@ -49,10 +18,10 @@ class PaymentData {
     required this.status,
   });
 
-  factory PaymentData.fromJson(Map<String, dynamic> json) {
-    return PaymentData(
+  factory PaymentIntentResponse.fromJson(Map<String, dynamic> json) {
+    return PaymentIntentResponse(
       paymentId: json['payment_id'] ?? '',
-      clientSecret: json['client_secret'],
+      clientSecret: json['client_secret'] ?? '',
       paymentRef: json['payment_ref'],
       paymentUrl: json['payment_url'],
       amount: json['amount'] ?? 0,
@@ -62,46 +31,28 @@ class PaymentData {
   }
 }
 
-class PaymentStatusResponse {
-  final bool success;
-  final String message;
-  final PaymentStatusData data;
-
-  PaymentStatusResponse({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
-
-  factory PaymentStatusResponse.fromJson(Map<String, dynamic> json) {
-    return PaymentStatusResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
-      data: PaymentStatusData.fromJson(json['data'] ?? {}),
-    );
-  }
-}
-
-class PaymentStatusData {
+class PaymentVerificationResponse {
   final String paymentId;
   final String status;
+  final String? processedAt;
   final String message;
 
-  PaymentStatusData({
+  PaymentVerificationResponse({
     required this.paymentId,
     required this.status,
+    this.processedAt,
     required this.message,
   });
 
-  factory PaymentStatusData.fromJson(Map<String, dynamic> json) {
-    return PaymentStatusData(
+  factory PaymentVerificationResponse.fromJson(Map<String, dynamic> json) {
+    return PaymentVerificationResponse(
       paymentId: json['payment_id'] ?? '',
       status: json['status'] ?? '',
+      processedAt: json['processed_at'],
       message: json['message'] ?? '',
     );
   }
+
+  bool get isSuccessful => status == 'succeeded';
 }
 
-enum PaymentProvider { stripe, paystack }
-
-enum PaymentStatus { pending, completed, failed, cancelled }

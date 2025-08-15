@@ -1,19 +1,22 @@
-// File: ui/views/journal/journal_viewmodel.dart
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:yefa/core/utils/api_result.dart';
 import '../../../data/repositories/journal_repository.dart';
+import '../../../data/repositories/payment_repository.dart';
+import '../../../data/services/payment_service.dart';
 import '../../shared/widgets/payment_provider_sheet.dart';
 import '../../shared/widgets/toast_overlay.dart';
 import '../../../app/app_setup.dart';
 
 class JournalViewModel extends BaseViewModel {
   final JournalRepository _journalRepository = locator<JournalRepository>();
+  final PaymentRepository _paymentRepository = locator<PaymentRepository>();
+  final PaymentService _paymentService = locator<PaymentService>();
 
   int _selectedTabIndex = 0;
   String _journalContent = '';
   final List<String> _selectedTags = [];
-  final bool _isPremiumUser = false;
+  bool _isPremiumUser = false;
   final bool _hasUpgraded = false;
   bool _isSaving = false;
 
@@ -24,7 +27,14 @@ class JournalViewModel extends BaseViewModel {
     if (!contextAlreadySet) {
       _context = context;
       contextAlreadySet = true;
+      _checkPremiumStatus();
     }
+  }
+
+  // Check premium status when context is set
+  Future<void> _checkPremiumStatus() async {
+    _isPremiumUser = await _paymentService.isUserPremium();
+    notifyListeners();
   }
 
   // Getters
@@ -68,7 +78,7 @@ class JournalViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-void showPaymentSheet() {
+  void showPaymentSheet() {
     if (_context == null) return;
 
     showModalBottomSheet(
@@ -76,14 +86,124 @@ void showPaymentSheet() {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => PaymentProviderSheet(
-        onStripeTap: () {
-          print('Stripe selected');
-          // TODO: implement Stripe payment logic
+        onStripeTap: () async {
+          Navigator.of(context).pop(); // Close provider sheet
+          await _handleStripePayment();
         },
-        onPaystackTap: () {
-          print('Paystack selected');
-          // TODO: implement Paystack payment logic
+        onPaystackTap: () async {
+          Navigator.of(context).pop(); // Close provider sheet
+          await _handlePaystackPayment();
         },
+      ),
+    );
+  }
+
+  Future<void> _handleStripePayment() async {
+    if (_context == null) return;
+
+    try {
+      print('💳 JournalViewModel: Processing Stripe payment...');
+
+      // Show loading dialog
+      _showLoadingDialog('Processing payment...');
+
+      final result = await _paymentRepository.processPayment(
+        provider: 'stripe',
+        context: _context!,
+      );
+
+      // Hide loading dialog
+      Navigator.of(_context!).pop();
+
+      if (result.isSuccess) {
+        print('✅ JournalViewModel: Stripe payment successful!');
+
+        // Update premium status
+        _isPremiumUser = true;
+        notifyListeners();
+
+        // Show success message
+        ToastOverlay.showSuccess(
+          context: _context!,
+          message: 'Payment successful! You now have premium access 🎉',
+        );
+      } else {
+        print('❌ JournalViewModel: Stripe payment failed: ${result.error}');
+        ToastOverlay.showError(
+          context: _context!,
+          message: result.error ?? 'Payment failed',
+        );
+      }
+    } catch (e) {
+      // Hide loading if still showing
+      if (Navigator.canPop(_context!)) {
+        Navigator.of(_context!).pop();
+      }
+
+      print('❌ JournalViewModel: Stripe payment error: $e');
+      ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
+    }
+  }
+
+  Future<void> _handlePaystackPayment() async {
+    if (_context == null) return;
+
+    try {
+      print('💳 JournalViewModel: Processing Paystack payment...');
+
+      // Show loading dialog
+      _showLoadingDialog('Processing payment...');
+
+      final result = await _paymentRepository.processPayment(
+        provider: 'paystack',
+        context: _context!,
+      );
+
+      // Hide loading dialog
+      Navigator.of(_context!).pop();
+
+      if (result.isSuccess) {
+        print('✅ JournalViewModel: Paystack payment successful!');
+
+        // Update premium status
+        _isPremiumUser = true;
+        notifyListeners();
+
+        // Show success message
+        ToastOverlay.showSuccess(
+          context: _context!,
+          message: 'Payment successful! You now have premium access 🎉',
+        );
+      } else {
+        print('❌ JournalViewModel: Paystack payment failed: ${result.error}');
+        ToastOverlay.showError(
+          context: _context!,
+          message: result.error ?? 'Payment failed',
+        );
+      }
+    } catch (e) {
+      // Hide loading if still showing
+      if (Navigator.canPop(_context!)) {
+        Navigator.of(_context!).pop();
+      }
+
+      print('❌ JournalViewModel: Paystack payment error: $e');
+      ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
+    }
+  }
+
+  void _showLoadingDialog(String message) {
+    showDialog(
+      context: _context!,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: Row(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: 16),
+            Expanded(child: Text(message)),
+          ],
+        ),
       ),
     );
   }

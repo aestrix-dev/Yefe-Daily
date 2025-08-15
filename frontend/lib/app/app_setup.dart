@@ -4,6 +4,7 @@ import 'package:yefa/data/repositories/audio_repository.dart';
 import 'package:yefa/data/repositories/auth_repository.dart';
 import 'package:yefa/data/repositories/challenge_repository.dart';
 import 'package:yefa/data/repositories/journal_repository.dart';
+import 'package:yefa/data/repositories/payment_repository.dart';
 import 'package:yefa/data/repositories/user_repository.dart';
 import 'package:yefa/data/services/audio_api_service.dart';
 import 'package:yefa/data/services/audio_download_service.dart';
@@ -12,6 +13,8 @@ import 'package:yefa/data/services/auth_service.dart';
 import 'package:yefa/data/services/challenge_api_service.dart';
 import 'package:yefa/data/services/dio_service.dart';
 import 'package:yefa/data/services/journal_api_service.dart';
+import 'package:yefa/data/services/payment_api_service.dart';
+import 'package:yefa/data/services/payment_service.dart';
 import 'package:yefa/data/services/puzzle_timer_service.dart';
 import 'package:yefa/data/services/toast_service.dart';
 import 'package:yefa/data/services/user_api_service.dart';
@@ -60,8 +63,10 @@ class AppSetup {
     print('🌐 Registering HTTP client...');
     locator.registerLazySingleton<DioService>(() => DioService());
 
-// Add these in your setupServices() method, probably after the API services section:
 
+    print('💳 Registering payment services...');
+    locator.registerLazySingleton<PaymentApiService>(() => PaymentApiService());
+    locator.registerLazySingleton<PaymentService>(() => PaymentService());
     print('🎵 Registering audio services...');
     locator.registerSingleton<AudioDownloadService>(AudioDownloadService());
     locator.registerSingleton<AudioPlayerService>(AudioPlayerService());
@@ -80,6 +85,7 @@ class AppSetup {
     locator.registerLazySingleton<ChallengeRepository>(() => ChallengeRepository());
     locator.registerLazySingleton<UserRepository>(() => UserRepository());
     locator.registerLazySingleton<JournalRepository>(() => JournalRepository());
+    locator.registerLazySingleton<PaymentRepository>(() => PaymentRepository());
 
     print('✅ All services registered successfully!');
     

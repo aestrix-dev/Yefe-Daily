@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 import 'app/app.dart';
 import 'app/app_setup.dart';
@@ -23,6 +24,8 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  Stripe.publishableKey = 'pk_test_51Rjcn1Cc0zU2ZKe3wErao4byE0zLWN1cPJhqHHF2690YBk2eiblSNPJmpUa3YT9SwHc7umx1SqLdRdotUyITnYag00rapeOvO7';
 
   print('🎵 Running app...');
   runApp(const MyApp());

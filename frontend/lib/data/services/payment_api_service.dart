@@ -1,88 +1,78 @@
 import 'package:dio/dio.dart';
-import '../models/payment_model.dart';
-import '../../core/utils/api_result.dart';
+import 'package:yefa/core/utils/api_result.dart';
+import 'package:yefa/data/models/payment_model.dart';
 import 'base_api_service.dart';
 
 class PaymentApiService extends BaseApiService {
-  /// Create payment intent with provider-specific header
-  Future<ApiResult<PaymentResponse>> createPaymentIntent(
-    String provider,
-  ) async {
+  Future<ApiResult<PaymentIntentResponse>> createPaymentIntent({
+    required String provider, // 'stripe' or 'paystack'
+    String paymentMethod = 'card',
+  }) async {
     try {
-      print('🔄 PaymentApiService: Creating payment intent for $provider...');
+      print('💳 PaymentApiService: Creating payment intent for $provider...');
 
-      final request = PaymentRequest(paymentMethod: 'card');
-
-      final Response res = await dioService.post(
-        'v1/payment/create', // Adjust endpoint as needed
-        data: request.toJson(),
-        options: Options(
-          headers: {
-            'X-Payment-Provider': provider, // stripe or paystack
-          },
-        ),
+      final response = await dioService.post(
+        'v1/payments/intent',
+        data: {'payment_method': paymentMethod},
+        options: Options(headers: {'X-Payment-Provider': provider}),
       );
 
-      print(
-        '✅ PaymentApiService: Payment intent created successfully for $provider',
-      );
-      final paymentResponse = PaymentResponse.fromJson(res.data);
+      print('💳 Payment intent response: ${response.statusCode}');
+      print('💳 Response data: ${response.data}');
 
-      return Success(paymentResponse, message: paymentResponse.message);
+      final paymentResponse = PaymentIntentResponse.fromJson(
+        response.data['data'],
+      );
+      return Success(paymentResponse);
     } catch (e) {
-      print(
-        '❌ PaymentApiService: Failed to create payment intent for $provider - $e',
-      );
-      return Failure(
-        'Failed to create payment intent: $e',
-        statusCode: e is DioException ? e.response?.statusCode : null,
-      );
+      print('❌ PaymentApiService: Error creating payment intent - $e');
+      if (e is DioException) {
+        print('🔍 DioException Details:');
+        print('   - Type: ${e.type}');
+        print('   - Message: ${e.message}');
+        print('   - Response Status: ${e.response?.statusCode}');
+        print('   - Response Data: ${e.response?.data}');
+      }
+      return Failure('Failed to create payment intent: $e');
     }
   }
 
-  /// Check payment status
-  Future<ApiResult<PaymentStatusResponse>> checkPaymentStatus(
-    String paymentId,
-  ) async {
+  Future<ApiResult<PaymentVerificationResponse>> verifyPayment({
+    required String provider, // 'stripe' or 'paystack'
+    required String paymentId,
+    String? paymentIntentId, // For Stripe
+  }) async {
     try {
-      print('🔄 PaymentApiService: Checking payment status for $paymentId');
+      print('✅ PaymentApiService: Verifying payment - $paymentId');
 
-      final Response res = await dioService.get('v1/payment/status/$paymentId');
+      final requestData = {
+        'payment_id': paymentId,
+        if (paymentIntentId != null) 'payment_intent_id': paymentIntentId,
+      };
 
-      print('✅ PaymentApiService: Payment status retrieved');
-      final statusResponse = PaymentStatusResponse.fromJson(res.data);
+      final response = await dioService.post(
+        'v1/payments/verify',
+        data: requestData,
+        options: Options(headers: {'X-Payment-Provider': provider}),
+      );
 
-      return Success(statusResponse, message: statusResponse.message);
+      print('✅ Payment verification response: ${response.statusCode}');
+      print('✅ Response data: ${response.data}');
+
+      final verificationResponse = PaymentVerificationResponse.fromJson(
+        response.data['data'],
+      );
+      return Success(verificationResponse);
     } catch (e) {
-      print('❌ PaymentApiService: Failed to check payment status - $e');
-      return Failure(
-        'Failed to check payment status: $e',
-        statusCode: e is DioException ? e.response?.statusCode : null,
-      );
-    }
-  }
-
-  /// Verify payment completion (called after successful payment)
-  Future<ApiResult<PaymentStatusResponse>> verifyPayment(
-    String paymentId,
-  ) async {
-    try {
-      print('🔄 PaymentApiService: Verifying payment $paymentId');
-
-      final Response res = await dioService.post(
-        'v1/payment/verify/$paymentId',
-      );
-
-      print('✅ PaymentApiService: Payment verified');
-      final statusResponse = PaymentStatusResponse.fromJson(res.data);
-
-      return Success(statusResponse, message: statusResponse.message);
-    } catch (e) {
-      print('❌ PaymentApiService: Failed to verify payment - $e');
-      return Failure(
-        'Failed to verify payment: $e',
-        statusCode: e is DioException ? e.response?.statusCode : null,
-      );
+      print('❌ PaymentApiService: Error verifying payment - $e');
+      if (e is DioException) {
+        print('🔍 DioException Details:');
+        print('   - Type: ${e.type}');
+        print('   - Message: ${e.message}');
+        print('   - Response Status: ${e.response?.statusCode}');
+        print('   - Response Data: ${e.response?.data}');
+      }
+      return Failure('Payment verification failed: $e');
     }
   }
 }

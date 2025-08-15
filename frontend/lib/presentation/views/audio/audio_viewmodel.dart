@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:yefa/app/app_setup.dart';
 import 'package:yefa/core/utils/api_result.dart';
 import 'package:yefa/data/models/audio_model.dart';
 import 'package:yefa/data/services/audio_api_service.dart';
 import 'package:yefa/data/services/audio_download_service.dart';
 import 'package:yefa/data/services/audio_player_service.dart';
+import 'package:yefa/data/services/storage_service.dart';
+import 'package:yefa/data/services/cache/audio_cache.dart';
 import 'package:yefa/presentation/shared/widgets/payment_provider_sheet.dart';
 import 'package:yefa/presentation/views/audio/widgets/audio_player_dialog.dart';
 
@@ -13,11 +16,13 @@ class AudioViewModel extends BaseViewModel {
   final AudioApiService _audioApiService = locator<AudioApiService>();
   final AudioDownloadService _downloadService = locator<AudioDownloadService>();
   final AudioPlayerService _playerService = locator<AudioPlayerService>();
+  final StorageService _storageService = locator<StorageService>();
 
   List<AudioCategoryModel> _audioCategories = [];
   String? _showUpgradeCardForCategory;
   bool _isPremiumUser = false;
   bool _isLoading = false;
+  bool _hasInternetConnection = true;
   String? _errorMessage;
   Map<String, bool> _downloadingStates = {};
   Map<String, double> _downloadProgress = {};
@@ -27,6 +32,7 @@ class AudioViewModel extends BaseViewModel {
   String? get showUpgradeCardForCategory => _showUpgradeCardForCategory;
   bool get isPremiumUser => _isPremiumUser;
   bool get isLoading => _isLoading;
+  bool get hasInternetConnection => _hasInternetConnection;
   String? get errorMessage => _errorMessage;
   AudioPlayerService get playerService => _playerService;
 
@@ -45,13 +51,66 @@ class AudioViewModel extends BaseViewModel {
     print('🎵 AudioViewModel: Model ready, initializing services...');
     await _playerService.initialize();
     print('🎵 AudioViewModel: Player service initialized');
-    await fetchAudios();
+
+    // Load cached data first, then fetch fresh data
+    await _loadCachedAudios();
+    await _loadFreshDataIfOnline();
+  }
+
+  Future<void> _loadCachedAudios() async {
+    try {
+      final cachedAudios = await _storageService.getCachedAudioList();
+      if (cachedAudios != null && cachedAudios.isNotEmpty) {
+        _createSingleCategory(cachedAudios);
+        print('✅ Loaded ${cachedAudios.length} cached audios');
+      }
+    } catch (e) {
+      print('❌ Error loading cached audios: $e');
+    }
+  }
+
+  Future<void> _loadFreshDataIfOnline() async {
+    try {
+      _hasInternetConnection = await _checkInternetConnection();
+
+      if (_hasInternetConnection) {
+        print('🌐 Internet connection available, fetching fresh data...');
+        await fetchAudios(fromCache: false);
+      } else {
+        print('📱 No internet connection detected');
+        // Still try to fetch - sometimes connectivity check fails but internet works
+        print('🔄 Attempting to fetch data anyway...');
+        await fetchAudios(fromCache: false);
+      }
+    } catch (e) {
+      print('❌ Error loading fresh data: $e');
+      _hasInternetConnection = false;
+    }
+  }
+
+  Future<bool> _checkInternetConnection() async {
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      final hasConnection = connectivityResult != ConnectivityResult.none;
+      print(
+        '🔍 Connectivity check result: $connectivityResult (hasConnection: $hasConnection)',
+      );
+      return hasConnection;
+    } catch (e) {
+      print('❌ Connectivity check failed: $e');
+      return false;
+    }
   }
 
   // Fetch audios from API
-  Future<void> fetchAudios() async {
+  Future<void> fetchAudios({bool fromCache = true}) async {
     print('🎵 AudioViewModel: Starting to fetch audios...');
-    _setLoading(true);
+
+    // Only show loading if we don't have cached data
+    if (_audioCategories.isEmpty) {
+      _setLoading(true);
+    }
+
     _setErrorMessage(null);
 
     try {
@@ -60,14 +119,26 @@ class AudioViewModel extends BaseViewModel {
 
       if (result is Success<List<AudioModel>>) {
         print('🎵 AudioViewModel: Success! Got ${result.data.length} audios');
+
+        // Cache the fresh data
+        await _storageService.cacheAudioList(result.data);
+
         _createSingleCategory(result.data);
       } else if (result is Failure) {
         print('❌ AudioViewModel: API failure - ${result.error}');
-        _setErrorMessage(result.error);
+
+        // Only set error if we don't have cached data
+        if (_audioCategories.isEmpty) {
+          _setErrorMessage(result.error);
+        }
       }
     } catch (e) {
       print('❌ AudioViewModel: Exception during fetch - $e');
-      _setErrorMessage('Failed to fetch audios: $e');
+
+      // Only set error if we don't have cached data
+      if (_audioCategories.isEmpty) {
+        _setErrorMessage('Failed to fetch audios: $e');
+      }
     } finally {
       _setLoading(false);
       print('🎵 AudioViewModel: Fetch completed, loading set to false');
@@ -380,7 +451,8 @@ class AudioViewModel extends BaseViewModel {
   // Refresh data (pull-to-refresh)
   Future<void> refresh() async {
     print('🎵 AudioViewModel: Refreshing data...');
-    await fetchAudios();
+    // Always try to fetch fresh data on manual refresh
+    await fetchAudios(fromCache: false);
   }
 
   void _setLoading(bool loading) {

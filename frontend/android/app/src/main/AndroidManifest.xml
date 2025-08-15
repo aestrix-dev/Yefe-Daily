@@ -15,6 +15,9 @@
         android:usesCleartextTraffic="true">
 
         <activity
+        android:name="com.flutter.stripe.StripeActivity"
+        android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"

@@ -31,7 +31,7 @@ class PaymentProviderSheet extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
 
-            // 2-column grid layout for payment options
+           
             Row(
               children: [
                 Expanded(
@@ -42,7 +42,7 @@ class PaymentProviderSheet extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: const Color(
                           0xFF635BFF,
-                        ).withOpacity(0.1), // Stripe brand color
+                        ).withOpacity(0.1), 
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Column(

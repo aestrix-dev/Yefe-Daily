@@ -1,215 +1,131 @@
 import 'package:flutter/material.dart';
-import '../../app/app_setup.dart';
-import '../../core/utils/api_result.dart';
-import '../models/payment_model.dart';
-import '../repositories/payment_repository.dart';
-// import '../widgets/payment_webview_dialog.dart';
+import 'package:yefa/app/app_setup.dart';
+import 'package:yefa/data/models/user_model.dart';
+import 'package:yefa/data/services/storage_service.dart';
+import 'stripe_payment_service.dart';
+import 'paystack_webview_service.dart';
 
 class PaymentService {
-  static final PaymentService _instance = PaymentService._internal();
-  factory PaymentService() => _instance;
-  PaymentService._internal();
+  final StripePaymentService _stripeService = StripePaymentService();
+  final StorageService _storageService = locator<StorageService>();
 
-  final PaymentRepository _paymentRepository = locator<PaymentRepository>();
-
-  /// Simple method to start payment with a specific provider
-  static Future<bool> startPayment({
+  Future<void> processStripePayment({
+    required String clientSecret,
     required BuildContext context,
-    required String provider, // 'stripe' or 'paystack'
-    required VoidCallback onSuccess,
-    VoidCallback? onFailure,
-  }) async {
-    return await PaymentService()._handlePayment(
-      context: context,
-      provider: provider,
-      onSuccess: onSuccess,
-      onFailure: onFailure,
-    );
-  }
-
-  /// Check if user is premium
-  static Future<bool> isPremiumUser() async {
-    return await PaymentService()._paymentRepository.isPremiumUser();
-  }
-
-  /// Internal payment handler
-  Future<bool> _handlePayment({
-    required BuildContext context,
-    required String provider,
-    required VoidCallback onSuccess,
-    VoidCallback? onFailure,
+    required Function(bool success, String? error) onResult,
   }) async {
     try {
-      print('💳 PaymentService: Starting $provider payment...');
+      print('💳 PaymentService: Starting Stripe payment...');
 
-      // Check if already premium
-      final isPremium = await _paymentRepository.isPremiumUser();
-      if (isPremium) {
-        _showMessage(
-          context,
-          'You already have premium access!',
-          isError: false,
+      // First initialize the payment sheet
+      final initialized = await _stripeService.initializePaymentSheet(
+        clientSecret: clientSecret,
+        context: context,
+      );
+
+      if (!initialized) {
+        onResult(false, 'Failed to initialize payment');
+        return;
+      }
+
+      // Then process the payment
+      final result = await _stripeService.processPayment(
+        clientSecret: clientSecret,
+        context: context,
+      );
+
+      if (result.isSuccessful) {
+        print('✅ PaymentService: Stripe payment successful');
+        onResult(true, null);
+      } else if (result.isCancelled) {
+        print('⚠️ PaymentService: Stripe payment cancelled');
+        onResult(false, 'Payment was cancelled');
+      } else {
+        print(
+          '❌ PaymentService: Stripe payment failed - ${result.errorMessage}',
         );
-        return true;
+        onResult(false, result.errorMessage);
       }
-
-      // Show loading
-      _showLoadingDialog(context);
-
-      // Call backend with provider header
-      final paymentResult = await _paymentRepository.createPaymentIntent(
-        provider,
-      );
-      Navigator.of(context).pop(); 
-
-      if (paymentResult is Success<PaymentResponse>) {
-        final paymentData = paymentResult.data.data;
-
-        if (provider == 'stripe') {
-          // Stripe - use SDK (for now, simulate)
-          return await _handleStripePayment(
-            context,
-            paymentData,
-            onSuccess,
-            onFailure,
-          );
-        } else if (provider == 'paystack') {
-          // Paystack - use WebView
-          return await _handlePaystackPayment(
-            context,
-            paymentData,
-            onSuccess,
-            onFailure,
-          );
-        }
-      } else if (paymentResult is Failure) {
-        _showMessage(context, 'error is happening', isError: true);
-        onFailure?.call();
-      }
-
-      return false;
-    } catch (e) {
-      print('❌ PaymentService: Payment error - $e');
-      _showMessage(context, 'Payment failed: $e', isError: true);
-      onFailure?.call();
-      return false;
-    }
-  }
-
-  /// Handle Stripe payment (SDK - for now simulate)
-  Future<bool> _handleStripePayment(
-    BuildContext context,
-    PaymentData paymentData,
-    VoidCallback onSuccess,
-    VoidCallback? onFailure,
-  ) async {
-    try {
-      print('💳 PaymentService: Processing Stripe payment...');
-
-      // TODO: Implement Stripe SDK here
-      // For now, simulate successful payment
-      _showMessage(
-        context,
-        'Stripe SDK coming soon! Simulating success...',
-        isError: false,
-      );
-
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Update premium status directly for testing
-      await _paymentRepository.updatePremiumStatus(true);
-
-      _showMessage(
-        context,
-        'Payment successful! Premium activated.',
-        isError: false,
-      );
-      onSuccess();
-      return true;
     } catch (e) {
       print('❌ PaymentService: Stripe payment error - $e');
-      _showMessage(context, 'Stripe payment failed: $e', isError: true);
-      onFailure?.call();
-      return false;
+      onResult(false, 'Payment failed: $e');
     }
   }
 
-  /// Handle Paystack payment (WebView)
-  Future<bool> _handlePaystackPayment(
-    BuildContext context,
-    PaymentData paymentData,
-    VoidCallback onSuccess,
-    VoidCallback? onFailure,
-  ) async {
+  Future<void> processPaystackPayment({
+    required String paymentUrl,
+    required BuildContext context,
+    required Function(bool success, String? error) onResult,
+  }) async {
     try {
-      print('💳 PaymentService: Processing Paystack payment...');
+      print('💳 PaymentService: Starting Paystack payment...');
 
-      if (paymentData.paymentUrl == null) {
-        throw Exception('No payment URL provided for Paystack');
-      }
-
-      final result = await showDialog<String>(
+      final result = await PaystackWebViewService.processPayment(
+        paymentUrl: paymentUrl,
         context: context,
-        barrierDismissible: false,
-        builder: (context) => PaymentWebViewDialog(
-          paymentUrl: paymentData.paymentUrl!,
-          paymentId: paymentData.paymentId,
-        ),
       );
 
-      if (result == 'success') {
-        print('💳 PaymentService: Paystack payment completed');
-
-        // Verify payment and update premium status
-        final verificationResult = await _paymentRepository
-            .verifyAndUpdatePremiumStatus(paymentData.paymentId);
-
-        if (verificationResult is Success<bool>) {
-          _showMessage(
-            context,
-            'Payment successful! Premium activated.',
-            isError: false,
-          );
-          onSuccess();
-          return true;
-        } else {
-          _showMessage(context, 'Payment verification failed', isError: true);
-          onFailure?.call();
-          return false;
-        }
+      if (result.isSuccessful) {
+        print('✅ PaymentService: Paystack payment successful');
+        onResult(true, null);
+      } else if (result.isCancelled) {
+        print('⚠️ PaymentService: Paystack payment cancelled');
+        onResult(false, 'Payment was cancelled');
       } else {
-        print('💳 PaymentService: Paystack payment cancelled/failed');
-        _showMessage(context, 'Payment cancelled', isError: false);
-        return false;
+        print(
+          '❌ PaymentService: Paystack payment failed - ${result.errorMessage}',
+        );
+        onResult(false, result.errorMessage);
       }
     } catch (e) {
       print('❌ PaymentService: Paystack payment error - $e');
-      _showMessage(context, 'Payment failed: $e', isError: true);
-      onFailure?.call();
-      return false;
+      onResult(false, 'Payment failed: $e');
     }
   }
 
-  /// Utility methods
-  void _showLoadingDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
+  Future<void> updateUserPremiumStatus() async {
+    try {
+      print('👑 PaymentService: Updating user premium status...');
+
+      // Get current user
+      final user = await _storageService.getUser();
+      if (user != null) {
+        // Update user's plan to premium
+        final updatedUser = UserModel(
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          isEmailVerified: user.isEmailVerified,
+          isActive: user.isActive,
+          createdAt: user.createdAt,
+          updatedAt: DateTime.now(),
+          lastLoginAt: user.lastLoginAt,
+          role: user.role,
+          planType: 'premium', // Update to premium
+          planName: 'Premium Plan',
+          planStartDate: DateTime.now(),
+          planEndDate: user.planEndDate,
+          planAutoRenew: user.planAutoRenew,
+          planStatus: 'active',
+        );
+
+        await _storageService.saveUser(updatedUser);
+        print('✅ PaymentService: User premium status updated successfully');
+      } else {
+        print('❌ PaymentService: No user found to update premium status');
+      }
+    } catch (e) {
+      print('❌ PaymentService: Error updating user premium status - $e');
+    }
   }
 
-  void _showMessage(
-    BuildContext context,
-    String message, {
-    required bool isError,
-  }) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+  Future<bool> isUserPremium() async {
+    try {
+      final user = await _storageService.getUser();
+      return user?.planType == 'premium';
+    } catch (e) {
+      print('❌ PaymentService: Error checking premium status - $e');
+      return false;
+    }
   }
 }

@@ -32,6 +32,20 @@ class AudioModel {
     );
   }
 
+  // Add toJson method for caching
+  Map<String, dynamic> toJson() {
+    return {
+      'uuid': uuid,
+      'title': title,
+      'feel': feel,
+      'description': description,
+      'genre': genre,
+      'length': length,
+      'access': access,
+      'download_url': downloadUrl,
+    };
+  }
+
   // Helper getters for UI compatibility
   String get id => uuid;
   String get duration => length;

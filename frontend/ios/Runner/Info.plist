@@ -59,10 +59,15 @@
 		<true/>
 	</dict>
 	
-	<!-- NEW: Background audio capability -->
+	
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
 	</array>
+
+	<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>stripe</string>
+</array>
 </dict>
 </plist>
