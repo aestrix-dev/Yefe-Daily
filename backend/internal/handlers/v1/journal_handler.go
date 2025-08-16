@@ -53,7 +53,7 @@ func (h *journalHandler) CreateEntry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Type == "wisdom_note" && !user.IsYefePlusPlan() {
+	if req.Type == "evening" && !user.IsYefePlusPlan() {
 		utils.ErrorResponse(w, http.StatusUnauthorized, "User cannot submit a wisdom note", nil)
 		return
 
