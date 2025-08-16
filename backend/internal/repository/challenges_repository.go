@@ -336,13 +336,39 @@ func (r *ChallengeStatsRepositoryImpl) GetUserStats(userID string) (domain.Chall
 
 // UpdateUserStats updates user statistics
 func (r *ChallengeStatsRepositoryImpl) UpdateUserStats(userId string, points int) error {
-
 	stats, err := r.GetUserStats(userId)
 	if err != nil {
 		return err
 	}
+
+	now := time.Now()
 	stats.TotalPoints += points
 	stats.TotalChallenges += 1
+	stats.CompletedCount += 1
+
+	// Calculate streak logic
+	if stats.LastCompletedAt == nil {
+		stats.CurrentStreak = 1
+		stats.StreakStartedAt = &now
+	} else {
+		// Check if this completion continues the streak
+		daysSinceLastCompletion := int(now.Sub(*stats.LastCompletedAt).Hours() / 24)
+
+		if daysSinceLastCompletion == 1 {
+			stats.CurrentStreak += 1
+		} else if daysSinceLastCompletion > 1 {
+			stats.CurrentStreak = 1
+			stats.StreakStartedAt = &now
+		}
+	}
+
+	// Update last completed timestamp
+	stats.LastCompletedAt = &now
+
+	// Update max streak if current streak is higher
+	if stats.CurrentStreak > stats.LongestStreak {
+		stats.LongestStreak = stats.CurrentStreak
+	}
 
 	if err := r.db.Model(stats).Where("user_id = ?", stats.UserID).Updates(stats).Error; err != nil {
 		return err

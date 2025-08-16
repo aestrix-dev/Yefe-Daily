@@ -23,6 +23,7 @@ type UserChallenge struct {
 	UserID      string     `json:"user_id"`
 	ChallengeID string     `json:"challenge_id"`
 	Status      string     `json:"status"`
+	Challenge   Challenge  `json:"challenge"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
@@ -30,12 +31,14 @@ type UserChallenge struct {
 
 // ChallengeStats represents user's challenge statistics
 type ChallengeStats struct {
-	UserID          string `json:"user_id"`
-	TotalChallenges int    `json:"total_challenges"`
-	CompletedCount  int    `json:"completed_count"`
-	TotalPoints     int    `json:"total_points"`
-	CurrentStreak   int    `json:"current_streak"`
-	LongestStreak   int    `json:"longest_streak"`
+	UserID          string     `json:"user_id"`
+	TotalChallenges int        `json:"total_challenges"`
+	CompletedCount  int        `json:"completed_count"`
+	TotalPoints     int        `json:"total_points"`
+	CurrentStreak   int        `json:"current_streak"`
+	LongestStreak   int        `json:"longest_streak"`
+	LastCompletedAt *time.Time `json:"last_completed_at"`
+	StreakStartedAt *time.Time `json:"streak_started_at"`
 }
 
 // Repository Interfaces
