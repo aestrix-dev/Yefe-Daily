@@ -81,7 +81,7 @@ func (h *challengesHandler) getTodaysChallenges(w http.ResponseWriter, r *http.R
 
 // getChallengeHistory gets user's challenge history
 func (h *challengesHandler) getChallengeHistory(w http.ResponseWriter, r *http.Request) {
-	var dto dto.UserChallengeDTO
+	var dto []dto.UserChallengeDTO
 	userID := getUserIDFromContext(r.Context())
 
 	limitStr := r.URL.Query().Get("limit")
@@ -117,6 +117,7 @@ func (h *challengesHandler) completeChallenge(w http.ResponseWriter, r *http.Req
 
 	err := h.challengeUseCase.CompleteChallenge(userID, challengeID)
 	if err != nil {
+		logger.Log.WithError(err).Error("Failed to complete challenge")
 		http.Error(w, "Failed to complete challenge", http.StatusInternalServerError)
 		return
 	}
@@ -130,12 +131,17 @@ func (h *challengesHandler) completeChallenge(w http.ResponseWriter, r *http.Req
 
 // getDashboard gets user's dashboard data
 func (h *challengesHandler) getDashboard(w http.ResponseWriter, r *http.Request) {
-	var Challengedto dto.UserChallengeDTO
+	var todayChallengedto dto.ChallengeResponse
+	var challengedto dto.ChallengeDTO
+	var recentlyCompletedto []dto.ChallengeResponse
+	var statsdto dto.ChallengeStatsDTO
+
 	userID := getUserIDFromContext(r.Context())
 
 	// Get today's challenges
 	todaysChallenge, err := h.challengeUseCase.GetUserChallengeForToday(userID)
 	if err != nil {
+		logger.Log.WithError(err).Error("")
 		http.Error(w, "Failed to get dashboard data", http.StatusInternalServerError)
 		return
 	}
@@ -143,6 +149,7 @@ func (h *challengesHandler) getDashboard(w http.ResponseWriter, r *http.Request)
 	// Get recent completed challenges
 	recentCompleted, err := h.challengeUseCase.GetUserChallengeHistory(userID, 5)
 	if err != nil {
+		logger.Log.WithError(err).Error("")
 		http.Error(w, "Failed to get recent completed challenges", http.StatusInternalServerError)
 		return
 	}
@@ -150,27 +157,44 @@ func (h *challengesHandler) getDashboard(w http.ResponseWriter, r *http.Request)
 	// Get user stats
 	stats, err := h.challengeUseCase.GetUserStats(userID)
 	if err != nil {
+		logger.Log.WithError(err).Error("")
 		http.Error(w, "Failed to get user stats", http.StatusInternalServerError)
 		return
 	}
 
 	// Filter recent completed to only show completed ones
-	var completed []domain.UserChallenge
-	for _, challenge := range recentCompleted {
-		if challenge.Status == dto.StatusCompleted {
-			completed = append(completed, challenge)
+	for _, chg := range recentCompleted {
+		_ = utils.TypeConverter(chg.Challenge, &challengedto)
+		if chg.Status == dto.StatusCompleted {
+			challenge := dto.ChallengeResponse{Challenge: &challengedto, IsCompleted: chg.Status == dto.StatusCompleted}
+			recentlyCompletedto = append(recentlyCompletedto, challenge)
 		}
 	}
-	err = utils.TypeConverter(todaysChallenge, &Challengedto)
+	err = utils.TypeConverter(todaysChallenge, &todayChallengedto)
 
 	if err != nil {
+		logger.Log.WithError(err).Error("")
 		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
 		return
 	}
+
+	err = utils.TypeConverter(stats, &statsdto)
+
+	if err != nil {
+		logger.Log.WithError(err).Error("")
+		http.Error(w, "Failed to get user stats", http.StatusInternalServerError)
+		return
+	}
+
+	if statsdto.CurrentStreak >= 7 {
+		statsdto.SevendaysProgress = statsdto.CurrentStreak
+	} else {
+		statsdto.SevendaysProgress = statsdto.CurrentStreak % 7
+	}
 	dashboard := &dto.DashboardResponse{
-		TodaysChallenges:  convertToChallengeResponse(todaysChallenge),
-		RecentlyCompleted: convertToChallengeResponses(completed),
-		Stats:             convertChallengeStatsToDTO(stats),
+		TodaysChallenges:  todayChallengedto,
+		RecentlyCompleted: recentlyCompletedto,
+		Stats:             statsdto,
 		CurrentStreak:     stats.CurrentStreak,
 		TotalPoints:       stats.TotalPoints,
 	}
@@ -181,16 +205,25 @@ func (h *challengesHandler) getDashboard(w http.ResponseWriter, r *http.Request)
 
 // getUserStats gets user's statistics
 func (h *challengesHandler) getUserStats(w http.ResponseWriter, r *http.Request) {
+	var statsdto dto.ChallengeStatsDTO
 	userID := getUserIDFromContext(r.Context())
 
 	stats, err := h.challengeUseCase.GetUserStats(userID)
+
+	err = utils.TypeConverter(stats, &statsdto)
+
+	if err != nil {
+		logger.Log.WithError(err).Error("")
+		http.Error(w, "Failed to get user stats", http.StatusInternalServerError)
+		return
+	}
 	if err != nil {
 		http.Error(w, "Failed to get user stats", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(convertChallengeStatsToDTO(stats))
+	json.NewEncoder(w).Encode(statsdto)
 }
 
 // getLeaderboard gets the leaderboard
@@ -211,57 +244,6 @@ func (h *challengesHandler) getLeaderboard(w http.ResponseWriter, r *http.Reques
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{
-		"leaderboard": convertChallengeStatsSliceToDTO(leaderboard),
+		"leaderboard": leaderboard,
 	})
-}
-func convertToChallengeResponse(uc domain.UserChallenge) dto.ChallengeResponse {
-	response := dto.ChallengeResponse{
-		UserChallenge: convertUserChallengeToDTO(uc),
-		IsCompleted:   uc.Status == dto.StatusCompleted,
-		CanComplete:   uc.Status == dto.StatusPending,
-	}
-	return response
-}
-
-// Helper function to convert UserChallenge to ChallengeResponse
-func convertToChallengeResponses(userChallenges []domain.UserChallenge) []dto.ChallengeResponse {
-	var responses []dto.ChallengeResponse
-	for _, uc := range userChallenges {
-		response := convertToChallengeResponse(uc)
-		responses = append(responses, response)
-	}
-	return responses
-}
-
-func convertUserChallengeToDTO(userChallenge domain.UserChallenge) *dto.UserChallengeDTO {
-
-	return &dto.UserChallengeDTO{
-		ID:          userChallenge.ID,
-		UserID:      userChallenge.UserID,
-		ChallengeID: userChallenge.ChallengeID,
-		Status:      userChallenge.Status,
-		CompletedAt: userChallenge.CompletedAt,
-		CreatedAt:   userChallenge.CreatedAt,
-		UpdatedAt:   userChallenge.UpdatedAt,
-	}
-}
-
-func convertChallengeStatsToDTO(stats domain.ChallengeStats) *dto.ChallengeStatsDTO {
-
-	return &dto.ChallengeStatsDTO{
-		UserID:          stats.UserID,
-		TotalChallenges: stats.TotalChallenges,
-		CompletedCount:  stats.CompletedCount,
-		TotalPoints:     stats.TotalPoints,
-		CurrentStreak:   stats.CurrentStreak,
-		LongestStreak:   stats.LongestStreak,
-	}
-}
-
-func convertChallengeStatsSliceToDTO(statsSlice []domain.ChallengeStats) []*dto.ChallengeStatsDTO {
-	var dtos []*dto.ChallengeStatsDTO
-	for _, stats := range statsSlice {
-		dtos = append(dtos, convertChallengeStatsToDTO(stats))
-	}
-	return dtos
 }

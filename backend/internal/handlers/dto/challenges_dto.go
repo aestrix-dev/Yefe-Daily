@@ -27,27 +27,26 @@ type UserChallengeDTO struct {
 
 // ChallengeStatsDTO represents user's challenge statistics in API responses
 type ChallengeStatsDTO struct {
-	UserID          string `json:"user_id"`
-	TotalChallenges int    `json:"total_challenges"`
-	CompletedCount  int    `json:"completed_count"`
-	TotalPoints     int    `json:"total_points"`
-	CurrentStreak   int    `json:"current_streak"`
-	LongestStreak   int    `json:"longest_streak"`
+	UserID            string `json:"user_id"`
+	TotalChallenges   int    `json:"total_challenges"`
+	CompletedCount    int    `json:"completed_count"`
+	TotalPoints       int    `json:"total_points"`
+	CurrentStreak     int    `json:"current_streak"`
+	LongestStreak     int    `json:"longest_streak"`
+	SevendaysProgress int    `json:"sevendays_progress"`
 }
 
 // ChallengeResponse represents the response structure for challenges
 type ChallengeResponse struct {
-	Challenge     *ChallengeDTO     `json:"challenge"`
-	UserChallenge *UserChallengeDTO `json:"user_challenge,omitempty"`
-	IsCompleted   bool              `json:"is_completed"`
-	CanComplete   bool              `json:"can_complete"`
+	Challenge   *ChallengeDTO `json:"challenge"`
+	IsCompleted bool          `json:"is_completed"`
 }
 
 // DashboardResponse represents the user's dashboard data
 type DashboardResponse struct {
 	TodaysChallenges  ChallengeResponse   `json:"todays_challenges"`
 	RecentlyCompleted []ChallengeResponse `json:"recently_completed"`
-	Stats             *ChallengeStatsDTO  `json:"stats"`
+	Stats             ChallengeStatsDTO   `json:"stats"`
 	CurrentStreak     int                 `json:"current_streak"`
 	TotalPoints       int                 `json:"total_points"`
 }
