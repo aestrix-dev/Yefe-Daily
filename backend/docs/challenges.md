@@ -103,7 +103,9 @@ All endpoints are prefixed with `/v1`.
             "completed_count": 5,
             "total_points": 50,
             "current_streak": 3,
-            "longest_streak": 5
+            "longest_streak": 5,
+            "sevendays_progress": 3,
+            "no_of_badges": 2
         },
         "current_streak": 3,
         "total_points": 50
@@ -122,7 +124,9 @@ All endpoints are prefixed with `/v1`.
         "completed_count": 5,
         "total_points": 50,
         "current_streak": 3,
-        "longest_streak": 5
+        "longest_streak": 5,
+        "sevendays_progress": 3,
+        "no_of_badges": 2
     }
     ```
 
