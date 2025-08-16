@@ -26,6 +26,7 @@ Future<void> main() async {
   ]);
 
   Stripe.publishableKey = 'pk_test_51Rjcn1Cc0zU2ZKe3wErao4byE0zLWN1cPJhqHHF2690YBk2eiblSNPJmpUa3YT9SwHc7umx1SqLdRdotUyITnYag00rapeOvO7';
+  
 
   print('🎵 Running app...');
   runApp(const MyApp());

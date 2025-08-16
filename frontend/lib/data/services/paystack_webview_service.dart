@@ -95,6 +95,9 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
   PaystackPaymentResult? _checkPaymentResult(String url) {
     print('🔍 Checking URL for payment result: $url');
 
+    // Extract payment reference from URL if present
+    String? paymentReference = _extractPaymentReference(url);
+
     // More comprehensive Paystack URL patterns
     // Paystack typically redirects to URLs containing these patterns
 
@@ -107,7 +110,7 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
         url.contains('trxref=') || // Paystack transaction reference
         url.contains('reference=')) {
       print('✅ Payment successful detected from URL: $url');
-      return PaystackPaymentResult.success();
+      return PaystackPaymentResult.success(paymentReference: paymentReference);
     }
 
     // Failure patterns
@@ -130,7 +133,22 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
         !url.contains('about:blank')) {
       print('🔄 Possible redirect detected, might be success: $url');
       // This could be a success redirect - you might need to adjust based on your backend
-      return PaystackPaymentResult.success();
+      return PaystackPaymentResult.success(paymentReference: paymentReference);
+    }
+
+    return null;
+  }
+
+  // Extract payment reference from URL
+  String? _extractPaymentReference(String url) {
+    // Try to extract reference from various URL patterns
+    RegExp regExp = RegExp(r'[?&](trxref|reference)=([^&]+)');
+    Match? match = regExp.firstMatch(url);
+
+    if (match != null && match.groupCount >= 2) {
+      String reference = match.group(2)!;
+      print('📝 Extracted payment reference: $reference');
+      return reference;
     }
 
     return null;
@@ -150,14 +168,17 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
                 context,
               ).pop(PaystackPaymentResult.failed('Payment cancelled by user'));
             },
-            child: const Text('No'),
+            child: const Text('No / Cancel'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
-              Navigator.of(context).pop(PaystackPaymentResult.success());
+              // For manual completion, we don't have a reference, so pass null
+              Navigator.of(
+                context,
+              ).pop(PaystackPaymentResult.success(paymentReference: null));
             },
-            child: const Text('Yes'),
+            child: const Text('Yes / Completed'),
           ),
         ],
       ),
@@ -220,14 +241,6 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(
-                        context,
-                      ).pop(PaystackPaymentResult.cancelled());
-                    },
-                    child: Icon(Icons.close, color: Colors.white, size: 24.sp),
                   ),
                 ],
               ),
@@ -304,11 +317,19 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
 class PaystackPaymentResult {
   final PaystackPaymentStatus status;
   final String? errorMessage;
+  final String? paymentReference; // Add this to capture payment reference
 
-  PaystackPaymentResult._({required this.status, this.errorMessage});
+  PaystackPaymentResult._({
+    required this.status,
+    this.errorMessage,
+    this.paymentReference,
+  });
 
-  factory PaystackPaymentResult.success() {
-    return PaystackPaymentResult._(status: PaystackPaymentStatus.succeeded);
+  factory PaystackPaymentResult.success({String? paymentReference}) {
+    return PaystackPaymentResult._(
+      status: PaystackPaymentStatus.succeeded,
+      paymentReference: paymentReference,
+    );
   }
 
   factory PaystackPaymentResult.failed(String errorMessage) {

@@ -87,11 +87,11 @@ class JournalViewModel extends BaseViewModel {
       backgroundColor: Colors.transparent,
       builder: (context) => PaymentProviderSheet(
         onStripeTap: () async {
-          Navigator.of(context).pop(); // Close provider sheet
+          Navigator.of(context).pop(); 
           await _handleStripePayment();
         },
         onPaystackTap: () async {
-          Navigator.of(context).pop(); // Close provider sheet
+          Navigator.of(context).pop(); 
           await _handlePaystackPayment();
         },
       ),

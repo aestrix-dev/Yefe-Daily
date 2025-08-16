@@ -11,13 +11,16 @@ class StripePaymentService {
         '💳 Starting Stripe payment with client secret: ${clientSecret.substring(0, 20)}...',
       );
 
-      // Present Stripe payment sheet to user (this handles card input)
+      
       await Stripe.instance.presentPaymentSheet();
 
       print('✅ Payment completed successfully');
+
+      // Extract payment intent ID from client secret
+      final paymentIntentId = _extractPaymentIntentId(clientSecret);
+
       return StripePaymentResult.success(
-        paymentIntentId:
-            'completed', // We'll get the actual ID from verification
+        paymentIntentId: paymentIntentId,
         status: 'succeeded',
       );
     } on StripeException catch (e) {
@@ -36,6 +39,17 @@ class StripePaymentService {
       print('❌ Unexpected error during Stripe payment: $e');
       return StripePaymentResult.failed('Unexpected error occurred');
     }
+  }
+
+  // Extract payment intent ID from client secret
+  String _extractPaymentIntentId(String clientSecret) {
+    // Client secret format: pi_1234567890_secret_abcdefghijk
+    // We need: pi_1234567890
+    if (clientSecret.contains('_secret_')) {
+      return clientSecret.split('_secret_')[0];
+    }
+    // Fallback - return the whole thing if format is unexpected
+    return clientSecret;
   }
 
   // Initialize payment sheet before presenting it

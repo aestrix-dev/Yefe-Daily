@@ -6,7 +6,6 @@ import 'package:stacked/stacked.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../shared/widgets/custom_bottom_nav.dart';
 import 'profile_viewmodel.dart';
-import 'widgets/upgrade_popup.dart';
 import 'widgets/profile_header.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/community_section.dart';
@@ -20,6 +19,13 @@ class ProfileView extends StackedView<ProfileViewModel> {
     ProfileViewModel viewModel,
     Widget? child,
   ) {
+    // Set context for payment functionality
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!viewModel.contextAlreadySet) {
+        viewModel.setContext(context);
+      }
+    });
+
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -50,17 +56,16 @@ class ProfileView extends StackedView<ProfileViewModel> {
                   ),
                 ),
 
-               
                 ProfileHeader(
                   userName: viewModel.userName,
                   userPlan: viewModel.userPlan,
                   avatarUrl: viewModel.avatarUrl,
-                  onUpgrade: () => _showUpgradePopup(context, viewModel),
+                  onUpgrade:
+                      viewModel.showUpgradeCard, // Call showUpgradeCard instead
                 ),
 
                 SizedBox(height: 16.h),
 
-              
                 Container(
                   margin: EdgeInsets.symmetric(
                     horizontal: 16.w,
@@ -139,12 +144,6 @@ class ProfileView extends StackedView<ProfileViewModel> {
     );
   }
 
-  void _showUpgradePopup(BuildContext context, ProfileViewModel viewModel) {
-    if (!viewModel.isPremium) {
-      UpgradePopup.show(context, onUpgrade: viewModel.upgradeToPremium);
-    }
-  }
-
   Widget _buildProgressItem({
     required BuildContext context,
     required String iconPath,
@@ -153,11 +152,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
   }) {
     return Column(
       children: [
-        Image.asset(
-          iconPath,
-          width: 32.sp,
-          height: 32.sp,
-        ),
+        Image.asset(iconPath, width: 32.sp, height: 32.sp),
         SizedBox(height: 8.h),
         Text(
           '$value $label',

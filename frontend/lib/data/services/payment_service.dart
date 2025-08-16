@@ -12,7 +12,8 @@ class PaymentService {
   Future<void> processStripePayment({
     required String clientSecret,
     required BuildContext context,
-    required Function(bool success, String? error) onResult,
+    required Function(bool success, String? error, String? paymentIntentId)
+    onResult,
   }) async {
     try {
       print('💳 PaymentService: Starting Stripe payment...');
@@ -24,7 +25,7 @@ class PaymentService {
       );
 
       if (!initialized) {
-        onResult(false, 'Failed to initialize payment');
+        onResult(false, 'Failed to initialize payment', null);
         return;
       }
 
@@ -36,26 +37,27 @@ class PaymentService {
 
       if (result.isSuccessful) {
         print('✅ PaymentService: Stripe payment successful');
-        onResult(true, null);
+        onResult(true, null, result.paymentIntentId);
       } else if (result.isCancelled) {
         print('⚠️ PaymentService: Stripe payment cancelled');
-        onResult(false, 'Payment was cancelled');
+        onResult(false, 'Payment was cancelled', null);
       } else {
         print(
           '❌ PaymentService: Stripe payment failed - ${result.errorMessage}',
         );
-        onResult(false, result.errorMessage);
+        onResult(false, result.errorMessage, null);
       }
     } catch (e) {
       print('❌ PaymentService: Stripe payment error - $e');
-      onResult(false, 'Payment failed: $e');
+      onResult(false, 'Payment failed: $e', null);
     }
   }
 
   Future<void> processPaystackPayment({
     required String paymentUrl,
     required BuildContext context,
-    required Function(bool success, String? error) onResult,
+    required Function(bool success, String? error, String? paymentReference)
+    onResult,
   }) async {
     try {
       print('💳 PaymentService: Starting Paystack payment...');
@@ -67,19 +69,19 @@ class PaymentService {
 
       if (result.isSuccessful) {
         print('✅ PaymentService: Paystack payment successful');
-        onResult(true, null);
+        onResult(true, null, result.paymentReference);
       } else if (result.isCancelled) {
         print('⚠️ PaymentService: Paystack payment cancelled');
-        onResult(false, 'Payment was cancelled');
+        onResult(false, 'Payment was cancelled', null);
       } else {
         print(
           '❌ PaymentService: Paystack payment failed - ${result.errorMessage}',
         );
-        onResult(false, result.errorMessage);
+        onResult(false, result.errorMessage, null);
       }
     } catch (e) {
       print('❌ PaymentService: Paystack payment error - $e');
-      onResult(false, 'Payment failed: $e');
+      onResult(false, 'Payment failed: $e', null);
     }
   }
 

@@ -8,7 +8,7 @@ import 'base_repository.dart';
 class PaymentRepository extends BaseRepository {
   final PaymentApiService _apiService = locator<PaymentApiService>();
   final PaymentService _paymentService = locator<PaymentService>();
-  
+ 
 
   Future<ApiResult<void>> processPayment({
     required String provider, 
@@ -35,16 +35,17 @@ class PaymentRepository extends BaseRepository {
       bool paymentSuccessful = false;
       String? paymentError;
       String? stripePaymentIntentId;
+      String? paystackPaymentReference;
 
       if (provider == 'stripe') {
         await _paymentService.processStripePayment(
           clientSecret: paymentIntent.clientSecret,
           context: context,
-          onResult: (success, error) {
+          onResult: (success, error, paymentIntentId) {
             paymentSuccessful = success;
             paymentError = error;
-            // For Stripe, we might get the payment intent ID from the service
-            // This would need to be updated in the service to return it
+            stripePaymentIntentId =
+                paymentIntentId; 
           },
         );
       } else if (provider == 'paystack') {
@@ -55,9 +56,11 @@ class PaymentRepository extends BaseRepository {
         await _paymentService.processPaystackPayment(
           paymentUrl: paymentIntent.paymentUrl!,
           context: context,
-          onResult: (success, error) {
+          onResult: (success, error, paymentReference) {
             paymentSuccessful = success;
             paymentError = error;
+            paystackPaymentReference =
+                paymentReference; // Capture payment reference
           },
         );
       } else {
@@ -74,7 +77,9 @@ class PaymentRepository extends BaseRepository {
       final verificationResult = await _apiService.verifyPayment(
         provider: provider,
         paymentId: paymentIntent.paymentId,
-        paymentIntentId: stripePaymentIntentId,
+        paymentIntentId:
+            stripePaymentIntentId ??
+            paystackPaymentReference, // Use appropriate ID
       );
 
       if (!verificationResult.isSuccess) {
