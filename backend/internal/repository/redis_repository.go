@@ -19,6 +19,7 @@ type RedisSessionRepository struct {
 }
 
 func NewRedisSessionRepository(config utils.DBSettings) (*RedisSessionRepository, error) {
+	var err error
 	redisConnAddr := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	options := &redis.Options{
 		Username:  config.UserName,
@@ -27,8 +28,16 @@ func NewRedisSessionRepository(config utils.DBSettings) (*RedisSessionRepository
 		TLSConfig: &tls.Config{},
 	}
 
+	if config.ConnectionUrl != "" {
+		options, err = redis.ParseURL(config.ConnectionUrl)
+		if err != nil {
+			logger.Log.WithError(err).Fatal("redis could not connect")
+			return nil, err
+		}
+	}
+
 	client := redis.NewClient(options)
-	err := client.Ping(context.Background()).Err()
+	err = client.Ping(context.Background()).Err()
 	if err != nil {
 		logger.Log.WithError(err).Fatal("redis could not connect")
 		return nil, err
