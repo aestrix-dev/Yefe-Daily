@@ -27,6 +27,9 @@ type postgresPersistence struct {
 }
 
 func (p postgresPersistence) connectionString() string {
+	if p.config.ConnectionUrl != "" {
+		return p.config.ConnectionUrl
+	}
 	return fmt.Sprintf(
 		"host=%v port=%v user=%v dbname=%v password=%v sslmode=disable TimeZone=Africa/Lagos",
 		p.config.Host, p.config.Port, p.config.UserName, p.config.DataBase, p.config.Password)

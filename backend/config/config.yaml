@@ -11,6 +11,7 @@ server:
 
 persistence:
   postgres:
+    connection_url: ${DB_CONNECTION_URL}
     host: ${DB_HOST}
     port: ${DB_PORT}
     username: ${DB_USERNAME}
