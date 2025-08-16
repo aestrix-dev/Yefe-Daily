@@ -1,5 +1,6 @@
 .env
 .env.dev
+.env.prod
 *.db
 .credentials.json
 .air.toml
