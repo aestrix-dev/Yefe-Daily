@@ -74,7 +74,7 @@ if __name__ == "__main__":
     try:
         # 1. Find pieces with target moods
         target_moods = ["bright", "relaxed", "uplifting"]
-        mood_pieces = client.find_mood_pieces(target_moods)
+        mood_pieces = client.find_mood_pieces(target_moods)[0:20]
 
         # 2. Process with access levels and proper URLs
         processed_pieces = client.process_pieces(mood_pieces)
