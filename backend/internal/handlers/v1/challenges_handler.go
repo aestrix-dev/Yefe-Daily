@@ -191,6 +191,7 @@ func (h *challengesHandler) getDashboard(w http.ResponseWriter, r *http.Request)
 	} else {
 		statsdto.SevendaysProgress = statsdto.CurrentStreak % 7
 	}
+	statsdto.NoOfBadges = int(stats.TotalChallenges / 5)
 	dashboard := &dto.DashboardResponse{
 		TodaysChallenges:  todayChallengedto,
 		RecentlyCompleted: recentlyCompletedto,
@@ -221,6 +222,14 @@ func (h *challengesHandler) getUserStats(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Failed to get user stats", http.StatusInternalServerError)
 		return
 	}
+
+	if statsdto.CurrentStreak >= 7 {
+		statsdto.SevendaysProgress = statsdto.CurrentStreak
+	} else {
+		statsdto.SevendaysProgress = statsdto.CurrentStreak % 7
+	}
+
+	statsdto.NoOfBadges = int(stats.TotalChallenges / 5)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(statsdto)

@@ -34,6 +34,7 @@ type ChallengeStatsDTO struct {
 	CurrentStreak     int    `json:"current_streak"`
 	LongestStreak     int    `json:"longest_streak"`
 	SevendaysProgress int    `json:"sevendays_progress"`
+	NoOfBadges        int    `json"no_of_badges"`
 }
 
 // ChallengeResponse represents the response structure for challenges
