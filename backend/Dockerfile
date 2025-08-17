@@ -32,7 +32,7 @@ WORKDIR /yefa_daily
 # Copy binary from builder stage
 COPY --from=builder /yefa_daily/main .
 
-COPY --from=builder /yefa_daily/config/config.yaml ./config
+COPY --from=builder /yefa_daily/config/* ./config
 COPY --from=builder /yefa_daily/extras/* ./extras
 
 # Switch to non-root user
