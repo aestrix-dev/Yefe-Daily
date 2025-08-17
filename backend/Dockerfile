@@ -29,12 +29,6 @@ RUN addgroup -g 1001 -S appgroup && \
 # Set working directory
 WORKDIR /yefa_daily
 
-# Copy binary from builder stage
-COPY --from=builder /yefa_daily/main .
-
-COPY --from=builder /yefa_daily/config/* ./config
-COPY --from=builder /yefa_daily/extras/* ./extras
-
 # Switch to non-root user
 USER appuser
 
