@@ -32,9 +32,8 @@ WORKDIR /yefa_daily
 # Copy binary from builder stage
 COPY --from=builder /yefa_daily/main .
 
-# Copy .env file if it exists (optional)
-COPY --from=builder /yefa_daily/config/* ./
-COPY --from=builder /yefa_daily/extras/* ./
+COPY --from=builder /yefa_daily/config/config.yaml ./config
+COPY --from=builder /yefa_daily/extras/* ./extras
 
 # Switch to non-root user
 USER appuser
