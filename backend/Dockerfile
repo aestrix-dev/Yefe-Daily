@@ -14,7 +14,7 @@ RUN go mod tidy
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./main.go
 
 # Final stage
 FROM alpine:latest
@@ -42,4 +42,4 @@ USER appuser
 EXPOSE 8080
 
 # Run the application
-CMD ["./cmd/server/main"]
+CMD ["./main"]
