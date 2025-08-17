@@ -11,7 +11,7 @@ COPY go.mod go.sum ./
 RUN go mod tidy 
 
 # Copy source code
-COPY . ./yefa_daily
+COPY . /yefa_daily/
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./main.go
