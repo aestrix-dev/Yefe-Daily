@@ -33,7 +33,8 @@ WORKDIR /yefa_daily
 COPY --from=builder /yefa_daily/main .
 
 # Copy .env file if it exists (optional)
-COPY --from=builder /yefa_daily/config/.env* ./
+COPY --from=builder /yefa_daily/config/* ./
+COPY --from=builder /yefa_daily/extras/* ./
 
 # Switch to non-root user
 USER appuser
