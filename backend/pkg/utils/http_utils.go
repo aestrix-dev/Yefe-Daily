@@ -47,7 +47,7 @@ func HandleDomainError(w http.ResponseWriter, err error) {
 
 	case errors.Is(err, domain.ErrInvalidPlanType),
 		errors.Is(err, domain.ErrInvalidUserStatus),
-		errors.Is(err, domain.ErrInvalidPlanTransition):
+		errors.Is(err, domain.ErrInvalidPlanTransition), errors.Is(err, domain.ErrMinuteError), errors.Is(err, domain.ErrHourError):
 		fmt.Println(err)
 		ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
 
@@ -100,7 +100,7 @@ func HandleDomainError(w http.ResponseWriter, err error) {
 
 	default:
 		fmt.Println(err)
-		ErrorResponse(w, http.StatusInternalServerError, "Internal server error", nil)
+		ErrorResponse(w, http.StatusInternalServerError, "Internal server error", err.Error())
 	}
 }
 

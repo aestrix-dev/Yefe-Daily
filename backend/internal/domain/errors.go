@@ -14,12 +14,14 @@ var (
 	ErrInvalidAuthHeader  = errors.New("invalid authorization header")
 	ErrInvalidToken       = errors.New("invalid or expired token")
 	ErrUnauthorized       = errors.New("unauthorized access")
+	ErrHourError          = errors.New("Hour cannot be less than 0 and greater then 12")
+	ErrMinuteError          = errors.New("Minute cannot be less than 0 and greater then 12")
 )
 
 // User Management Errors
 var (
 	ErrEmailAlreadyExists    = errors.New("email already exists")
-  ErrUsernameAlreadyExists = errors.New("user already exists")
+	ErrUsernameAlreadyExists = errors.New("user already exists")
 	ErrWeakPassword          = errors.New("password does not meet requirements")
 	ErrInvalidUserStatus     = errors.New("invalid user status")
 )

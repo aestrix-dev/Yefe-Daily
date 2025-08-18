@@ -100,9 +100,16 @@ func (r ReminderRequest) Validate() error {
 	var err error
 
 	err = r.MorningReminder.Validate()
+  if err != nil{
+    return fmt.Errorf("Morning Reminider Time: %v", err.Error()) 
+  }
 	err = r.EveningReminder.Validate()
 
-	return err
+  if err != nil{
+    return fmt.Errorf("Evening Reminider Time: %v", err.Error()) 
+  }
+
+	return nil 
 }
 
 type NotificationsPref struct {
