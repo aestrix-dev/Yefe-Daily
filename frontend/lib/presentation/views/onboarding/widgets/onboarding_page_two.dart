@@ -173,7 +173,7 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
                             //   onChanged: viewModel.setConfirmPassword,
                             // ),
 
-                            SizedBox(height: 24.h),
+                            SizedBox(height: 20.h),
 
                             // Preferred Language
                             // Text(

@@ -4,7 +4,7 @@ import 'storage_service.dart';
 import '../../app/app_setup.dart';
 
 class DioService {
-  static const String baseUrl = 'https://api.yefadaily.com/';
+  static const String baseUrl = 'https://yefadaily.zeabur.app/';
 
   late Dio _dio;
   final _storageService = locator<StorageService>();

@@ -53,6 +53,14 @@ class PaymentVerificationResponse {
     );
   }
 
+  // Add different status checks
   bool get isSuccessful => status == 'succeeded';
-}
+  bool get isProcessing => status == 'processing';
+  bool get isFailed => status == 'failed' || status == 'declined';
+  bool get isPending => status == 'pending';
 
+  @override
+  String toString() {
+    return 'PaymentVerificationResponse{paymentId: $paymentId, status: $status, processedAt: $processedAt, message: $message}';
+  }
+}

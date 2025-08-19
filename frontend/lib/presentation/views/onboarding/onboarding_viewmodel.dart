@@ -29,7 +29,7 @@ class OnboardingViewModel extends BaseViewModel {
   bool _eveningReflection = true;
   bool _challenge = false;
   String _morningReminder = '08:00';
-  String _eveningReminder = '18:00';
+  String _eveningReminder = '12:00';
 
   // Getters
   int get currentIndex => _currentIndex;

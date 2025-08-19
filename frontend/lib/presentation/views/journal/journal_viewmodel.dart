@@ -98,11 +98,11 @@ class JournalViewModel extends BaseViewModel {
     );
   }
 
-  Future<void> _handleStripePayment() async {
+ Future<void> _handleStripePayment() async {
     if (_context == null) return;
 
     try {
-      print('💳 JournalViewModel: Processing Stripe payment...');
+      print('JournalViewModel: Processing Stripe payment...');
 
       // Show loading dialog
       _showLoadingDialog('Processing payment...');
@@ -116,19 +116,28 @@ class JournalViewModel extends BaseViewModel {
       Navigator.of(_context!).pop();
 
       if (result.isSuccess) {
-        print('✅ JournalViewModel: Stripe payment successful!');
+        final verification = result.data!;
 
-        // Update premium status
-        _isPremiumUser = true;
-        notifyListeners();
+        if (verification.isSuccessful) {
+          print('JournalViewModel: Stripe payment successful!');
+          _isPremiumUser = true;
+          notifyListeners();
 
-        // Show success message
-        ToastOverlay.showSuccess(
-          context: _context!,
-          message: 'Payment successful! You now have premium access 🎉',
-        );
+          ToastOverlay.showSuccess(
+            context: _context!,
+            message: 'Payment successful! You now have premium access 🎉',
+          );
+        } else if (verification.isProcessing) {
+          print('JournalViewModel: Stripe payment is processing...');
+
+          ToastOverlay.showWarning(
+            context: _context!,
+            message:
+                'Payment is being processed. You will be notified when complete.',
+          );
+        }
       } else {
-        print('❌ JournalViewModel: Stripe payment failed: ${result.error}');
+        print('JournalViewModel: Stripe payment failed: ${result.error}');
         ToastOverlay.showError(
           context: _context!,
           message: result.error ?? 'Payment failed',
@@ -140,7 +149,7 @@ class JournalViewModel extends BaseViewModel {
         Navigator.of(_context!).pop();
       }
 
-      print('❌ JournalViewModel: Stripe payment error: $e');
+      print('JournalViewModel: Stripe payment error: $e');
       ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
     }
   }
@@ -149,7 +158,7 @@ class JournalViewModel extends BaseViewModel {
     if (_context == null) return;
 
     try {
-      print('💳 JournalViewModel: Processing Paystack payment...');
+      print('JournalViewModel: Processing Paystack payment...');
 
       // Show loading dialog
       _showLoadingDialog('Processing payment...');
@@ -163,19 +172,28 @@ class JournalViewModel extends BaseViewModel {
       Navigator.of(_context!).pop();
 
       if (result.isSuccess) {
-        print('✅ JournalViewModel: Paystack payment successful!');
+        final verification = result.data!;
 
-        // Update premium status
-        _isPremiumUser = true;
-        notifyListeners();
+        if (verification.isSuccessful) {
+          print('JournalViewModel: Paystack payment successful!');
+          _isPremiumUser = true;
+          notifyListeners();
 
-        // Show success message
-        ToastOverlay.showSuccess(
-          context: _context!,
-          message: 'Payment successful! You now have premium access 🎉',
-        );
+          ToastOverlay.showSuccess(
+            context: _context!,
+            message: 'Payment successful! You now have premium access 🎉',
+          );
+        } else if (verification.isProcessing) {
+          print('JournalViewModel: Paystack payment is processing...');
+
+          ToastOverlay.showWarning(
+            context: _context!,
+            message:
+                'Payment is being processed. You will be notified when complete.',
+          );
+        }
       } else {
-        print('❌ JournalViewModel: Paystack payment failed: ${result.error}');
+        print('JournalViewModel: Paystack payment failed: ${result.error}');
         ToastOverlay.showError(
           context: _context!,
           message: result.error ?? 'Payment failed',
@@ -187,11 +205,10 @@ class JournalViewModel extends BaseViewModel {
         Navigator.of(_context!).pop();
       }
 
-      print('❌ JournalViewModel: Paystack payment error: $e');
+      print('JournalViewModel: Paystack payment error: $e');
       ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
     }
   }
-
   void _showLoadingDialog(String message) {
     showDialog(
       context: _context!,
