@@ -54,7 +54,7 @@ func (h *journalHandler) CreateEntry(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Type == "evening" && !user.IsYefePlusPlan() {
-		utils.ErrorResponse(w, http.StatusUnauthorized, "User cannot submit a wisdom note", nil)
+		utils.ErrorResponse(w, http.StatusUnauthorized, "User cannot submit a evening note", nil)
 		return
 
 	}

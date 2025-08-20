@@ -13,7 +13,7 @@ type JournalEntry struct {
 	UserID    string         `gorm:"not null;type:varchar(36);index:idx_user_entries" json:"user_id"`
 	Content   string         `gorm:"type:text;not null" json:"content"`
 	Type      string         `gorm:"type:varchar(20);not null;index:idx_user_type" json:"type"`
-	Tags      types.Tags     `gorm:"type:varchar(20)" json:"tags"`
+	Tags      types.Tags     `gorm:"type:varchar(255)" json:"tags"`
 	CreatedAt time.Time      `gorm:"not null;index:idx_created_at" json:"created_at"`
 	User      User           `gorm:"foreignKey:UserID" json:"-"`
 	UpdatedAt time.Time      `gorm:"not null" json:"updated_at"`
