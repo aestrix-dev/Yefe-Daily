@@ -73,8 +73,8 @@ func (h *puzzleHandler) SubmitDailyPuzzleAnswer(w http.ResponseWriter, r *http.R
 
 	result, err := h.puzzleUseCase.SubmitPuzzleAnswer(userID, req.PuzzleId, req.SelectedAnswer)
 	if err != nil {
-		logger.Log.WithError(err).Error("failed to submit answer")
-		utils.ErrorResponse(w, http.StatusNotFound, "Failed to submit answer", nil)
+    logger.Log.WithError(err).Error("failed to submit answer: Puzzle %s", req.PuzzleId)
+		utils.ErrorResponse(w, 400, "Failed to submit answer", err.Error())
 		return
 	}
 
