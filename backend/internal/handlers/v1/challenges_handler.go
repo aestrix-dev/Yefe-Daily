@@ -45,7 +45,7 @@ func (h *challengesHandler) getTodaysChallenges(w http.ResponseWriter, r *http.R
 
 	if err != nil {
 		logger.Log.WithError(err).Error("Failed to get challange")
-		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get today's challenges", err.Error())
 		return
 	}
 
@@ -53,7 +53,7 @@ func (h *challengesHandler) getTodaysChallenges(w http.ResponseWriter, r *http.R
 
 	if err != nil {
 		logger.Log.WithError(err).Error("Failed to get challange")
-		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get today's challenges", err.Error())
 		return
 	}
 
@@ -61,7 +61,7 @@ func (h *challengesHandler) getTodaysChallenges(w http.ResponseWriter, r *http.R
 
 	if err != nil {
 		logger.Log.WithError(err).Error("Failed to get challange")
-		http.Error(w, "Failed to get challenge", http.StatusInternalServerError)
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get today's challenges", err.Error())
 		return
 	}
 
@@ -69,7 +69,7 @@ func (h *challengesHandler) getTodaysChallenges(w http.ResponseWriter, r *http.R
 
 	if err != nil {
 		logger.Log.WithError(err).Error("Failed to get challange")
-		http.Error(w, "Failed to get today's challenges", http.StatusInternalServerError)
+		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get today's challenges", err.Error())
 		return
 	}
 	userChallngeDto.Challenge = challengedto
