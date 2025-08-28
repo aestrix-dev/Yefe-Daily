@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -22,10 +21,10 @@ func NewRedisSessionRepository(config utils.DBSettings) (*RedisSessionRepository
 	var err error
 	redisConnAddr := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	options := &redis.Options{
-		Username:  config.UserName,
-		Password:  config.Password,
-		Addr:      redisConnAddr,
-		TLSConfig: &tls.Config{},
+		Username: config.UserName,
+		Password: config.Password,
+		Addr:     redisConnAddr,
+		//TLSConfig: &tls.Config{},
 	}
 
 	if config.ConnectionUrl != "" {
