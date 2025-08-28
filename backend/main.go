@@ -12,8 +12,8 @@ import (
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/infrastructure"
-	"yefe_app/v1/internal/repository"
-	usecase "yefe_app/v1/internal/useCase"
+		"yefe_app/v1/internal/repository"
+	"yefe_app/v1/internal/usecase"
 	"yefe_app/v1/pkg/cache"
 	"yefe_app/v1/pkg/logger"
 	service "yefe_app/v1/pkg/services"
@@ -118,6 +118,7 @@ func main() {
 
 	}
 	paymentRepo := repository.NewPaymentRepository(db)
+	sleepRepo := repository.NewSleepRepository(db)
 
 	dailyChallenge := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-challenge", func() any {
 		var dchallange domain.Challenge
@@ -212,6 +213,7 @@ func main() {
 		SongRepo:               songRepo,
 		PaymentRepo:            paymentRepo,
 		DailyReflectionUsecase: dailyRelectionUsecase,
+		SleepRepo: sleepRepo,
 	}
 
 	fcmService, err := fire_base.NewFCMNotificationService(serverCtx, db, serverStopCtx, fmcConfig, serverConfig.AdminUserUsecase(), scheduler)

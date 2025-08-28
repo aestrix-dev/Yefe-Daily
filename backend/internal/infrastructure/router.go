@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strings"
 	"yefe_app/v1/internal/domain"
-	"yefe_app/v1/internal/handlers/v1"
+	handlers "yefe_app/v1/internal/handlers/v1"
 	middlewares "yefe_app/v1/internal/infrastructure/middleware"
 	"yefe_app/v1/internal/infrastructure/payments"
-	usecase "yefe_app/v1/internal/useCase"
+	"yefe_app/v1/internal/usecase"
 	service "yefe_app/v1/pkg/services"
 	"yefe_app/v1/pkg/services/fire_base"
 	"yefe_app/v1/pkg/utils"
@@ -39,6 +39,7 @@ type ServerConfig struct {
 	AdminRepo         domain.AdminUserRepository
 	SongRepo          domain.SongRepository
 	PaymentRepo       domain.PaymentRepository
+	SleepRepo         domain.SleepRepository
 
 	DailyReflectionUsecase domain.DailyReflectionUseCase
 }
@@ -74,6 +75,10 @@ func (conf ServerConfig) challenges_usecase() domain.ChallengeUseCase {
 }
 func (conf ServerConfig) dashboard_usecase() domain.DashboardUsecase {
 	return usecase.NewDashboardUsecase(conf.AdminUserUsecase(), conf.user_activity_usecase())
+}
+
+func (conf ServerConfig) sleep_usecase() domain.SleepUseCase {
+	return usecase.NewSleepUseCase(conf.SleepRepo)
 }
 
 func (conf ServerConfig) paystack_payemnt() domain.PaymentProvider {
@@ -115,6 +120,7 @@ func NewRouter(config ServerConfig) http.Handler {
 	user_activity_handler := handlers.NewUserEventsHandler(config.user_activity_usecase())
 	dashboard_handler := handlers.NewDashboardHandler(config.dashboard_usecase())
 	dailyRefelction_handler := handlers.NewDailyreflectionHandler(config.DailyReflectionUsecase)
+	sleep_handler := handlers.NewSleepHandler(config.sleep_usecase())
 
 	r := chi.NewRouter()
 
@@ -139,6 +145,11 @@ func NewRouter(config ServerConfig) http.Handler {
 			r.Mount("/songs", song_handler.Handle())
 			r.Mount("/payments", payments_handler.Handle())
 			r.Get("/reflection", dailyRefelction_handler.GetTodaysReflection)
+
+			r.Group(func(r chi.Router) {
+				r.Use(config.auth_middleware().PaidUserOnly)
+				sleep_handler.RegisterRoutes(r)
+			})
 		})
 
 		r.Group(func(r chi.Router) {

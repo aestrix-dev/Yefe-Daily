@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	usecase "yefe_app/v1/internal/useCase"
+	"yefe_app/v1/internal/usecase"
 	"yefe_app/v1/pkg/logger"
 	"yefe_app/v1/pkg/utils"
 

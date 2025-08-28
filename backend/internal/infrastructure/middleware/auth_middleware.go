@@ -173,3 +173,20 @@ func (m *AuthMiddleware) handleAuthError(w http.ResponseWriter, err error) {
 		w.Write([]byte(`{"error": "internal server error"}`))
 	}
 }
+
+func (m *AuthMiddleware) PaidUserOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user, ok := r.Context().Value("user").(*domain.User)
+		if !ok {
+			utils.ErrorResponse(w, http.StatusUnauthorized, "Unauthorized", nil)
+			return
+		}
+
+		if !user.IsYefePlusPlan() {
+			utils.ErrorResponse(w, http.StatusForbidden, "This feature is for paid users only", nil)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
