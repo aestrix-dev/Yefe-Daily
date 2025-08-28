@@ -87,6 +87,7 @@ func autoMigrate(db *gorm.DB) error {
 		&models.Achievement{},
 		&models.AdminInvitation{},
 		&models.Payment{},
+		&models.Sleep{},
 	)
 }
 
