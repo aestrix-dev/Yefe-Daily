@@ -1,0 +1,58 @@
+# Sleep API
+
+## Record Sleep
+
+This endpoint allows a user to record their sleep time.
+
+- **URL:** `/v1/sleep`
+- **Method:** `POST`
+- **Auth required:** Yes (Paid users only)
+
+**Request Body:**
+
+```json
+{
+  "slept_at": "2023-10-27T22:00:00Z",
+  "woke_up_at": "2023-10-28T06:00:00Z"
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": 1,
+  "user_id": 123,
+  "slept_at": "2023-10-27T22:00:00Z",
+  "woke_up_at": "2023-10-28T06:00:00Z",
+  "created_at": "2023-10-28T06:00:00Z",
+  "updated_at": "2023-10-28T06:00:00Z"
+}
+```
+
+## Get Sleep Graph Data
+
+This endpoint returns the user's sleep data for a given number of days.
+
+- **URL:** `/v1/sleep/graph`
+- **Method:** `GET`
+- **Auth required:** Yes (Paid users only)
+
+**Query Parameters:**
+
+- `days` (optional, integer, default: 7): The number of days to get sleep data for.
+
+**Response:**
+
+```json
+[
+  {
+    "date": "2023-10-28T06:00:00Z",
+    "duration": 8
+  },
+  {
+    "date": "2023-10-27T05:30:00Z",
+    "duration": 7.5
+  }
+]
+```
