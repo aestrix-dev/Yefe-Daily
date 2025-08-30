@@ -174,10 +174,10 @@ func (r *userChallengeRepositoryImpl) GetTodaysUserChallenge(userID string) (dom
 }
 
 // GetUserChallengeByID retrieves a user challenge by ID
-func (r *userChallengeRepositoryImpl) GetUserChallengeByID(id string) (domain.UserChallenge, error) {
+func (r *userChallengeRepositoryImpl) GetUserChallengeByID(id string, user_id string) (domain.UserChallenge, error) {
 	var dbuserChallenges models.UserChallenge
 	var userChallenges domain.UserChallenge
-	if err := r.db.Preload("Challenge").Where("challenge_id = ?", id).First(&dbuserChallenges).Error; err != nil {
+	if err := r.db.Preload("Challenge").Where("challenge_id = ? AND user_id= ?", id, user_id).First(&dbuserChallenges).Error; err != nil {
 		return domain.UserChallenge{}, err
 	}
 

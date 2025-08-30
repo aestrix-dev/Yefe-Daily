@@ -60,7 +60,7 @@ type ChallengeRepository interface {
 type UserChallengeRepository interface {
 	// User Challenge CRUD operations
 	CreateUserChallenge(userChallenge UserChallenge) error
-	GetUserChallengeByID(id string) (UserChallenge, error)
+	GetUserChallengeByID(id string, userId string) (UserChallenge, error)
 	GetUserChallengesByUserID(userID string) ([]UserChallenge, error)
 	GetUserChallengesByDate(userID string, date time.Time) ([]UserChallenge, error)
 	UpdateUserChallenge(userChallenge UserChallenge) error

@@ -2,6 +2,7 @@ package models
 
 import (
 	"time"
+	"yefe_app/v1/pkg/utils"
 
 	"gorm.io/gorm"
 )
@@ -202,50 +203,38 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 
 // BeforeCreate hook for ChallengeStats to generate UUID
 func (cs *ChallengeStats) BeforeCreate(tx *gorm.DB) error {
-	if cs.ID == "" {
-		cs.ID = generateUUID()
-	}
+	cs.ID = generateUUID()
 	return nil
 }
 
 // BeforeCreate hook for ChallengeType to generate UUID
 func (ct *ChallengeType) BeforeCreate(tx *gorm.DB) error {
-	if ct.ID == "" {
-		ct.ID = generateUUID()
-	}
+	ct.ID = generateUUID()
 	return nil
 }
 
 // BeforeCreate hook for UserAchievement to generate UUID
 func (ua *UserAchievement) BeforeCreate(tx *gorm.DB) error {
-	if ua.ID == "" {
-		ua.ID = generateUUID()
-	}
+	ua.ID = generateUUID()
 	return nil
 }
 
 // BeforeCreate hook for Achievement to generate UUID
 func (a *Achievement) BeforeCreate(tx *gorm.DB) error {
-	if a.ID == "" {
-		a.ID = generateUUID()
-	}
+	a.ID = generateUUID()
 	return nil
 }
 
 // BeforeCreate hook for ChallengeTemplate to generate UUID
 func (ct *ChallengeTemplate) BeforeCreate(tx *gorm.DB) error {
-	if ct.ID == "" {
-		ct.ID = generateUUID()
-	}
+	ct.ID = generateUUID()
 	return nil
 }
 
 // Placeholder UUID generation function
 // Replace this with actual UUID generation using a library like github.com/google/uuid
 func generateUUID() string {
-	// This is a placeholder - implement proper UUID generation
-	// Example: return uuid.New().String()
-	return "placeholder-uuid"
+	return utils.GenerateID() 
 }
 
 // Helper methods for UserChallenge

@@ -135,7 +135,7 @@ func (c *ChallengeUseCaseImpl) CompleteChallenge(userID, challengeID string) err
 	}
 
 	// Get the challenge to get points
-	userChallenge, err := c.userChallengeRepo.GetUserChallengeByID(challengeID)
+	userChallenge, err := c.userChallengeRepo.GetUserChallengeByID(challengeID, userID)
 	if err != nil {
 		return fmt.Errorf("error getting challenge: %w", err)
 	}
