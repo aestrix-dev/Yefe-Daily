@@ -177,7 +177,7 @@ func (r *userChallengeRepositoryImpl) GetTodaysUserChallenge(userID string) (dom
 func (r *userChallengeRepositoryImpl) GetUserChallengeByID(id string) (domain.UserChallenge, error) {
 	var dbuserChallenges models.UserChallenge
 	var userChallenges domain.UserChallenge
-	if err := r.db.Preload("Challenge").Where("id = ?", id).First(&dbuserChallenges).Error; err != nil {
+	if err := r.db.Preload("Challenge").Where("challenge_id = ?", id).First(&dbuserChallenges).Error; err != nil {
 		return domain.UserChallenge{}, err
 	}
 
