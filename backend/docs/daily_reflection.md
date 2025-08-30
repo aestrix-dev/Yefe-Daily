@@ -7,7 +7,7 @@ This document outlines the API endpoints for managing daily reflections.
 
 This endpoint retrieves the daily reflection for the current day.
 
-- **URL:** `/api/v1/reflection/today`
+- **URL:** `v1/reflection`
 - **Method:** `GET`
 - **Authentication:** Required
 - **Permissions:** None
