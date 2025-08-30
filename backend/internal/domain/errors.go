@@ -72,6 +72,13 @@ var (
 	ErrUnprocessableEntity = errors.New("unprocessable entity")
 )
 
+// Challenge Errors
+var (
+	ErrChallengeNotFound       = errors.New("challenge not found")
+	ErrChallengeAlreadyCompleted = errors.New("challenge already completed")
+	ErrNotTodaysChallenge      = errors.New("challenge is not for today")
+)
+
 // Helper functions for error classification
 func IsNotFoundError(err error) bool {
 	return errors.Is(err, ErrUserNotFound) ||

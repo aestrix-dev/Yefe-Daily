@@ -118,7 +118,7 @@ func (h *challengesHandler) completeChallenge(w http.ResponseWriter, r *http.Req
 	err := h.challengeUseCase.CompleteChallenge(userID, challengeID)
 	if err != nil {
 		logger.Log.WithError(err).Error("Failed to complete challenge")
-		http.Error(w, "Failed to complete challenge", http.StatusInternalServerError)
+		utils.HandleDomainError(w, err)
 		return
 	}
 

@@ -123,10 +123,10 @@ func (c *ChallengeUseCaseImpl) GetUserChallengeHistory(userID string, limit int)
 // CompleteChallenge marks a challenge as completed for a user
 func (c *ChallengeUseCaseImpl) CompleteChallenge(userID, challengeID string) error {
 	if userID == "" {
-		return errors.New("user ID cannot be empty")
+		return domain.ErrInvalidRequest
 	}
 	if challengeID == "" {
-		return errors.New("challenge ID cannot be empty")
+		return domain.ErrInvalidRequest
 	}
 
 	challenge, err := c.challengeRepo.GetTodaysChallenge()
@@ -141,10 +141,10 @@ func (c *ChallengeUseCaseImpl) CompleteChallenge(userID, challengeID string) err
 	}
 
 	if challenge.ID != userChallenge.ChallengeID {
-		return errors.New("Challenge not found")
+		return domain.ErrNotTodaysChallenge
 	}
 	if userChallenge.Status == dto.StatusCompleted {
-		return errors.New("challenge is already completed")
+		return domain.ErrChallengeAlreadyCompleted
 	}
 	// Update user challenge status
 	completedAt := time.Now()
