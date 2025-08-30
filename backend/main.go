@@ -12,7 +12,7 @@ import (
 	"time"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/infrastructure"
-		"yefe_app/v1/internal/repository"
+	"yefe_app/v1/internal/repository"
 	"yefe_app/v1/internal/usecase"
 	"yefe_app/v1/pkg/cache"
 	"yefe_app/v1/pkg/logger"
@@ -147,6 +147,10 @@ func main() {
 				logger.Log.WithError(err).Error("Could not generate daily challenge")
 				return err
 			}
+			challenge, err := challengeRepo.GetTodaysChallenge()
+			if err == nil {
+				return challenge
+			}
 			err = challengeRepo.CreateChallenge(&challenge)
 			if err != nil {
 				logger.Log.WithError(err).Error("Could not generate daily challenge")
@@ -213,7 +217,7 @@ func main() {
 		SongRepo:               songRepo,
 		PaymentRepo:            paymentRepo,
 		DailyReflectionUsecase: dailyRelectionUsecase,
-		SleepRepo: sleepRepo,
+		SleepRepo:              sleepRepo,
 	}
 
 	fcmService, err := fire_base.NewFCMNotificationService(serverCtx, db, serverStopCtx, fmcConfig, serverConfig.AdminUserUsecase(), scheduler)
