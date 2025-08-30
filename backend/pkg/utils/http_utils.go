@@ -42,16 +42,18 @@ func GetClientIP(r *http.Request) string {
 
 func HandleDomainError(w http.ResponseWriter, err error) {
 	switch {
-	case errors.Is(err, domain.ErrUserNotFound) || errors.Is(err, domain.ErrEntryNotFound):
+	case errors.Is(err, domain.ErrUserNotFound) || errors.Is(err, domain.ErrEntryNotFound) || errors.Is(err, domain.ErrChallengeNotFound):
 		ErrorResponse(w, http.StatusNotFound, "Resource not found", nil)
 
 	case errors.Is(err, domain.ErrInvalidPlanType),
 		errors.Is(err, domain.ErrInvalidUserStatus),
+		errors.Is(err, domain.ErrNotTodaysChallenge),
 		errors.Is(err, domain.ErrInvalidPlanTransition), errors.Is(err, domain.ErrMinuteError), errors.Is(err, domain.ErrHourError):
 		fmt.Println(err)
 		ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
 
-	case errors.Is(err, domain.ErrUserAlreadyHasPlan):
+	case errors.Is(err, domain.ErrUserAlreadyHasPlan),
+		errors.Is(err, domain.ErrChallengeAlreadyCompleted):
 		fmt.Println(err)
 		ErrorResponse(w, http.StatusConflict, err.Error(), nil)
 
