@@ -129,7 +129,7 @@ func (uc *adminUserUseCase) UpdateUserPlan(
 
 	// Persist changes
 	if err := uc.userRepo.Update(ctx, user); err != nil {
-		return errors.New("failed to update user plan")
+		return fmt.Errorf("failed to update user plan, %s", err.Error())
 	}
 
 	return nil
