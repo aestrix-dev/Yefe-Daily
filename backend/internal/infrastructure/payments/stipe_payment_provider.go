@@ -124,6 +124,7 @@ func (u *stripePaymentProvider) UpgradePackage(ctx context.Context, req dto.Upgr
 	}, nil
 }
 func (u *stripePaymentProvider) ProcessWebhook(ctx context.Context, req dto.WebhookRequest) error {
+	logger.Log.Errorf("webhook type: %s", req.Type)
 	switch req.Type {
 	case "payment_intent.succeeded":
 		// Handle successful payment
