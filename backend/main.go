@@ -163,7 +163,7 @@ func main() {
 		logger.Log.WithFields(map[string]any{
 			"ID":   dailyChallenge.(domain.Challenge).ID,
 			"date": time.Now().String(),
-		}).Debug("Created new daily reflection")
+		}).Debug("Created new daily challenge")
 		return nil
 	})
 
