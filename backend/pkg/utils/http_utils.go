@@ -48,7 +48,7 @@ func HandleDomainError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrInvalidPlanType),
 		errors.Is(err, domain.ErrInvalidUserStatus),
 		errors.Is(err, domain.ErrNotTodaysChallenge),
-		errors.Is(err, domain.ErrInvalidPlanTransition), errors.Is(err, domain.ErrMinuteError), errors.Is(err, domain.ErrHourError):
+		errors.Is(err, domain.ErrInvalidPlanTransition), errors.Is(err, domain.ErrMinuteError), errors.Is(err, domain.ErrHourError), errors.Is(err, domain.ErrInvalidEntryType):
 		fmt.Println(err)
 		ErrorResponse(w, http.StatusBadRequest, err.Error(), nil)
 
