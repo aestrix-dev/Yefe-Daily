@@ -147,10 +147,7 @@ func main() {
 				logger.Log.WithError(err).Error("Could not generate daily challenge")
 				return err
 			}
-			challenge, err := challengeRepo.GetTodaysChallenge()
-			if err == nil {
-				return challenge
-			}
+
 			err = challengeRepo.CreateChallenge(&challenge)
 			if err != nil {
 				logger.Log.WithError(err).Error("Could not generate daily challenge")
@@ -292,3 +289,4 @@ func createSuperAdmin(ctx context.Context, repo domain.UserRepository, email str
 	}
 	logger.Log.Info("Created superadmin account")
 }
+
