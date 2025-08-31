@@ -63,6 +63,8 @@ func (m PaystackWebHookMiddleware) Handle(next http.Handler) http.Handler {
 
 		// Check if we should process locally
 		if m.shouldProcessLocally(webhookData) {
+			// Restore the body for the next handler
+			r.Body = io.NopCloser(bytes.NewBuffer(body))
 			next.ServeHTTP(w, r)
 		} else {
 			// Propagate entire request to fallback server
