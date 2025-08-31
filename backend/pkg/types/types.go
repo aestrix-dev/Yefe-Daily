@@ -68,10 +68,10 @@ func (r ReminderStr) Validate() error {
 		return err
 	}
 	if (hour < 0) || (hour > 12) {
-		return fmt.Errorf("Hour cannot be less than 0 and greater then 12")
+		return fmt.Errorf("Hour cannot be less than 0 and greater then 12 %s", r)
 	}
 	if (minute < 0) || (minute > 12) {
-		return fmt.Errorf("minute cannot be less than 0 and greater then 12")
+		return fmt.Errorf("minute cannot be less than 0 and greater then 12 %s", r)
 	}
 	return nil
 }
@@ -100,16 +100,16 @@ func (r ReminderRequest) Validate() error {
 	var err error
 
 	err = r.MorningReminder.Validate()
-  if err != nil{
-    return fmt.Errorf("Morning Reminider Time: %v", err.Error()) 
-  }
+	if err != nil {
+		return fmt.Errorf("Morning Reminider Time: %v", err.Error())
+	}
 	err = r.EveningReminder.Validate()
 
-  if err != nil{
-    return fmt.Errorf("Evening Reminider Time: %v", err.Error()) 
-  }
+	if err != nil {
+		return fmt.Errorf("Evening Reminider Time: %v", err.Error())
+	}
 
-	return nil 
+	return nil
 }
 
 type NotificationsPref struct {
