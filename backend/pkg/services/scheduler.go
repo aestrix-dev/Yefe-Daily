@@ -129,7 +129,7 @@ func (s *Scheduler) AddJob(id, name, schedule string, fn func(context.Context) e
 		}
 	} else {
 		// One-time job, run immediately
-		s.runJob(job)
+		go s.runJob(job)
 	}
 
 	s.jobs[id] = job
@@ -166,7 +166,7 @@ func (s *Scheduler) AddOneTimeJob(id, name string, runAt time.Time, fn func(cont
 	s.jobs[id] = job
 
 	// Schedule the job to run at the specified time
-	func() {
+	go func() {
 		waitDuration := time.Until(runAt)
 		s.logger.WithFields(logrus.Fields{
 			"job_id":        id,

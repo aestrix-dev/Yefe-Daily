@@ -141,21 +141,22 @@ func main() {
 	}).Debug("Created new daily challenge")
 
 	err = scheduler.AddJob("set-daily-challenge", "Daily challenge", utils.DAILY, func(ctx context.Context) error {
-		dailyChallenge := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-challenge", func() any {
-			challenge := challengeRepo.GetRandomChallange()
-			if err != nil {
-				logger.Log.WithError(err).Error("Could not generate daily challenge")
-				return err
-			}
-			
-			err = challengeRepo.CreateChallenge(&challenge)
-			if err != nil {
-				logger.Log.WithError(err).Error("Could not generate daily challenge")
-				return err
-			}
-      logger.Log.Infof("New challenge created ID: %s, name: %s", challenge.ID, challenge.Title)
-			return challenge
-		}, 24*time.Hour)
+		challenge := challengeRepo.GetRandomChallange()
+		if err != nil {
+			logger.Log.WithError(err).Error("Could not generate daily challenge")
+			return err
+		}
+		//challenge, err := challengeRepo.GetTodaysChallenge()
+		//if err == nil {
+		//return challenge
+		//}
+		err = challengeRepo.CreateChallenge(&challenge)
+		if err != nil {
+			logger.Log.WithError(err).Error("Could not generate daily challenge")
+			return err
+		}
+		logger.Log.Infof("New challenge created ID: %s, name: %s", challenge.ID, challenge.Title)
+		inmemeoryCache.SetWithTTLAndContext(serverCtx, "daily-challenge", challenge, 24*time.Hour)
 
 		logger.Log.WithFields(map[string]any{
 			"ID":   dailyChallenge.(domain.Challenge).ID,
@@ -290,3 +291,4 @@ func createSuperAdmin(ctx context.Context, repo domain.UserRepository, email str
 	}
 	logger.Log.Info("Created superadmin account")
 }
+
