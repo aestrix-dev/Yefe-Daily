@@ -137,6 +137,7 @@ func (h *paymentHandler) UpgradePackage(w http.ResponseWriter, r *http.Request) 
 func (h *paymentHandler) StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	var req dto.WebhookRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Log.WithError(err).Error("")
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
@@ -144,6 +145,7 @@ func (h *paymentHandler) StripeWebhook(w http.ResponseWriter, r *http.Request) {
 
 	paymentPovider, ok := h.paymentProvider["stripe"]
 	if !ok {
+		logger.Log.Error("Stripe payment provider does not exit")
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid payment provider", nil)
 
 	}
@@ -166,6 +168,7 @@ func (h *paymentHandler) PaystackWebhook(w http.ResponseWriter, r *http.Request)
 	r.Body = io.NopCloser(bytes.NewBuffer(body))
 	var req dto.WebhookRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Log.WithError(err).Error("")
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
@@ -175,6 +178,7 @@ func (h *paymentHandler) PaystackWebhook(w http.ResponseWriter, r *http.Request)
 
 	paymentProvider, ok := h.paymentProvider["paystack"]
 	if !ok {
+		logger.Log.Error("Paystack payment provider does not exit")
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid payment provider", nil)
 		return
 	}
