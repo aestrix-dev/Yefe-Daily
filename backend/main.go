@@ -123,16 +123,16 @@ func main() {
 	dailyChallenge := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-challenge", func() any {
 		var dchallange domain.Challenge
 		dchallange, err := challengeRepo.GetTodaysChallenge()
-		if err != nil {
-			challenge := challengeRepo.GetRandomChallange()
-			err = challengeRepo.CreateChallenge(&challenge)
-			if err != nil {
-				logger.Log.WithError(err).Error("Could not generate daily challenge")
-				return err
-			}
-			dchallange = challenge
+		if err == nil {
+			return dchallange
 		}
-		return dchallange
+		challenge := challengeRepo.GetRandomChallange()
+		err = challengeRepo.CreateChallenge(&challenge)
+		if err != nil {
+			logger.Log.WithError(err).Error("Could not generate daily challenge")
+			return err
+		}
+		return challenge
 	}, 24*time.Hour)
 
 	logger.Log.WithFields(map[string]any{
