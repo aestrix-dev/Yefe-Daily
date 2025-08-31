@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -137,7 +136,7 @@ func (h *paymentHandler) UpgradePackage(w http.ResponseWriter, r *http.Request) 
 func (h *paymentHandler) StripeWebhook(w http.ResponseWriter, r *http.Request) {
 	var req dto.WebhookRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		logger.Log.WithError(err).Error("")
+		logger.Log.WithError(err).Error("Stripe Decoder error")
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
@@ -158,17 +157,17 @@ func (h *paymentHandler) StripeWebhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *paymentHandler) PaystackWebhook(w http.ResponseWriter, r *http.Request) {
-	// Step 1: Read body once
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		logger.Log.WithError(err).Error("Error reading request body")
-		utils.ErrorResponse(w, http.StatusBadRequest, "Failed to read request body", nil)
+		logger.Log.WithError(err).Error("failed to read request body")
+		utils.ErrorResponse(w, http.StatusBadRequest, "invalid request body", nil)
 		return
 	}
-	r.Body = io.NopCloser(bytes.NewBuffer(body))
+	defer r.Body.Close()
+
 	var req dto.WebhookRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		logger.Log.WithError(err).Error("")
+	if err := json.Unmarshal(body, &req); err != nil {
+		logger.Log.WithError(err).Error("Paystack Decoder Error")
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", nil)
 		return
 	}
@@ -183,14 +182,12 @@ func (h *paymentHandler) PaystackWebhook(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// Step 7: Process the webhook
 	if err := paymentProvider.ProcessWebhook(r.Context(), req); err != nil {
 		logger.Log.WithError(err).Error("Could not process Paystack webhook")
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Internal server error", nil)
 		return
 	}
 
-	// Step 8: Return success
 	utils.SuccessResponse(w, http.StatusOK, "Webhook processed", nil)
 }
 
