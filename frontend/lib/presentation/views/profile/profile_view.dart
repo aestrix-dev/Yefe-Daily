@@ -94,19 +94,20 @@ class ProfileView extends StackedView<ProfileViewModel> {
                           _buildProgressItem(
                             context: context,
                             iconPath: 'assets/icons/fire.png',
-                            value: '7/365 day',
+                            value: '${viewModel.challengeStats.currentStreak}',
                             label: 'streak',
                           ),
                           _buildProgressItem(
                             context: context,
                             iconPath: 'assets/icons/challenge.png',
-                            value: '12',
+                            value:
+                                '${viewModel.challengeStats.totalChallenges}',
                             label: 'Challenges',
                           ),
                           _buildProgressItem(
                             context: context,
                             iconPath: 'assets/icons/badge.png',
-                            value: '5',
+                            value: '${viewModel.challengeStats.numberOfBadges}',
                             label: 'Badges',
                           ),
                         ],

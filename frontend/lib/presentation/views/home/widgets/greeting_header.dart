@@ -14,6 +14,11 @@ class GreetingHeader extends StatelessWidget {
     this.fireCount = 1,
   });
 
+  String _getFirstName(String fullName) {
+    if (fullName.isEmpty) return fullName;
+    return fullName.split(' ').first;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -27,7 +32,7 @@ class GreetingHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome, $userName 🌤️',
+                  'Welcome, ${_getFirstName(userName)} 🌤️',
                   style: TextStyle(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w700,

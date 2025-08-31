@@ -137,9 +137,8 @@ class UpgradePopup extends StatelessWidget {
                             _buildFeature(
                               'Voice journaling',
                             ),
-                            _buildFeature('30 Days mood analytics'),
                             _buildFeature(
-                              'All Towel Talks episodes',
+                              'All Tower Talks episodes',
                             ),
                             _buildFeature(
                               'Private journal entries',

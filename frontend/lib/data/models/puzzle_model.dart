@@ -68,6 +68,7 @@ class ProgressStatsModel {
     required this.topStreak,
   });
 }
+
 class PuzzleResponse {
   final bool success;
   final String message;
@@ -168,6 +169,16 @@ class PuzzleSubmissionData {
       isFirstAttempt:
           json['isFirstAttempt'] ?? json['is_first_attempt'] ?? true,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'isCorrect': isCorrect,
+      'correctAnswer': correctAnswer,
+      'explanation': explanation,
+      'pointsEarned': pointsEarned,
+      'isFirstAttempt': isFirstAttempt,
+    };
   }
 }
 

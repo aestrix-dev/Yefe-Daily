@@ -113,8 +113,7 @@ class AudioPlayerService extends BaseAudioHandler {
     }
   }
 
-
-// Play next track
+  // Play next track
   Future<void> playNext() async {
     if (hasNext) {
       final nextIndex = currentPlaylistIndex + 1;

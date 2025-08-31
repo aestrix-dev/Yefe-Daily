@@ -7,6 +7,7 @@ import 'package:yefa/data/models/journal_model.dart';
 import 'package:yefa/data/models/user_model.dart';
 import 'package:yefa/data/models/challenge_model.dart';
 import 'package:yefa/data/repositories/journal_repository.dart';
+import 'package:yefa/data/repositories/reflection_repository.dart';
 import 'package:yefa/data/services/cache/home_cache.dart';
 import 'package:yefa/data/services/storage_service.dart';
 import 'package:yefa/data/repositories/challenge_repository.dart';
@@ -17,6 +18,8 @@ class HomeViewModel extends BaseViewModel {
   final ChallengeRepository _challengeRepository =
       locator<ChallengeRepository>();
   final JournalRepository _journalRepository = locator<JournalRepository>();
+  final ReflectionRepository _reflectionRepository =
+      locator<ReflectionRepository>();
 
   List<JournalModel> _entries = [];
   String? _errorMessage;
@@ -102,9 +105,17 @@ class HomeViewModel extends BaseViewModel {
         _todaysChallenge = cachedChallenge;
       }
 
-      final cachedVerse = await _storageService.getCachedVerse();
-      if (cachedVerse != null) {
-        _todaysVerse = cachedVerse;
+      // Try to load reflection first, fallback to cached verse
+      final cachedReflection = await _storageService.getCachedReflection();
+      if (cachedReflection != null) {
+        _todaysVerse = cachedReflection.toVerseModel();
+        print('✅ Loaded cached reflection: ${cachedReflection.reference}');
+      } else {
+        final cachedVerse = await _storageService.getCachedVerse();
+        if (cachedVerse != null) {
+          _todaysVerse = cachedVerse;
+          print('✅ Loaded cached verse as fallback');
+        }
       }
 
       final cachedEntries = await _storageService.getCachedJournalEntries();
@@ -123,7 +134,7 @@ class HomeViewModel extends BaseViewModel {
 
       if (_hasInternetConnection) {
         await _loadTodaysChallenge(fromCache: false);
-        await _loadTodaysVerse();
+        await _loadTodaysReflection();
         await fetchJournalEntries();
       }
     } catch (e) {
@@ -149,11 +160,25 @@ class HomeViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> _loadTodaysVerse() async {
+  Future<void> _loadTodaysReflection() async {
     try {
-      await _storageService.cacheVerse(_todaysVerse);
+      print('📖 Loading today\'s reflection...');
+
+      final result = await _reflectionRepository.getDailyReflection();
+
+      if (result.isSuccess) {
+        final reflection = result.data!;
+        _todaysVerse = reflection.toVerseModel();
+        print('✅ Reflection loaded: ${reflection.reference}');
+      } else {
+        print('❌ Failed to load reflection: ${result.error}');
+        // Keep the default verse if reflection fails
+      }
+
+      notifyListeners();
     } catch (e) {
-      print('Error loading today\'s verse: $e');
+      print('Error loading today\'s reflection: $e');
+      // Keep the default verse if reflection fails
     }
   }
 

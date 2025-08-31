@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:yefa/app/app_setup.dart';
 import 'package:yefa/core/utils/api_result.dart';
+import 'package:yefa/data/models/challenge_stats_model.dart';
+import 'package:yefa/data/repositories/challenge_repository.dart';
 import 'package:yefa/data/repositories/payment_repository.dart';
 import 'package:yefa/data/services/payment_service.dart';
 import 'package:yefa/data/services/storage_service.dart';
@@ -15,6 +17,8 @@ class ProfileViewModel extends BaseViewModel {
   final _storageService = locator<StorageService>();
   final PaymentRepository _paymentRepository = locator<PaymentRepository>();
   final PaymentService _paymentService = locator<PaymentService>();
+  final ChallengeRepository _challengeRepository =
+      locator<ChallengeRepository>();
 
   BuildContext? _context;
   bool contextAlreadySet = false;
@@ -26,6 +30,18 @@ class ProfileViewModel extends BaseViewModel {
   bool _showUpgrade = false;
   bool _isNotificationsEnabled = true;
 
+  // Challenge stats
+  ChallengeStatsModel _challengeStats = ChallengeStatsModel(
+    userId: '',
+    totalChallenges: 0,
+    completedCount: 0,
+    totalPoints: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    sevenDaysProgress: 0,
+    numberOfBadges: 0,
+  );
+
   // Getters
   String get userName => _userName;
   String get avatarUrl => _avatarUrl;
@@ -33,6 +49,7 @@ class ProfileViewModel extends BaseViewModel {
   bool get showUpgrade => _showUpgrade;
   bool get isNotificationsEnabled => _isNotificationsEnabled;
   bool get isDarkMode => _themeService.isDarkMode;
+  ChallengeStatsModel get challengeStats => _challengeStats;
 
   String get userPlan => _isPremium ? 'Yefa +' : 'Free plan';
 
@@ -45,6 +62,7 @@ class ProfileViewModel extends BaseViewModel {
 
   void onModelReady() {
     _loadUserData();
+    _loadChallengeStats();
   }
 
   Future<void> _loadUserData() async {
@@ -59,6 +77,19 @@ class ProfileViewModel extends BaseViewModel {
     print('👤 User loaded: $_userName');
     print('👑 Premium status: $_isPremium');
     notifyListeners();
+  }
+
+  Future<void> _loadChallengeStats() async {
+    try {
+      final result = await _challengeRepository.getChallengeStats();
+
+      if (result.isSuccess) {
+        _challengeStats = result.data!;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error loading challenge stats in profile: $e');
+    }
   }
 
   void showUpgradeCard() {

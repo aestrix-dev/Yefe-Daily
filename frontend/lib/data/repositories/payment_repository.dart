@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:yefa/app/app_setup.dart';
 import 'package:yefa/core/utils/api_result.dart';

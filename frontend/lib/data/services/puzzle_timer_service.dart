@@ -1,5 +1,6 @@
 import 'dart:async';
 import '../services/storage_service.dart';
+import '../services/cache/home_cache.dart';
 import '../../app/app_setup.dart';
 
 class PuzzleTimerService {
@@ -90,6 +91,8 @@ class PuzzleTimerService {
   // Record puzzle submission
   Future<void> recordSubmission(String puzzleId) async {
     await _saveSubmissionData(puzzleId);
+    // Cache the submission status for challenge completion
+    await _storageService.cachePuzzleSubmissionStatus(true, puzzleId);
     _startCountdown();
   }
 

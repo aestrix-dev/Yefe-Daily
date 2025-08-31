@@ -5,6 +5,7 @@ import 'package:yefa/presentation/views/history/history_view.dart';
 import 'package:yefa/presentation/views/profile/profile_view.dart';
 
 import '../../core/constants/app_routes.dart';
+import '../../core/utils/page_transitions.dart';
 import '../../presentation/views/splash/splash_view.dart';
 import '../../presentation/views/onboarding/onboarding_view.dart';
 import '../../presentation/views/home/home_view.dart';
@@ -14,7 +15,8 @@ import '../../presentation/views/challenges/challenges_view.dart';
 
 import 'package:stacked_services/stacked_services.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = StackedService.navigatorKey as GlobalKey<NavigatorState>;
+final GlobalKey<NavigatorState> navigatorKey =
+    StackedService.navigatorKey as GlobalKey<NavigatorState>;
 
 // final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -24,35 +26,67 @@ final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(
       path: AppRoutes.splash,
-      builder: (context, state) => const SplashView(),
+      pageBuilder: (context, state) => PageTransitions.getTransitionForRoute(
+        context,
+        state,
+        const SplashView(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.onboarding,
-      builder: (context, state) => const OnboardingView(),
+      pageBuilder: (context, state) => PageTransitions.getTransitionForRoute(
+        context,
+        state,
+        const OnboardingView(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.home,
-      builder: (context, state) => const HomeView(),
+      pageBuilder: (context, state) => PageTransitions.getTransitionForRoute(
+        context,
+        state,
+        const HomeView(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.journal,
-      builder: (context, state) => const JournalView(),
+      pageBuilder: (context, state) => PageTransitions.getTransitionForRoute(
+        context,
+        state,
+        const JournalView(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.challenges,
-      builder: (context, state) => const ChallengesView(),
+      pageBuilder: (context, state) => PageTransitions.getTransitionForRoute(
+        context,
+        state,
+        const ChallengesView(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.profile,
-      builder: (context, state) => const ProfileView(),
+      pageBuilder: (context, state) => PageTransitions.getTransitionForRoute(
+        context,
+        state,
+        const ProfileView(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.audio,
-      builder: (context, state) => const AudioView(),
+      pageBuilder: (context, state) => PageTransitions.getTransitionForRoute(
+        context,
+        state,
+        const AudioView(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.history,
-      builder: (context, state) => const HistoryView(),
+      pageBuilder: (context, state) => PageTransitions.getTransitionForRoute(
+        context,
+        state,
+        const HistoryView(),
+      ),
     ),
   ],
 );

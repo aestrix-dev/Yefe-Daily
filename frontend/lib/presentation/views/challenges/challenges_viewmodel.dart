@@ -1,29 +1,36 @@
-
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:yefa/core/utils/api_result.dart';
 import '../../../data/repositories/challenge_repository.dart';
 import '../../../data/models/challenge_model.dart';
+import '../../../data/models/challenge_stats_model.dart';
 import '../../../data/models/puzzle_model.dart';
 import '../../../data/services/puzzle_timer_service.dart';
+import '../../../data/services/storage_service.dart';
+import '../../../data/services/cache/home_cache.dart';
 import '../../shared/widgets/toast_overlay.dart';
 import '../../../app/app_setup.dart';
-
 
 class ChallengesViewModel extends BaseViewModel {
   final ChallengeRepository _challengeRepository =
       locator<ChallengeRepository>();
   final PuzzleTimerService _timerService = PuzzleTimerService();
+  final StorageService _storageService = locator<StorageService>();
 
   // Existing properties
   int _selectedTabIndex = 0;
   List<ChallengeModel> _activeChallenges = [];
   List<ChallengeModel> _completedChallenges = [];
-  final ProgressStatsModel _progressStats = const ProgressStatsModel(
-    currentStreak: 7,
-    totalBadges: 5,
-    totalChallenges: 12,
-    topStreak: 15,
+  bool _hasCachedSubmission = false;
+  ChallengeStatsModel _progressStats = ChallengeStatsModel(
+    userId: '',
+    totalChallenges: 0,
+    completedCount: 0,
+    totalPoints: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    sevenDaysProgress: 0,
+    numberOfBadges: 0,
   );
 
   // New puzzle properties with timer
@@ -43,12 +50,11 @@ class ChallengesViewModel extends BaseViewModel {
     contextAlreadySet = true;
   }
 
-
   // Existing getters
   int get selectedTabIndex => _selectedTabIndex;
   List<ChallengeModel> get activeChallenges => _activeChallenges;
   List<ChallengeModel> get completedChallenges => _completedChallenges;
-  ProgressStatsModel get progressStats => _progressStats;
+  ChallengeStatsModel get progressStats => _progressStats;
   bool get isActiveTab => _selectedTabIndex == 0;
   bool get isCompletedTab => _selectedTabIndex == 1;
 
@@ -69,7 +75,14 @@ class ChallengesViewModel extends BaseViewModel {
   PuzzleSubmissionData? get submissionResult => _puzzleState.submissionResult;
 
   // Legacy compatibility for existing UI
-  bool get isPuzzleCompleted => _puzzleState.hasSubmitted;
+  bool get isPuzzleCompleted =>
+      _puzzleState.hasSubmitted || _hasCachedSubmission;
+
+  // Check if puzzle has been completed today (including cached status)
+  Future<bool> get isPuzzleCompletedToday async {
+    return _puzzleState.hasSubmitted ||
+        await _storageService.getPuzzleSubmissionStatus();
+  }
 
   @override
   void dispose() {
@@ -77,30 +90,200 @@ class ChallengesViewModel extends BaseViewModel {
     super.dispose();
   }
 
-
   void onModelReady() {
     _setupTimerCallbacks();
     _timerService.initialize();
-    _loadData();
+    initialize();
+  }
 
-    // Load puzzle if not on cooldown
-    if (_timerService.canAttemptPuzzle()) {
-      getDailyPuzzle();
-    } else {
-      // Update state to show cooldown
-      _updatePuzzleState(
-        _puzzleState.copyWith(
-          isOnCooldown: true,
-          remainingCooldown: _timerService.remainingCooldown,
-        ),
-      );
+  Future<void> initialize() async {
+    setBusy(true);
+
+    try {
+      // Load cached data first for immediate display
+      await _loadCachedData();
+      notifyListeners();
+
+      // Then try to load fresh data if online
+      await _loadFreshDataIfOnline();
+    } catch (e) {
+      print('Error initializing ChallengesViewModel: $e');
+    } finally {
+      setBusy(false);
     }
+  }
+
+  Future<void> _loadCachedData() async {
+    try {
+      // Load cached challenge (same as home screen)
+      final cachedChallenge = await _storageService.getCachedChallenge();
+      if (cachedChallenge != null) {
+        _activeChallenges = [cachedChallenge];
+      }
+
+      // Load cached completed challenges
+      final cachedCompletedChallenges = await _storageService
+          .getCachedCompletedChallengesList();
+      if (cachedCompletedChallenges != null) {
+        _completedChallenges = cachedCompletedChallenges;
+      }
+
+      // Check if there's a cached puzzle submission for today
+      _hasCachedSubmission = await _storageService.getPuzzleSubmissionStatus();
+
+      // Load cached puzzle
+      final cachedPuzzle = await _storageService.getCachedPuzzle();
+      if (cachedPuzzle != null) {
+        // Load cached puzzle state
+        final cachedStateData = await _storageService.getCachedPuzzleState();
+        if (cachedStateData != null) {
+          final submissionResult = cachedStateData['submissionResult'] != null
+              ? PuzzleSubmissionData.fromJson(
+                  cachedStateData['submissionResult'],
+                )
+              : null;
+
+          final submissionTime = cachedStateData['submissionTime'] != null
+              ? DateTime.parse(cachedStateData['submissionTime'])
+              : null;
+
+          _updatePuzzleState(
+            PuzzleState(
+              puzzle: cachedPuzzle,
+              selectedAnswer: cachedStateData['selectedAnswer'],
+              hasSubmitted: cachedStateData['hasSubmitted'] ?? false,
+              submissionResult: submissionResult,
+              submissionTime: submissionTime,
+              isOnCooldown: cachedStateData['isOnCooldown'] ?? false,
+              remainingCooldown: _timerService.remainingCooldown,
+            ),
+          );
+        } else {
+          // Just load the puzzle without state
+          _updatePuzzleState(_puzzleState.copyWith(puzzle: cachedPuzzle));
+        }
+      }
+    } catch (e) {
+      print('Error loading cached data: $e');
+    }
+  }
+
+  Future<void> _loadFreshDataIfOnline() async {
+    try {
+      // Load completed challenges first to check if today's challenge is already done
+      await _loadCompletedChallenges();
+
+      // Load challenge statistics
+      await _loadChallengeStats();
+
+      // Check if we should load a new challenge
+      final shouldLoadNewChallenge = _shouldLoadNewChallenge();
+
+      if (shouldLoadNewChallenge) {
+        // Only load today's challenge if conditions are met
+        await _loadTodaysChallenge();
+      } else {
+        print(
+          '🚫 Not loading new challenge - either completed today or puzzle countdown active',
+        );
+      }
+
+      // Load puzzle if not on cooldown
+      if (_timerService.canAttemptPuzzle()) {
+        await getDailyPuzzle();
+      } else {
+        // Update state to show cooldown
+        _updatePuzzleState(
+          _puzzleState.copyWith(
+            isOnCooldown: true,
+            remainingCooldown: _timerService.remainingCooldown,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error loading fresh data: $e');
+    }
+  }
+
+  Future<void> _loadTodaysChallenge() async {
+    try {
+      final result = await _challengeRepository.getTodayChallenge();
+
+      if (result.isSuccess && result.data!.isNotEmpty) {
+        final challenge = result.data!.first;
+        _activeChallenges = [challenge];
+        await _storageService.cacheChallenge(challenge);
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error loading today\'s challenge: $e');
+    }
+  }
+
+  Future<void> _loadCompletedChallenges() async {
+    try {
+      final result = await _challengeRepository.getCompletedChallenges();
+
+      if (result.isSuccess) {
+        _completedChallenges = result.data ?? [];
+        // Cache completed challenges for offline use
+        await _storageService.cacheCompletedChallengesList(
+          _completedChallenges,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error loading completed challenges: $e');
+    }
+  }
+
+  Future<void> _loadChallengeStats() async {
+    try {
+      final result = await _challengeRepository.getChallengeStats();
+
+      if (result.isSuccess) {
+        _progressStats = result.data!;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error loading challenge stats: $e');
+    }
+  }
+
+  /// Determines if we should load a new challenge based on:
+  /// 1. No challenge completed today
+  /// 2. 24-hour puzzle countdown has expired (can attempt new puzzle)
+  bool _shouldLoadNewChallenge() {
+    // Check if there's a challenge completed today
+    final today = DateTime.now();
+    final hasCompletedToday = _completedChallenges.any((challenge) {
+      if (challenge.completedDate == null) return false;
+      final completedDate = challenge.completedDate!;
+      return completedDate.year == today.year &&
+          completedDate.month == today.month &&
+          completedDate.day == today.day;
+    });
+
+    if (hasCompletedToday) {
+      print('✅ Challenge already completed today');
+      return false;
+    }
+
+    // Check if 24-hour countdown has expired (can attempt new puzzle)
+    final canAttemptPuzzle = _timerService.canAttemptPuzzle();
+    if (!canAttemptPuzzle) {
+      print('⏰ Puzzle countdown still active, not loading new challenge');
+      return false;
+    }
+
+    print('🆕 Conditions met for loading new challenge');
+    return true;
   }
 
   // Setup timer service callbacks
   void _setupTimerCallbacks() {
     _timerService.onTimerExpired = () {
-      print('⏰ Timer expired, fetching new puzzle...');
+      print('⏰ Timer expired, fetching new puzzle and challenge...');
       _updatePuzzleState(
         _puzzleState.copyWith(
           puzzle: null,
@@ -112,63 +295,15 @@ class ChallengesViewModel extends BaseViewModel {
           remainingCooldown: null,
         ),
       );
+
+      // Fetch new puzzle and challenge when countdown expires
       getDailyPuzzle();
+      _loadTodaysChallenge();
     };
 
     _timerService.onCountdownUpdate = (remaining) {
       _updatePuzzleState(_puzzleState.copyWith(remainingCooldown: remaining));
     };
-  }
-
-  void _loadData() {
-    // Load active challenges
-    _activeChallenges = [
-      ChallengeModel(
-        id: 'manhood_1',
-        title: "Today's Manhood Challenge",
-        description:
-            'Call or message a male family member you haven\'t spoken to in a while. Ask how they\'re doing and offer encouragement.',
-        type: ChallengeType.manhood,
-        points: 5,
-        createdDate: DateTime.now(),
-      ),
-    ];
-
-    // Load completed challenges
-    _completedChallenges = [
-      ChallengeModel(
-        id: 'prayer_1',
-        title: 'Morning Prayer',
-        description: 'Start your day with 10 minutes of prayer',
-        type: ChallengeType.spiritual,
-        points: 3,
-        isCompleted: true,
-        completedDate: DateTime.now().subtract(const Duration(days: 1)),
-        createdDate: DateTime.now().subtract(const Duration(days: 2)),
-      ),
-      ChallengeModel(
-        id: 'scripture_1',
-        title: 'Scripture Memorization',
-        description: 'Memorize one verse from the Bible',
-        type: ChallengeType.spiritual,
-        points: 4,
-        isCompleted: true,
-        completedDate: DateTime.now().subtract(const Duration(days: 2)),
-        createdDate: DateTime.now().subtract(const Duration(days: 3)),
-      ),
-      ChallengeModel(
-        id: 'service_1',
-        title: 'Acts of Service',
-        description: 'Perform a random act of kindness',
-        type: ChallengeType.daily,
-        points: 3,
-        isCompleted: true,
-        completedDate: DateTime.now().subtract(const Duration(days: 2)),
-        createdDate: DateTime.now().subtract(const Duration(days: 4)),
-      ),
-    ];
-
-    notifyListeners();
   }
 
   void selectTab(int index) {
@@ -260,6 +395,9 @@ class ChallengesViewModel extends BaseViewModel {
       print('🧩 Puzzle ID: ${_puzzleState.puzzle!.id}');
       print('✅ Selected Answer: ${_puzzleState.selectedAnswer}');
 
+      // Backend expects 1-based answer numbers (1, 2, 3) directly
+      print('📤 Sending answer to backend: ${_puzzleState.selectedAnswer}');
+
       final result = await _challengeRepository.submitPuzzleAnswer(
         puzzleId: _puzzleState.puzzle!.id,
         selectedAnswer: _puzzleState.selectedAnswer!,
@@ -269,15 +407,26 @@ class ChallengesViewModel extends BaseViewModel {
         final submissionData = result.data!.data!;
         final submissionTime = DateTime.now();
 
+        // Backend returns 1-based answer numbers directly, no conversion needed
+        print(
+          '📥 Backend response: correctAnswer=${submissionData.correctAnswer}',
+        );
+
         // Update puzzle state with submission result
         _updatePuzzleState(
           _puzzleState.copyWith(
             hasSubmitted: true,
-            submissionResult: submissionData,
+            submissionResult: submissionData, // Use data directly
             submissionTime: submissionTime,
             isOnCooldown: true,
           ),
         );
+
+        // Cache the updated puzzle state
+        await _storageService.cachePuzzleState(_puzzleState);
+
+        // Update the cached submission flag
+        _hasCachedSubmission = true;
 
         // Record submission in timer service (starts 24hr countdown)
         await _timerService.recordSubmission(_puzzleState.puzzle!.id);
@@ -285,6 +434,9 @@ class ChallengesViewModel extends BaseViewModel {
         print('✅ Puzzle answer submitted successfully!');
         print('🎯 Correct: ${submissionData.isCorrect}');
         print('🏆 Points Earned: ${submissionData.pointsEarned}');
+        print(
+          '📊 UI Display: User selected answer ${_puzzleState.selectedAnswer}, correct answer is ${submissionData.correctAnswer}',
+        );
 
         // Show success/failure toast based on correctness
         if (_context != null) {
@@ -327,9 +479,12 @@ class ChallengesViewModel extends BaseViewModel {
     }
   }
 
-  void markChallengeAsComplete(String challengeId) {
-    // Only allow marking as complete if puzzle is completed
-    if (!isPuzzleCompleted) {
+  Future<void> markChallengeAsComplete(String challengeId) async {
+    // Check if puzzle has been submitted (either in current session or cached)
+    final hasSubmittedToday =
+        isPuzzleCompleted || await _storageService.getPuzzleSubmissionStatus();
+
+    if (!hasSubmittedToday) {
       if (_context != null) {
         ToastOverlay.showWarning(
           context: _context!,
@@ -343,32 +498,77 @@ class ChallengesViewModel extends BaseViewModel {
     final challengeIndex = _activeChallenges.indexWhere(
       (c) => c.id == challengeId,
     );
+
     if (challengeIndex != -1) {
-      // Update the challenge to completed state but keep it in active list
       final challenge = _activeChallenges[challengeIndex];
-      final completedChallenge = challenge.copyWith(
-        isCompleted: true,
-        completedDate: DateTime.now(),
-      );
 
-      // Replace the challenge in the active list with completed version
-      _activeChallenges[challengeIndex] = completedChallenge;
-
-      print('=== CHALLENGE COMPLETED ===');
-      print('Challenge: ${challenge.title}');
-      print('Points Earned: ${challenge.points}');
-      print('Completed Date: ${DateTime.now()}');
-      print('==========================');
-
-      // Show success toast
-      if (_context != null) {
-        ToastOverlay.showSuccess(
-          context: _context!,
-          message: '🎉 Challenge completed! +${challenge.points} points!',
-        );
+      // Check if already completed
+      if (challenge.isCompleted) {
+        if (_context != null) {
+          ToastOverlay.showInfo(
+            context: _context!,
+            message: 'Challenge already completed!',
+          );
+        }
+        return;
       }
 
-      notifyListeners();
+      setBusy(true);
+
+      try {
+        // Call API to mark challenge as complete
+        final result = await _challengeRepository.markChallengeComplete(
+          challengeId,
+        );
+
+        if (result.isSuccess) {
+          // Update the challenge to completed state
+          final completedChallenge = challenge.copyWith(
+            isCompleted: true,
+            completedDate: DateTime.now(),
+          );
+
+          // Replace the challenge in the active list with completed version
+          _activeChallenges[challengeIndex] = completedChallenge;
+
+          // Cache the updated challenge
+          await _storageService.cacheChallenge(completedChallenge);
+
+          print('=== CHALLENGE COMPLETED ===');
+          print('Challenge: ${challenge.title}');
+          print('Points Earned: ${challenge.points}');
+          print('Completed Date: ${DateTime.now()}');
+          print('==========================');
+
+          // Show success toast
+          if (_context != null) {
+            ToastOverlay.showSuccess(
+              context: _context!,
+              message: '🎉 Challenge completed! +${challenge.points} points!',
+            );
+          }
+
+          notifyListeners();
+        } else {
+          // Show error toast
+          if (_context != null) {
+            ToastOverlay.showError(
+              context: _context!,
+              message: result.error ?? 'Failed to complete challenge',
+            );
+          }
+        }
+      } catch (e) {
+        print('Error completing challenge: $e');
+        if (_context != null) {
+          ToastOverlay.showError(
+            context: _context!,
+            message: 'An error occurred while completing the challenge',
+          );
+        }
+      } finally {
+        setBusy(false);
+      }
     }
   }
 

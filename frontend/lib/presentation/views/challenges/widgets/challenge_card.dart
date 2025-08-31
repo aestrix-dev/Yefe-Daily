@@ -42,16 +42,11 @@ class ChallengeCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (challenge.type == ChallengeType.manhood &&
-                  !challenge.isCompleted) ...[
-                Icon(
-                  Icons.local_fire_department,
-                  size: 16.sp,
-                  color: Colors.orange,
-                ),
+              if (!challenge.isCompleted) ...[
+                Text('🔥', style: TextStyle(fontSize: 16.sp)),
                 SizedBox(width: 4.w),
                 Text(
-                  '+${challenge.points} points',
+                  '${challenge.points}pts',
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
@@ -77,7 +72,7 @@ class ChallengeCard extends StatelessWidget {
           SizedBox(height: 16.h),
 
           // Action button or completed status
-          if (isCompleted)
+          if (challenge.isCompleted)
             Row(
               children: [
                 Container(
@@ -113,7 +108,9 @@ class ChallengeCard extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: challenge.isCompleted
                       ? AppColors.primary(context)
-                      : (isEnabled ? AppColors.primary(context) : AppColors.accentDark(context)),
+                      : (isEnabled
+                            ? AppColors.primary(context)
+                            : AppColors.accentDark(context)),
                   disabledBackgroundColor: challenge.isCompleted
                       ? AppColors.primary(context)
                       : Colors.grey[400],
