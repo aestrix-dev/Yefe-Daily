@@ -146,11 +146,6 @@ func main() {
 			return nil
 		}
 		challenge := challengeRepo.GetRandomChallange()
-		if err != nil {
-			logger.Log.WithError(err).Error("Could not get random daily challenge")
-			return err
-		}
-
 		err = challengeRepo.CreateChallenge(&challenge)
 		if err != nil {
 			logger.Log.WithError(err).Error("Could not generate daily challenge")
