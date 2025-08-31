@@ -141,15 +141,16 @@ func main() {
 	}).Debug("Created new daily challenge")
 
 	err = scheduler.AddJob("set-daily-challenge", "Daily challenge", utils.DAILY, func(ctx context.Context) error {
+		_, err := challengeRepo.GetTodaysChallenge()
+		if err == nil {
+			return nil
+		}
 		challenge := challengeRepo.GetRandomChallange()
 		if err != nil {
 			logger.Log.WithError(err).Error("Could not generate daily challenge")
 			return err
 		}
-		//challenge, err := challengeRepo.GetTodaysChallenge()
-		//if err == nil {
-		//return challenge
-		//}
+
 		err = challengeRepo.CreateChallenge(&challenge)
 		if err != nil {
 			logger.Log.WithError(err).Error("Could not generate daily challenge")
@@ -180,14 +181,12 @@ func main() {
 	}).Debug("Created new daily reflection")
 
 	err = scheduler.AddJob("set-daily-reflection", "Daily reflection", utils.DAILY, func(ctx context.Context) error {
-		reflection := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-reflection", func() any {
-			ref := dailyRelectionUsecase.GetRandomDailyReflection()
-			if err != nil {
-				logger.Log.WithError(err).Error("Could not generate daily refletion")
-				return err
-			}
-			return ref
-		}, 24*time.Hour)
+		ref := dailyRelectionUsecase.GetRandomDailyReflection()
+		if err != nil {
+			logger.Log.WithError(err).Error("Could not generate daily refletion")
+			return err
+		}
+		inmemeoryCache.SetWithTTLAndContext(serverCtx, "daily-reflection", ref, 24*time.Hour)
 
 		logger.Log.WithFields(map[string]any{
 			"ID":   reflection.(domain.DailyReflection).ID,
@@ -284,11 +283,15 @@ func createSuperAdmin(ctx context.Context, repo domain.UserRepository, email str
 		Salt:         salt,
 	}
 
-	err := repo.CreateAdminUser(ctx, newUser, "admin")
-	if err != nil {
+	_, err := repo.GetByEmail(ctx, email)
+	if err == nil {
 		logger.Log.Debug("Super admin already exists")
+		return
+	}
+	err = repo.CreateAdminUser(ctx, newUser, "admin")
+	if err != nil {
+		logger.Log.Debug("Could not create admin user")
 		return
 	}
 	logger.Log.Info("Created superadmin account")
 }
-
