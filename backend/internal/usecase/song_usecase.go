@@ -14,14 +14,20 @@ func NewMusicUseCase(repo domain.SongRepository) domain.SongUseCase {
 
 // GetSongs retrieves songs based on user type
 func (uc *MusicUseCase) GetSongs(userType domain.UserType) ([]domain.Song, error) {
-	switch userType {
-	case domain.FreeUser:
-		return uc.repo.FindByAccessLevel("free")
-	case domain.ProUser:
-		return uc.repo.FindAll()
-	default:
-		return nil, domain.ErrUserNotFound
+	songs, err := uc.repo.FindAll()
+	if err != nil {
+		return nil, err
 	}
+
+	if userType == domain.FreeUser {
+		for i := range songs {
+			if songs[i].AccessLevel == "pro" {
+				songs[i].DownloadURL = ""
+			}
+		}
+	}
+
+	return songs, nil
 }
 
 // GetSongDetails returns detailed song information with access control
