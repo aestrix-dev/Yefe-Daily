@@ -14,17 +14,22 @@ All endpoints are prefixed with `/v1`.
 
 - **Endpoint:** `GET /songs`
 - **Description:** Retrieves a list of songs based on the user's access level (free or pro).
+- **Note:** For users with `free` access, the `download_url` for `pro` songs will be empty.
+- **Note:** Song data access can be free or pro 
 - **Successful Response (200 OK):**
     ```json
     {
         "message": "successfully got songs",
         "data": [
             {
-                "id": "song_id_1",
+                "uuid": "song_id_1",
                 "title": "Uplifting Melody",
-                "artist": "Composer A",
-                "url": "https://example.com/song1.mp3",
-                "mood": "happy"
+                "feel": "happy",
+                "description": "An uplifting and cheerful melody.",
+                "genre": "Instrumental",
+                "length": "03:00",
+                "access": "free", 
+                "download_url": "https://example.com/song1.mp3"
             }
         ],
         "meta": {
@@ -45,13 +50,14 @@ All endpoints are prefixed with `/v1`.
     {
         "message": "users",
         "data": {
-            "id": "song_id_1",
+            "uuid": "song_id_1",
             "title": "Uplifting Melody",
-            "artist": "Composer A",
-            "url": "https://example.com/song1.mp3",
-            "mood": "happy",
-            "duration": 180,
-            "is_pro": false
+            "feel": "happy",
+            "description": "An uplifting and cheerful melody.",
+            "genre": "Instrumental",
+            "length": "03:00",
+            "access": "free",
+            "download_url": "https://example.com/song1.mp3"
         }
     }
     ```
@@ -60,6 +66,7 @@ All endpoints are prefixed with `/v1`.
 
 - **Endpoint:** `GET /songs/mood/{mood}`
 - **Description:** Retrieves a list of songs filtered by a specific mood.
+- **Note:** For users with `free` access, the `download_url` for `pro` songs will be empty.
 - **Path Parameters:**
     - `mood` (string, required): The mood to filter songs by (e.g., `happy`, `calm`).
 - **Successful Response (200 OK):**
@@ -68,11 +75,14 @@ All endpoints are prefixed with `/v1`.
         "message": "successfully got songs",
         "data": [
             {
-                "id": "song_id_1",
+                "uuid": "song_id_1",
                 "title": "Uplifting Melody",
-                "artist": "Composer A",
-                "url": "https://example.com/song1.mp3",
-                "mood": "happy"
+                "feel": "happy",
+                "description": "An uplifting and cheerful melody.",
+                "genre": "Instrumental",
+                "length": "03:00",
+                "access": "free",
+                "download_url": "https://example.com/song1.mp3"
             }
         ],
         "meta": {
