@@ -132,17 +132,15 @@ class UpgradePopup extends StatelessWidget {
 
                             // Feature bullet points
                             _buildFeature(
-                              'Evening journal prompts',
+                              'Evening journals',
                             ),
                             _buildFeature(
-                              'Voice journaling',
+                              'Mood Analytics',
                             ),
                             _buildFeature(
-                              'All Tower Talks episodes',
+                              'All Tower Talks (audio)',
                             ),
-                            _buildFeature(
-                              'Private journal entries',
-                            ),
+                           
                             
 
                             SizedBox(height: 24.h),

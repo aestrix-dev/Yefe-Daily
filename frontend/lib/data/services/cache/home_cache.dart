@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:yefa/data/models/challenge_model.dart';
+import 'package:yefa/data/models/challenge_stats_model.dart';
 import 'package:yefa/data/models/journal_model.dart';
 import 'package:yefa/data/models/puzzle_model.dart';
 import 'package:yefa/data/models/reflection_model.dart';
@@ -422,6 +423,61 @@ extension CompletedChallengesStorage on StorageService {
   }
 }
 
+// Extension for Challenge Stats caching (including streak)
+extension ChallengeStatsStorage on StorageService {
+  static const String _challengeStatsKey = 'cached_challenge_stats';
+  static const String _challengeStatsDateKey = 'challenge_stats_cache_date';
+
+  Future<void> cacheChallengeStats(ChallengeStatsModel stats) async {
+    final statsJson = json.encode(stats.toJson());
+    await setString(_challengeStatsKey, statsJson);
+
+    // Store the date when stats were cached
+    final now = DateTime.now().toIso8601String();
+    await setString(_challengeStatsDateKey, now);
+
+    print('✅ Cached challenge stats - Streak: ${stats.currentStreak}');
+  }
+
+  Future<ChallengeStatsModel?> getCachedChallengeStats() async {
+    final statsJson = getString(_challengeStatsKey);
+    final cacheDateString = getString(_challengeStatsDateKey);
+
+    if (statsJson == null || cacheDateString == null) {
+      print('❌ No cached challenge stats found');
+      return null;
+    }
+
+    try {
+      final cacheDate = DateTime.parse(cacheDateString);
+      final now = DateTime.now();
+
+      // Check if cache is less than 1 hour old (stats don't change frequently)
+      final difference = now.difference(cacheDate);
+      if (difference.inHours < 1) {
+        final statsMap = json.decode(statsJson);
+        final stats = ChallengeStatsModel.fromJson(statsMap);
+        print('✅ Loaded cached challenge stats - Streak: ${stats.currentStreak}');
+        return stats;
+      } else {
+        print('⏰ Cached challenge stats are outdated, clearing cache');
+        await clearChallengeStatsCache();
+        return null;
+      }
+    } catch (e) {
+      print('❌ Error loading cached challenge stats: $e');
+      await clearChallengeStatsCache();
+      return null;
+    }
+  }
+
+  Future<void> clearChallengeStatsCache() async {
+    await remove(_challengeStatsKey);
+    await remove(_challengeStatsDateKey);
+    print('🧹 Cleared challenge stats cache');
+  }
+}
+
 // Extension for general cache management
 extension CacheManagement on StorageService {
   // Clear all cached data
@@ -429,6 +485,10 @@ extension CacheManagement on StorageService {
     // Clear challenge cache
     await remove(ChallengeStorage._challengeKey);
     await remove(ChallengeStorage._challengeDateKey);
+
+    // Clear challenge stats cache
+    await remove(ChallengeStatsStorage._challengeStatsKey);
+    await remove(ChallengeStatsStorage._challengeStatsDateKey);
 
     // Clear verse cache
     await remove(VerseStorage._verseKey);

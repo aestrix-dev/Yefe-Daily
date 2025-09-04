@@ -168,7 +168,7 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
                 context,
               ).pop(PaystackPaymentResult.failed('Payment cancelled by user'));
             },
-            child: const Text('No / Cancel'),
+            child: const Text('No'),
           ),
           TextButton(
             onPressed: () {
@@ -178,7 +178,7 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
                 context,
               ).pop(PaystackPaymentResult.success(paymentReference: null));
             },
-            child: const Text('Yes / Completed'),
+            child: const Text('Yes'),
           ),
         ],
       ),

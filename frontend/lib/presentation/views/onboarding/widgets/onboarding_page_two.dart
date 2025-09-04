@@ -19,6 +19,8 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
 
   @override
   Widget build(BuildContext context, OnboardingViewModel viewModel) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    
     return Stack(
       children: [
         Positioned.fill(
@@ -32,6 +34,7 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
         ),
         Scaffold(
           backgroundColor: Colors.transparent,
+          resizeToAvoidBottomInset: false,
           body: SafeArea(
             child: Column(
               children: [
@@ -50,7 +53,7 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -77,13 +80,14 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
                         borderRadius: BorderRadius.circular(20.r),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
                         ],
                       ),
                       child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
                         padding: EdgeInsets.all(24.w),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,10 +279,10 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
                               Container(
                                 padding: EdgeInsets.all(12.w),
                                 decoration: BoxDecoration(
-                                  color: Colors.red.withOpacity(0.1),
+                                  color: Colors.red.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8.r),
                                   border: Border.all(
-                                    color: Colors.red.withOpacity(0.3),
+                                    color: Colors.red.withValues(alpha: 0.3),
                                   ),
                                 ),
                                 child: Text(
@@ -291,8 +295,8 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
                               ),
                             ],
 
-                            // Extra space at bottom for scroll
-                            SizedBox(height: 20.h),
+                            // Extra space at bottom for scroll above keyboard
+                            SizedBox(height: keyboardHeight > 0 ? keyboardHeight + 20.h : 100.h),
                           ],
                         ),
                       ),
@@ -300,22 +304,57 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
                   ),
                 ),
 
-                SizedBox(height: 6.h),
-                // Button section - fixed at bottom
-                Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: CustomButton(
-                    text: 'Continue',
-                    onPressed: () {
-                      if (viewModel.canProceedFromPageTwo()) {
-                        onContinue();
-                      } else {
-                        // Trigger validation
-                        viewModel.authenticateAndComplete(context);
-                      }
-                    },
-                    width: double.infinity,
-                    height: 50.h,
+                // Professional bottom navigation section
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.accentDark(context).withValues(alpha: 0.0),
+                        AppColors.accentDark(context).withValues(alpha: 0.95),
+                        AppColors.accentDark(context),
+                      ],
+                      stops: const [0.0, 0.3, 1.0],
+                    ),
+                  ),
+                  padding: EdgeInsets.fromLTRB(
+                    24.w, // left - slightly more than content
+                    20.h, // top - breathing room
+                    24.w, // right - symmetric
+                    _calculateBottomPadding(context), // dynamic bottom
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Add subtle divider for visual separation
+                      Container(
+                        height: 1.h,
+                        margin: EdgeInsets.only(bottom: 16.h),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.greyLight.withValues(alpha: 0.0),
+                              AppColors.greyLight.withValues(alpha: 0.3),
+                              AppColors.greyLight.withValues(alpha: 0.0),
+                            ],
+                          ),
+                        ),
+                      ),
+                      CustomButton(
+                        text: 'Continue',
+                        onPressed: () {
+                          if (viewModel.canProceedFromPageTwo()) {
+                            onContinue();
+                          } else {
+                            // Trigger validation
+                            viewModel.authenticateAndComplete(context);
+                          }
+                        },
+                        width: double.infinity,
+                        height: 52.h,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -349,6 +388,36 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
         _CustomSwitch(value: value, onChanged: onChanged),
       ],
     );
+  }
+
+  /// Calculates professional bottom padding based on device characteristics
+  double _calculateBottomPadding(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final bottomPadding = mediaQuery.padding.bottom;
+    
+    // Base padding following iOS Human Interface Guidelines and Material Design
+    double basePadding = 20.h;
+    
+    // Add safe area padding for devices with home indicator (iPhone X and later)
+    if (bottomPadding > 0) {
+      basePadding += bottomPadding.clamp(0.0, 34.0); // Max 34pt for home indicator
+    } else {
+      // For devices without home indicator, add standard spacing
+      basePadding += 16.h;
+    }
+    
+    // Adjust for different screen sizes
+    if (screenHeight < 600) {
+      // Small screens (iPhone SE, small Android phones)
+      basePadding *= 0.8;
+    } else if (screenHeight > 900) {
+      // Large screens (iPhone Pro Max, large Android phones, tablets)
+      basePadding *= 1.2;
+    }
+    
+    // Ensure minimum spacing for accessibility
+    return basePadding.clamp(24.h, 60.h);
   }
 
 }

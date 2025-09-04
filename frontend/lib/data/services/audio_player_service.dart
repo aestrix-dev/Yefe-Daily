@@ -1,6 +1,7 @@
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:logger/logger.dart';
 import '../models/audio_model.dart';
 
 class AudioPlayerService extends BaseAudioHandler {
@@ -12,6 +13,8 @@ class AudioPlayerService extends BaseAudioHandler {
   final BehaviorSubject<List<AudioModel>> _playlistSubject =
       BehaviorSubject.seeded([]);
   final BehaviorSubject<int> _currentIndexSubject = BehaviorSubject.seeded(0);
+  bool _isInitialized = false;
+  final Logger _logger = Logger();
 
   // Getters
   AudioPlayer get audioPlayer => _audioPlayer;
@@ -29,28 +32,49 @@ class AudioPlayerService extends BaseAudioHandler {
   bool get hasPrevious => currentPlaylistIndex > 0;
 
   Future<void> initialize() async {
+    // Only initialize once to prevent disrupting ongoing playback
+    if (_isInitialized) {
+      return;
+    }
+
+    // Note: App icon will be automatically used by the system for media controls
+
     // Set up audio session for background play
     await _audioPlayer.setAudioSource(ConcatenatingAudioSource(children: []));
 
-    // Listen to player state changes
+    // Listen to player state changes for enhanced notification controls
     _audioPlayer.playerStateStream.listen((playerState) {
       final isPlaying = playerState.playing;
       final processingState = playerState.processingState;
+      final hasPlaylist = currentPlaylist.isNotEmpty;
 
-      // Update playback state for system media controls
+      // Enhanced controls for notification and lock screen
+      final controls = <MediaControl>[
+        // Previous track (only if there's a previous track)
+        if (hasPlaylist && hasPrevious) MediaControl.skipToPrevious,
+        
+        // Play/Pause - always available
+        if (isPlaying) MediaControl.pause else MediaControl.play,
+        
+        // Next track (only if there's a next track)
+        if (hasPlaylist && hasNext) MediaControl.skipToNext,
+        
+        // Additional controls for richer experience
+        MediaControl.stop,
+      ];
+
+      // Update playback state for enhanced system media controls
       playbackState.add(
         playbackState.value.copyWith(
-          controls: [
-            MediaControl.skipToPrevious,
-            if (isPlaying) MediaControl.pause else MediaControl.play,
-            MediaControl.skipToNext,
-          ],
+          controls: controls,
           systemActions: const {
             MediaAction.seek,
             MediaAction.seekForward,
             MediaAction.seekBackward,
+            MediaAction.setSpeed,
+            MediaAction.stop,
           },
-          androidCompactActionIndices: const [0, 1, 2],
+          androidCompactActionIndices: const [0, 1, 2], // Show first 3 controls in compact view
           processingState: const {
             ProcessingState.idle: AudioProcessingState.idle,
             ProcessingState.loading: AudioProcessingState.loading,
@@ -62,7 +86,7 @@ class AudioPlayerService extends BaseAudioHandler {
           updatePosition: _audioPlayer.position,
           bufferedPosition: _audioPlayer.bufferedPosition,
           speed: _audioPlayer.speed,
-          queueIndex: currentPlaylistIndex,
+          queueIndex: hasPlaylist ? currentPlaylistIndex : null,
         ),
       );
     });
@@ -71,6 +95,8 @@ class AudioPlayerService extends BaseAudioHandler {
     _audioPlayer.positionStream.listen((position) {
       playbackState.add(playbackState.value.copyWith(updatePosition: position));
     });
+
+    _isInitialized = true;
   }
 
   // Set playlist and play specific audio
@@ -83,18 +109,10 @@ class AudioPlayerService extends BaseAudioHandler {
       _playlistSubject.add(playlist);
       _currentIndexSubject.add(index);
 
-      // Update media item for system controls
+      // Update media item for system controls with enhanced metadata
       final audio = playlist[index];
-      mediaItem.add(
-        MediaItem(
-          id: audio.id,
-          album: 'Devotional Audio',
-          title: audio.title,
-          artist: audio.feel,
-          duration: _parseDuration(audio.duration),
-          artUri: null, // You can add artwork URI here
-        ),
-      );
+      final mediaItemData = _createMediaItem(audio);
+      mediaItem.add(mediaItemData);
 
       // Set audio source and play
       await _audioPlayer.setFilePath(localFilePath);
@@ -113,21 +131,31 @@ class AudioPlayerService extends BaseAudioHandler {
     }
   }
 
-  // Play next track
+  // Play next track (enhanced for notification controls)
   Future<void> playNext() async {
     if (hasNext) {
       final nextIndex = currentPlaylistIndex + 1;
+      final nextAudio = currentPlaylist[nextIndex];
+      
       _currentIndexSubject.add(nextIndex);
-      // That's it! The viewmodel will handle the actual playing
+      
+      // Update media item for the new track
+      final mediaItemData = _createMediaItem(nextAudio);
+      mediaItem.add(mediaItemData);
     }
   }
 
-  // Play previous track
+  // Play previous track (enhanced for notification controls)
   Future<void> playPrevious() async {
     if (hasPrevious) {
       final prevIndex = currentPlaylistIndex - 1;
+      final prevAudio = currentPlaylist[prevIndex];
+      
       _currentIndexSubject.add(prevIndex);
-      // That's it! The viewmodel will handle the actual playing
+      
+      // Update media item for the previous track
+      final mediaItemData = _createMediaItem(prevAudio);
+      mediaItem.add(mediaItemData);
     }
   }
 
@@ -191,7 +219,86 @@ class AudioPlayerService extends BaseAudioHandler {
   @override
   Future<void> stop() async {
     await _audioPlayer.stop();
+    _playlistSubject.add([]);
+    _currentIndexSubject.add(0);
+    
+    // Clear media item
+    mediaItem.add(null);
+    
+    // Update playback state to stopped
+    playbackState.add(playbackState.value.copyWith(
+      processingState: AudioProcessingState.idle,
+      playing: false,
+      controls: [],
+    ));
+    
     return super.stop();
+  }
+
+  // Additional system control handlers
+  @override
+  Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
+    // Handle repeat mode changes from system controls
+    switch (repeatMode) {
+      case AudioServiceRepeatMode.none:
+        await _audioPlayer.setLoopMode(LoopMode.off);
+        break;
+      case AudioServiceRepeatMode.one:
+        await _audioPlayer.setLoopMode(LoopMode.one);
+        break;
+      case AudioServiceRepeatMode.all:
+        await _audioPlayer.setLoopMode(LoopMode.all);
+        break;
+      case AudioServiceRepeatMode.group:
+        await _audioPlayer.setLoopMode(LoopMode.all);
+        break;
+    }
+    
+    playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
+  }
+
+  @override
+  Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
+    // Handle shuffle mode changes from system controls
+    final enabled = shuffleMode == AudioServiceShuffleMode.all;
+    await _audioPlayer.setShuffleModeEnabled(enabled);
+    
+    playbackState.add(playbackState.value.copyWith(shuffleMode: shuffleMode));
+  }
+
+  @override
+  Future<void> setSpeed(double speed) async {
+    await _audioPlayer.setSpeed(speed);
+    
+    playbackState.add(playbackState.value.copyWith(speed: speed));
+  }
+
+  // Enhanced queue management for system controls
+  @override
+  Future<void> addQueueItem(MediaItem mediaItem) async {
+    // This can be called from system UI to add items to queue
+    _logger.i('Adding item to queue: ${mediaItem.title}');
+    // Implementation would depend on your specific needs
+  }
+
+  @override
+  Future<void> removeQueueItem(MediaItem mediaItem) async {
+    // This can be called from system UI to remove items from queue
+    _logger.i('Removing item from queue: ${mediaItem.title}');
+    // Implementation would depend on your specific needs
+  }
+
+  @override
+  Future<void> skipToQueueItem(int index) async {
+    if (index >= 0 && index < currentPlaylist.length) {
+      _currentIndexSubject.add(index);
+      final audio = currentPlaylist[index];
+      final mediaItemData = _createMediaItem(audio);
+      mediaItem.add(mediaItemData);
+      
+      // You would need to implement the actual audio switching logic here
+      _logger.i('Skipping to queue item at index: $index');
+    }
   }
 
   // Dispose
@@ -215,5 +322,32 @@ class AudioPlayerService extends BaseAudioHandler {
       return Duration(minutes: minutes, seconds: seconds);
     }
     return Duration.zero;
+  }
+
+
+  // Enhanced media item creation helper
+  MediaItem _createMediaItem(AudioModel audio) {
+    return MediaItem(
+      id: audio.uuid,
+      album: 'Yefa Daily - Devotional Audio',
+      title: audio.title,
+      artist: audio.feel.isNotEmpty ? audio.feel : 'Yefa Daily',
+      duration: _parseDuration(audio.length),
+      // Don't set artUri - let the system use the app icon automatically
+      // This prevents network errors and is more reliable
+      artUri: null,
+      displayTitle: audio.title,
+      displaySubtitle: audio.feel.isNotEmpty ? audio.feel : 'Devotional Audio',
+      displayDescription: audio.description.isNotEmpty 
+        ? audio.description 
+        : 'Daily spiritual audio content from Yefa Daily',
+      genre: audio.genre,
+      rating: const Rating.newHeartRating(true),
+      extras: {
+        'audioId': audio.uuid,
+        'audioFeel': audio.feel,
+        'audioGenre': audio.genre,
+      },
+    );
   }
 }

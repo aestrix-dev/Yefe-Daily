@@ -64,7 +64,7 @@ class SettingsSection extends StatelessWidget {
               _buildSettingItem(
                 context: context,
                 icon: Icons.translate,
-                title: 'Verse Language',
+                title: 'Mood Analytics',
                 trailing: Icon(
                   Icons.chevron_right,
                   color: Colors.grey[600],

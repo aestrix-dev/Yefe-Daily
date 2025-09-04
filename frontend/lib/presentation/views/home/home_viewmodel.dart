@@ -6,6 +6,7 @@ import 'package:yefa/core/utils/api_result.dart';
 import 'package:yefa/data/models/journal_model.dart';
 import 'package:yefa/data/models/user_model.dart';
 import 'package:yefa/data/models/challenge_model.dart';
+import 'package:yefa/data/models/challenge_stats_model.dart';
 import 'package:yefa/data/repositories/journal_repository.dart';
 import 'package:yefa/data/repositories/reflection_repository.dart';
 import 'package:yefa/data/services/cache/home_cache.dart';
@@ -33,6 +34,10 @@ class HomeViewModel extends BaseViewModel {
   ChallengeModel? _todaysChallenge;
   ChallengeModel? get todaysChallenge => _todaysChallenge;
 
+  // Challenge stats for streak (from API)
+  ChallengeStatsModel? _challengeStats;
+  ChallengeStatsModel? get challengeStats => _challengeStats;
+
   // Use journal entries as recent activities
   List<JournalModel> get recentActivities => _entries;
 
@@ -57,7 +62,8 @@ class HomeViewModel extends BaseViewModel {
     return 'Welcome to your journey';
   }
 
-  int get fireCount => _calculateStreakDays();
+  // Use API streak value instead of calculated one
+  int get fireCount => _challengeStats?.currentStreak ?? 0;
 
   Future<void> fetchJournalEntries() async {
     print('🔄 Fetching journal entries...');
@@ -105,6 +111,13 @@ class HomeViewModel extends BaseViewModel {
         _todaysChallenge = cachedChallenge;
       }
 
+      // Load cached challenge stats (including streak)
+      final cachedStats = await _storageService.getCachedChallengeStats();
+      if (cachedStats != null) {
+        _challengeStats = cachedStats;
+        print('✅ Loaded cached streak: ${cachedStats.currentStreak}');
+      }
+
       // Try to load reflection first, fallback to cached verse
       final cachedReflection = await _storageService.getCachedReflection();
       if (cachedReflection != null) {
@@ -135,6 +148,7 @@ class HomeViewModel extends BaseViewModel {
       if (_hasInternetConnection) {
         await _loadTodaysChallenge(fromCache: false);
         await _loadTodaysReflection();
+        await _loadChallengeStats();
         await fetchJournalEntries();
       }
     } catch (e) {
@@ -182,6 +196,31 @@ class HomeViewModel extends BaseViewModel {
     }
   }
 
+  Future<void> _loadChallengeStats() async {
+    try {
+      print('📊 Loading challenge stats from API...');
+
+      final result = await _challengeRepository.getChallengeStats();
+
+      if (result.isSuccess) {
+        _challengeStats = result.data!;
+        
+        // Cache the stats
+        await _storageService.cacheChallengeStats(_challengeStats!);
+        
+        print('✅ Challenge stats loaded - Streak: ${_challengeStats!.currentStreak}');
+      } else {
+        print('❌ Failed to load challenge stats: ${result.error}');
+        // Keep cached stats if API fails
+      }
+
+      notifyListeners();
+    } catch (e) {
+      print('Error loading challenge stats: $e');
+      // Keep cached stats if error occurs
+    }
+  }
+
   Future<void> refreshData() async {
     _isRefreshing = true;
     notifyListeners();
@@ -194,19 +233,7 @@ class HomeViewModel extends BaseViewModel {
     }
   }
 
-  int _calculateStreakDays() {
-    if (_user?.createdAt == null) return 0;
-
-    final start = DateTime(
-      _user!.createdAt.year,
-      _user!.createdAt.month,
-      _user!.createdAt.day,
-    );
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    return today.difference(start).inDays + 1;
-  }
+  // Removed _calculateStreakDays() - now using API streak value
 
   Future<bool> _checkInternetConnection() async {
     try {
@@ -225,8 +252,4 @@ class HomeViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

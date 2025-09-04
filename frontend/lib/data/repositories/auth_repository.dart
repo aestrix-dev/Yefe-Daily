@@ -36,7 +36,7 @@ class AuthRepository extends BaseRepository {
 
   // Get current user from storage
   Future<UserModel?> getCurrentUser() async {
-    final userJson = await _storageService.getString(_userKey);
+    final userJson = _storageService.getString(_userKey);
     if (userJson != null) {
       try {
         final userMap = jsonDecode(userJson) as Map<String, dynamic>;
@@ -51,17 +51,17 @@ class AuthRepository extends BaseRepository {
 
   // Get current token (for debugging or manual use)
   Future<String?> getCurrentToken() async {
-    return await _storageService.getString(_tokenKey);
+    return _storageService.getString(_tokenKey);
   }
 
   // Get refresh token
   Future<String?> getRefreshToken() async {
-    return await _storageService.getString(_refreshTokenKey);
+    return _storageService.getString(_refreshTokenKey);
   }
 
   // Check if token is expired (optional - for future use)
   Future<bool> isTokenExpired() async {
-    final expiryString = await _storageService.getString(_tokenExpiryKey);
+    final expiryString = _storageService.getString(_tokenExpiryKey);
     if (expiryString != null) {
       final expiry = DateTime.parse(expiryString);
       return DateTime.now().isAfter(expiry);

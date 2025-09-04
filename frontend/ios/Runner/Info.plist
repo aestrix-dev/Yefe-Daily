@@ -80,6 +80,16 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
+		<string>background-processing</string>
+	</array>
+	
+	<!-- Audio Session Configuration -->
+	<key>AVAudioSessionCategoryOptions</key>
+	<array>
+		<string>AVAudioSessionCategoryOptionMixWithOthers</string>
+		<string>AVAudioSessionCategoryOptionAllowBluetooth</string>
+		<string>AVAudioSessionCategoryOptionAllowBluetoothA2DP</string>
+		<string>AVAudioSessionCategoryOptionAllowAirPlay</string>
 	</array>
 
 	<key>LSApplicationQueriesSchemes</key>

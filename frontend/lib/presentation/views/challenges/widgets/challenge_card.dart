@@ -8,6 +8,7 @@ class ChallengeCard extends StatelessWidget {
   final VoidCallback? onMarkComplete;
   final bool isCompleted;
   final bool isEnabled;
+  final bool isBeingMarked;
 
   const ChallengeCard({
     super.key,
@@ -15,6 +16,7 @@ class ChallengeCard extends StatelessWidget {
     this.onMarkComplete,
     this.isCompleted = false,
     this.isEnabled = true,
+    this.isBeingMarked = false,
   });
 
   @override
@@ -102,13 +104,13 @@ class ChallengeCard extends StatelessWidget {
               width: double.infinity,
               height: 40.h,
               child: ElevatedButton(
-                onPressed: challenge.isCompleted
+                onPressed: challenge.isCompleted || !isEnabled || isBeingMarked
                     ? null
-                    : (isEnabled ? onMarkComplete : null),
+                    : onMarkComplete,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: challenge.isCompleted
                       ? AppColors.primary(context)
-                      : (isEnabled
+                      : (isEnabled && !isBeingMarked
                             ? AppColors.primary(context)
                             : AppColors.accentDark(context)),
                   disabledBackgroundColor: challenge.isCompleted
@@ -124,13 +126,25 @@ class ChallengeCard extends StatelessWidget {
                     if (challenge.isCompleted) ...[
                       Icon(Icons.check, size: 18.sp, color: Colors.white),
                       SizedBox(width: 8.w),
+                    ] else if (isBeingMarked) ...[
+                      SizedBox(
+                        width: 16.w,
+                        height: 16.h,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
                     ],
                     Text(
                       challenge.isCompleted
                           ? 'Completed'
-                          : (isEnabled
-                                ? 'Mark as done'
-                                : 'Complete puzzle first'),
+                          : isBeingMarked
+                              ? 'Marking...'
+                              : (isEnabled
+                                    ? 'Mark as done'
+                                    : 'Complete puzzle first'),
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,

@@ -16,6 +16,7 @@ class HistoryViewModel extends BaseViewModel {
   // Getters
   List<JournalModel> get historyItems => _entries;
   String? get errorMessage => _errorMessage;
+  @override
   bool get hasError => _errorMessage != null;
 
   void setContext(BuildContext context) {

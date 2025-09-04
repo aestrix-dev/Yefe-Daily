@@ -50,11 +50,11 @@ class CommunitySection extends StatelessWidget {
                 showBottomBorder: true,
               ),
 
-              // Towel Talk
+              // Towel Talk (Telegram)
               _buildCommunityItem(
-                iconPath: 'assets/icons/video.png',
+                iconPath: 'assets/icons/telegram.png',
                 title: 'Towel Talk',
-                subtitle: 'Watch our latest videos',
+                subtitle: 'Join our Telegram channel',
                 onTap: onTowelTalkTap,
                 showBottomBorder: false,
               ),
@@ -104,6 +104,9 @@ class CommunitySection extends StatelessWidget {
                     if (iconPath.contains('whatsapp')) {
                       fallbackIcon = Icons.group;
                       fallbackColor = Colors.green;
+                    } else if (iconPath.contains('telegram')) {
+                      fallbackIcon = Icons.send;
+                      fallbackColor = Colors.blue;
                     } else {
                       fallbackIcon = Icons.forum;
                       fallbackColor = Colors.blue;

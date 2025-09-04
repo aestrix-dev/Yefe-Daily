@@ -17,8 +17,8 @@ class OnboardingView extends StackedView<OnboardingViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-        
       backgroundColor: AppColors.primary1,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         top: false,
         bottom: false, 

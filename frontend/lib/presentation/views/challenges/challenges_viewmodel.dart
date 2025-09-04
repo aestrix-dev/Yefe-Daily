@@ -253,6 +253,7 @@ class ChallengesViewModel extends BaseViewModel {
   /// Determines if we should load a new challenge based on:
   /// 1. No challenge completed today
   /// 2. 24-hour puzzle countdown has expired (can attempt new puzzle)
+  /// 3. If challenge completed today but puzzle countdown expired, show cached challenge
   bool _shouldLoadNewChallenge() {
     // Check if there's a challenge completed today
     final today = DateTime.now();
@@ -264,26 +265,38 @@ class ChallengesViewModel extends BaseViewModel {
           completedDate.day == today.day;
     });
 
-    if (hasCompletedToday) {
-      print('✅ Challenge already completed today');
-      return false;
-    }
-
     // Check if 24-hour countdown has expired (can attempt new puzzle)
     final canAttemptPuzzle = _timerService.canAttemptPuzzle();
-    if (!canAttemptPuzzle) {
-      print('⏰ Puzzle countdown still active, not loading new challenge');
+
+    // If challenge completed today AND puzzle countdown is still active, use cached challenge
+    if (hasCompletedToday && !canAttemptPuzzle) {
+      print('✅ Challenge completed today, puzzle countdown active - using cached challenge');
+      return false;
+    }
+    
+    // If challenge completed today but countdown expired, can load new challenge
+    if (hasCompletedToday && canAttemptPuzzle) {
+      print('✅ Challenge completed today but countdown expired - can load new challenge');
+      return true;
+    }
+
+    // If no challenge completed today but countdown active, use cached challenge
+    if (!hasCompletedToday && !canAttemptPuzzle) {
+      print('⏰ No completion today, puzzle countdown active - using cached challenge');
       return false;
     }
 
-    print('🆕 Conditions met for loading new challenge');
+    // No challenge completed today and countdown expired - load new challenge
+    print('🆕 No completion today, countdown expired - loading new challenge');
     return true;
   }
 
   // Setup timer service callbacks
   void _setupTimerCallbacks() {
     _timerService.onTimerExpired = () {
-      print('⏰ Timer expired, fetching new puzzle and challenge...');
+      print('⏰ Timer expired, resetting puzzle state and fetching new content...');
+      
+      // Clear puzzle state for new puzzle
       _updatePuzzleState(
         _puzzleState.copyWith(
           puzzle: null,
@@ -296,14 +309,39 @@ class ChallengesViewModel extends BaseViewModel {
         ),
       );
 
+      // Clear cached submission status since new day started
+      _hasCachedSubmission = false;
+      
+      // Clear any challenges being marked to reset UI state
+      _markingAsComplete.clear();
+
       // Fetch new puzzle and challenge when countdown expires
-      getDailyPuzzle();
-      _loadTodaysChallenge();
+      _refreshAfterCountdownExpired();
     };
 
     _timerService.onCountdownUpdate = (remaining) {
       _updatePuzzleState(_puzzleState.copyWith(remainingCooldown: remaining));
     };
+  }
+
+  // Handle refresh after countdown expires - this allows new challenges even if previous day was completed
+  Future<void> _refreshAfterCountdownExpired() async {
+    try {
+      print('🔄 Refreshing content after countdown expired...');
+      
+      // Get new puzzle
+      await getDailyPuzzle();
+      
+      // Re-evaluate completed challenges to check for today
+      await _loadCompletedChallenges();
+      
+      // Now load today's challenge (should be available since countdown expired)
+      await _loadTodaysChallenge();
+      
+      print('✅ Content refreshed after countdown expiry');
+    } catch (e) {
+      print('❌ Error refreshing content after countdown: $e');
+    }
   }
 
   void selectTab(int index) {
@@ -479,7 +517,16 @@ class ChallengesViewModel extends BaseViewModel {
     }
   }
 
+  // Track which challenges are currently being marked as complete to prevent double-clicks
+  final Set<String> _markingAsComplete = {};
+  
   Future<void> markChallengeAsComplete(String challengeId) async {
+    // Prevent multiple clicks - check if already processing this challenge
+    if (_markingAsComplete.contains(challengeId)) {
+      print('Challenge $challengeId already being processed, ignoring click');
+      return;
+    }
+
     // Check if puzzle has been submitted (either in current session or cached)
     final hasSubmittedToday =
         isPuzzleCompleted || await _storageService.getPuzzleSubmissionStatus();
@@ -513,7 +560,9 @@ class ChallengesViewModel extends BaseViewModel {
         return;
       }
 
-      setBusy(true);
+      // Add to processing set to prevent multiple clicks
+      _markingAsComplete.add(challengeId);
+      notifyListeners(); // Update UI to disable button
 
       try {
         // Call API to mark challenge as complete
@@ -533,6 +582,10 @@ class ChallengesViewModel extends BaseViewModel {
 
           // Cache the updated challenge
           await _storageService.cacheChallenge(completedChallenge);
+          
+          // Move to completed challenges list
+          _completedChallenges.insert(0, completedChallenge);
+          await _storageService.cacheCompletedChallengesList(_completedChallenges);
 
           print('=== CHALLENGE COMPLETED ===');
           print('Challenge: ${challenge.title}');
@@ -567,9 +620,37 @@ class ChallengesViewModel extends BaseViewModel {
           );
         }
       } finally {
-        setBusy(false);
+        // Always remove from processing set when done
+        _markingAsComplete.remove(challengeId);
+        notifyListeners();
       }
     }
+  }
+
+  // Check if a challenge is currently being marked as complete
+  bool isChallengeBeingMarked(String challengeId) {
+    return _markingAsComplete.contains(challengeId);
+  }
+
+  // Check if mark as done button should be enabled for a challenge
+  bool shouldEnableMarkAsDone(ChallengeModel challenge) {
+    // If challenge is already completed, disable
+    if (challenge.isCompleted) {
+      return false;
+    }
+    
+    // If currently being marked as complete, disable to prevent multiple clicks
+    if (_markingAsComplete.contains(challenge.id)) {
+      return false;
+    }
+    
+    // If puzzle is not completed, disable
+    if (!isPuzzleCompleted) {
+      return false;
+    }
+    
+    // All conditions met, enable the button
+    return true;
   }
 
   String formatCompletedDate(DateTime? date) {

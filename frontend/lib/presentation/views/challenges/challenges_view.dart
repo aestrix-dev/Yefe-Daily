@@ -147,7 +147,8 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                             challenge: challenge,
                             onMarkComplete: () async => await viewModel
                                 .markChallengeAsComplete(challenge.id),
-                            isEnabled: viewModel.isPuzzleCompleted,
+                            isEnabled: viewModel.shouldEnableMarkAsDone(challenge),
+                            isBeingMarked: viewModel.isChallengeBeingMarked(challenge.id),
                           ),
                         ),
                       ] else ...[
