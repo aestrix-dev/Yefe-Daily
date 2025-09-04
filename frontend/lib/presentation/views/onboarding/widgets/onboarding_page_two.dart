@@ -304,57 +304,26 @@ class OnboardingPageTwo extends ViewModelWidget<OnboardingViewModel> {
                   ),
                 ),
 
-                // Professional bottom navigation section
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppColors.accentDark(context).withValues(alpha: 0.0),
-                        AppColors.accentDark(context).withValues(alpha: 0.95),
-                        AppColors.accentDark(context),
-                      ],
-                      stops: const [0.0, 0.3, 1.0],
-                    ),
-                  ),
+                // Clean bottom navigation section
+                Padding(
                   padding: EdgeInsets.fromLTRB(
                     24.w, // left - slightly more than content
                     20.h, // top - breathing room
                     24.w, // right - symmetric
                     _calculateBottomPadding(context), // dynamic bottom
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Add subtle divider for visual separation
-                      Container(
-                        height: 1.h,
-                        margin: EdgeInsets.only(bottom: 16.h),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.greyLight.withValues(alpha: 0.0),
-                              AppColors.greyLight.withValues(alpha: 0.3),
-                              AppColors.greyLight.withValues(alpha: 0.0),
-                            ],
-                          ),
-                        ),
-                      ),
-                      CustomButton(
-                        text: 'Continue',
-                        onPressed: () {
-                          if (viewModel.canProceedFromPageTwo()) {
-                            onContinue();
-                          } else {
-                            // Trigger validation
-                            viewModel.authenticateAndComplete(context);
-                          }
-                        },
-                        width: double.infinity,
-                        height: 52.h,
-                      ),
-                    ],
+                  child: CustomButton(
+                    text: 'Continue',
+                    onPressed: () {
+                      if (viewModel.canProceedFromPageTwo()) {
+                        onContinue();
+                      } else {
+                        // Trigger validation
+                        viewModel.authenticateAndComplete(context);
+                      }
+                    },
+                    width: double.infinity,
+                    height: 52.h,
                   ),
                 ),
               ],
