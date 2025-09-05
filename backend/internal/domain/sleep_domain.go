@@ -3,6 +3,8 @@ package domain
 import (
 	"context"
 	"time"
+
+	"yefe_app/v1/internal/handlers/dto"
 )
 
 // Sleep represents a sleep record for a user.
@@ -27,5 +29,5 @@ type SleepRepository interface {
 type SleepUseCase interface {
 	RecordSleep(ctx context.Context, userID uint, sleptAt, wokeUpAt time.Time) (*Sleep, error)
 	GetUserSleeps(ctx context.Context, userID uint) ([]*Sleep, error)
-	GetSleepGraphData(ctx context.Context, userID uint, days int) ([]*Sleep, error)
+	GetSleepGraphData(ctx context.Context, userID uint, days int) (*dto.SleepGraphResponse, error)
 }
