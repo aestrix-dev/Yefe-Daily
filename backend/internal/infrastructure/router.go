@@ -107,7 +107,7 @@ func (conf ServerConfig) getAllowedDomains() []string {
 
 func NewRouter(config ServerConfig) http.Handler {
 
-	auth_handlers := handlers.NewAuthHandler(config.auth_usecase())
+	auth_handlers := handlers.NewAuthHandler(config.auth_usecase(), config.UserRepo)
 	journal_handlers := handlers.NewJournalHandler(config.journal_usecase())
 	puzzle_handler := handlers.NewPuzzleHandler(config.puzzle_usecase())
 	challenges_handler := handlers.NewChallengesHandler(config.challenges_usecase())

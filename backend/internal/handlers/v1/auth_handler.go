@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 	"yefe_app/v1/internal/domain"
@@ -14,6 +15,7 @@ import (
 
 type AuthHandler struct {
 	authUseCase domain.AuthUseCase
+	userRepo    domain.UserRepository
 	validator   *validator.Validate
 }
 
@@ -101,20 +103,24 @@ func (a AuthHandler) RegisterRoute(w http.ResponseWriter, r *http.Request) {
 		logger.Log.WithError(err).Error("")
 		if strings.Contains(err.Error(), "Key: 'RegisterRequest.ConfirmPassword'") {
 			utils.ErrorResponse(w, http.StatusBadRequest, "Passwords do not match", err)
-      return
+			return
 		}
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	user, err := a.authUseCase.Register(r.Context(), req)
+	if userExists := errors.Is(err, domain.ErrEmailAlreadyExists); userExists {
+		user, err = a.userRepo.GetByEmail(r.Context(), req.Email)
+	}
+
 	if err != nil {
 		utils.HandleDomainError(w, err)
 		return
 	}
 
 	token, err := a.authUseCase.Login(r.Context(), dto.LoginRequest{
-		Email:     user.Email,
+		Email:     req.Email,
 		Password:  req.Password,
 		IPAddress: req.IPAddress,
 		UserAgent: req.UserAgent,
@@ -160,9 +166,10 @@ func (a AuthHandler) AcceptNotifications(w http.ResponseWriter, r *http.Request)
 	utils.SuccessResponse(w, http.StatusCreated, "User notifiaction created", nil)
 }
 
-func NewAuthHandler(authUseCase domain.AuthUseCase) *AuthHandler {
+func NewAuthHandler(authUseCase domain.AuthUseCase, userRepo domain.UserRepository) *AuthHandler {
 	router := &AuthHandler{
 		authUseCase: authUseCase,
+		userRepo:    userRepo,
 		validator:   validator.New(),
 	}
 	return router
