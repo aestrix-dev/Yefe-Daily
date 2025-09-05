@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/utils"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // SleepHandler handles HTTP requests for sleep.
@@ -79,19 +80,11 @@ func (h *SleepHandler) getSleepGraphData(w http.ResponseWriter, r *http.Request)
 		days, _ = strconv.Atoi(daysStr)
 	}
 
-	sleeps, err := h.sleepUseCase.GetSleepGraphData(r.Context(), userID, days)
+	sleepGraphResponse, err := h.sleepUseCase.GetSleepGraphData(r.Context(), userID, days)
 	if err != nil {
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get user sleep graph data", nil)
 		return
 	}
 
-	graphData := make([]dto.SleepGraphData, 0, len(sleeps))
-	for _, s := range sleeps {
-		graphData = append(graphData, dto.SleepGraphData{
-			Date:     s.CreatedAt,
-			Duration: s.WokeUpAt.Sub(s.SleptAt).Hours(),
-		})
-	}
-
-	utils.JSONResponse(w, http.StatusOK, graphData)
+	utils.JSONResponse(w, http.StatusOK, sleepGraphResponse)
 }
