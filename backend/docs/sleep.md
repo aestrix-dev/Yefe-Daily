@@ -45,14 +45,20 @@ This endpoint returns the user's sleep data for a given number of days.
 **Response:**
 
 ```json
-[
-  {
-    "date": "2023-10-28T06:00:00Z",
-    "duration": 8
-  },
-  {
-    "date": "2023-10-27T05:30:00Z",
-    "duration": 7.5
-  }
-]
+{
+  "graph_data": [
+    {
+      "date": "2023-10-28T06:00:00Z",
+      "duration": 8,
+      "day_of_week": "Saturday"
+    },
+    {
+      "date": "2023-10-27T05:30:00Z",
+      "duration": 7.5,
+      "day_of_week": "Friday"
+    }
+  ],
+  "average_sleep_duration": 7.75,
+  "total_entries": 2
+}
 ```
