@@ -126,10 +126,23 @@ class RecentActivities extends StatelessWidget {
   }
 
   String _formatActivityTitle(JournalModel activity) {
-    // Capitalize the type (e.g., "morning" -> "Morning")
-    String capitalizedType = activity.type.isNotEmpty
-        ? activity.type[0].toUpperCase() + activity.type.substring(1)
-        : '';
+    // Format the type properly
+    String formattedType;
+    switch (activity.type.toLowerCase()) {
+      case 'wisdom_note':
+        formattedType = 'Wisdom';
+        break;
+      case 'morning':
+        formattedType = 'Morning';
+        break;
+      case 'evening':
+        formattedType = 'Evening';
+        break;
+      default:
+        formattedType = activity.type.isNotEmpty
+            ? activity.type[0].toUpperCase() + activity.type.substring(1)
+            : '';
+    }
 
     // Get first tag if available
     String firstTag = '';
@@ -137,7 +150,7 @@ class RecentActivities extends StatelessWidget {
       firstTag = ' • ${activity.tags[0]}';
     }
 
-    return '$capitalizedType Reflection$firstTag';
+    return '$formattedType Reflection$firstTag';
   }
 
   String _formatTime(DateTime dateTime) {

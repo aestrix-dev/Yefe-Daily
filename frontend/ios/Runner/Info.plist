@@ -95,6 +95,9 @@
 	<key>LSApplicationQueriesSchemes</key>
 <array>
     <string>stripe</string>
+    <string>whatsapp</string>
+    <string>tg</string>
+    <string>telegram</string>
 </array>
 </dict>
 </plist>

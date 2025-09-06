@@ -83,43 +83,32 @@ class CommunitySection extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 60.w,
-              height: 60.h,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(8.w),
-                child: Image.asset(
-                  iconPath,
-                  width: 44.w,
-                  height: 44.h,
-                  errorBuilder: (context, error, stackTrace) {
-                    // Fallback icons
-                    IconData fallbackIcon;
-                    Color fallbackColor;
+            Image.asset(
+              iconPath,
+              width: 40.w,
+              height: 40.h,
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback icons
+                IconData fallbackIcon;
+                Color fallbackColor;
 
-                    if (iconPath.contains('whatsapp')) {
-                      fallbackIcon = Icons.group;
-                      fallbackColor = Colors.green;
-                    } else if (iconPath.contains('telegram')) {
-                      fallbackIcon = Icons.send;
-                      fallbackColor = Colors.blue;
-                    } else {
-                      fallbackIcon = Icons.forum;
-                      fallbackColor = Colors.blue;
-                    }
+                if (iconPath.contains('whatsapp')) {
+                  fallbackIcon = Icons.group;
+                  fallbackColor = Colors.green;
+                } else if (iconPath.contains('telegram')) {
+                  fallbackIcon = Icons.send;
+                  fallbackColor = Colors.blue;
+                } else {
+                  fallbackIcon = Icons.forum;
+                  fallbackColor = Colors.blue;
+                }
 
-                    return Icon(
-                      fallbackIcon,
-                      size: 20.sp,
-                      color: fallbackColor,
-                    );
-                  },
-                ),
-              ),
+                return Icon(
+                  fallbackIcon,
+                  size: 40.sp,
+                  color: fallbackColor,
+                );
+              },
             ),
             SizedBox(width: 16.w),
             Expanded(

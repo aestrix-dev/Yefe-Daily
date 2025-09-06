@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:stacked/stacked.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yefa/app/app_setup.dart';
+import 'package:yefa/core/constants/app_routes.dart';
 import 'package:yefa/core/utils/api_result.dart';
 import 'package:yefa/data/models/challenge_stats_model.dart';
 import 'package:yefa/data/repositories/challenge_repository.dart';
@@ -260,9 +262,10 @@ class ProfileViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  void navigateToVerseLanguage() {
-    print('Navigate to Verse Language settings');
-    // TODO: Implement navigation
+  void navigateToMoodAnalytics() {
+    if (_context != null) {
+      _context!.go(AppRoutes.moodAnalytics);
+    }
   }
 
   Future<void> navigateToYefaManCave() async {
@@ -270,29 +273,49 @@ class ProfileViewModel extends BaseViewModel {
       // WhatsApp group invite link - replace with your actual group link
       const whatsappGroupUrl = 'https://chat.whatsapp.com/HwQ2Gq8D3FkKBlp85qKRio?mode=ems_copy_t';
       
-      // Try to open WhatsApp directly first
-      final whatsappAppUrl = Uri.parse('whatsapp://send?text=Hello');
       final whatsappWebUrl = Uri.parse(whatsappGroupUrl);
       
-      // Check if WhatsApp app is installed
-      if (await canLaunchUrl(whatsappAppUrl)) {
-        // WhatsApp is installed, try to open the group link
-        if (await canLaunchUrl(whatsappWebUrl)) {
-          await launchUrl(
-            whatsappWebUrl,
-            mode: LaunchMode.externalApplication,
-          );
-          print('✅ Opened WhatsApp group successfully');
-        } else {
-          _showUrlError('Could not open WhatsApp group');
+      // Try multiple approaches to open WhatsApp
+      bool opened = false;
+      
+      // 1. Try to open with external application (will open WhatsApp if installed)
+      try {
+        opened = await launchUrl(
+          whatsappWebUrl,
+          mode: LaunchMode.externalApplication,
+        );
+        if (opened) {
+          print('✅ Opened WhatsApp group with external app');
+          return;
         }
-      } else {
-        // WhatsApp not installed, open in browser or app store
-        await _handleAppNotInstalled('WhatsApp', whatsappWebUrl);
+      } catch (e) {
+        print('External app launch failed: $e');
       }
+      
+      // 2. Try with platformDefault mode
+      try {
+        opened = await launchUrl(
+          whatsappWebUrl,
+          mode: LaunchMode.platformDefault,
+        );
+        if (opened) {
+          print('✅ Opened WhatsApp group with platform default');
+          return;
+        }
+      } catch (e) {
+        print('Platform default launch failed: $e');
+      }
+      
+      // 3. Final fallback - open in web browser
+      await launchUrl(
+        whatsappWebUrl,
+        mode: LaunchMode.inAppWebView,
+      );
+      print('✅ Opened WhatsApp group in browser');
+      
     } catch (e) {
       print('❌ Error opening WhatsApp: $e');
-      _showUrlError('Failed to open WhatsApp');
+      _showUrlError('Failed to open WhatsApp. Please check your internet connection.');
     }
   }
 
@@ -301,68 +324,52 @@ class ProfileViewModel extends BaseViewModel {
       // Telegram channel/group link - replace with your actual channel
       const telegramChannelUrl = 'https://t.me/yefadaily';
       
-      // Try to open Telegram directly first
-      final telegramAppUrl = Uri.parse('tg://msg');
       final telegramWebUrl = Uri.parse(telegramChannelUrl);
       
-      // Check if Telegram app is installed
-      if (await canLaunchUrl(telegramAppUrl)) {
-        // Telegram is installed, try to open the channel link
-        if (await canLaunchUrl(telegramWebUrl)) {
-          await launchUrl(
-            telegramWebUrl,
-            mode: LaunchMode.externalApplication,
-          );
-          print('✅ Opened Telegram channel successfully');
-        } else {
-          _showUrlError('Could not open Telegram channel');
+      // Try multiple approaches to open Telegram
+      bool opened = false;
+      
+      // 1. Try to open with external application (will open Telegram if installed)
+      try {
+        opened = await launchUrl(
+          telegramWebUrl,
+          mode: LaunchMode.externalApplication,
+        );
+        if (opened) {
+          print('✅ Opened Telegram channel with external app');
+          return;
         }
-      } else {
-        // Telegram not installed, open in browser or app store
-        await _handleAppNotInstalled('Telegram', telegramWebUrl);
+      } catch (e) {
+        print('External app launch failed: $e');
       }
+      
+      // 2. Try with platformDefault mode
+      try {
+        opened = await launchUrl(
+          telegramWebUrl,
+          mode: LaunchMode.platformDefault,
+        );
+        if (opened) {
+          print('✅ Opened Telegram channel with platform default');
+          return;
+        }
+      } catch (e) {
+        print('Platform default launch failed: $e');
+      }
+      
+      // 3. Final fallback - open in web browser
+      await launchUrl(
+        telegramWebUrl,
+        mode: LaunchMode.inAppWebView,
+      );
+      print('✅ Opened Telegram channel in browser');
+      
     } catch (e) {
       print('❌ Error opening Telegram: $e');
-      _showUrlError('Failed to open Telegram');
+      _showUrlError('Failed to open Telegram. Please check your internet connection.');
     }
   }
 
-  Future<void> _handleAppNotInstalled(String appName, Uri fallbackUrl) async {
-    if (_context == null) return;
-    
-    // Show dialog asking user to install the app or open in browser
-    final shouldInstall = await showDialog<bool>(
-      context: _context!,
-      builder: (context) => AlertDialog(
-        title: Text('$appName Not Installed'),
-        content: Text(
-          '$appName is not installed on your device. Would you like to install it or open the link in your browser?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Open in Browser'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Install App'),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldInstall == true) {
-      // Open app store
-      final appStoreUrl = appName == 'WhatsApp'
-          ? Uri.parse('https://wa.me/') // WhatsApp download page
-          : Uri.parse('https://telegram.org/'); // Telegram download page
-      
-      await launchUrl(appStoreUrl, mode: LaunchMode.externalApplication);
-    } else if (shouldInstall == false) {
-      // Open in browser
-      await launchUrl(fallbackUrl, mode: LaunchMode.externalApplication);
-    }
-  }
 
   void _showUrlError(String message) {
     if (_context == null) return;

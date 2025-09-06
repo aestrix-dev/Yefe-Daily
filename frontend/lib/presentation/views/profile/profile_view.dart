@@ -122,9 +122,11 @@ class ProfileView extends StackedView<ProfileViewModel> {
                 SettingsSection(
                   isDarkMode: viewModel.isDarkMode,
                   isNotificationsEnabled: viewModel.isNotificationsEnabled,
+                  isPremium: viewModel.isPremium,
                   onThemeToggle: viewModel.toggleTheme,
                   onNotificationsToggle: viewModel.toggleNotifications,
-                  onVerseLanguageTap: viewModel.navigateToVerseLanguage,
+                  onMoodAnalyticsTap: viewModel.navigateToMoodAnalytics,
+                  onUpgradeTap: viewModel.showUpgradeCard,
                 ),
 
                 SizedBox(height: 20.h),

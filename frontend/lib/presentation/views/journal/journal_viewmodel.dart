@@ -281,7 +281,7 @@ class JournalViewModel extends BaseViewModel {
       case 1:
         return 'evening';
       case 2:
-        return 'wisdom';
+        return 'wisdom_note';
       default:
         return 'morning';
     }
