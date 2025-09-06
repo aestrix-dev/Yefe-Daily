@@ -6,7 +6,7 @@ import 'package:stacked/stacked.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../shared/widgets/loading_widget.dart';
 import 'mood_analytics_viewmodel.dart';
-import 'widgets/animated_mood_chart.dart';
+import 'widgets/simple_sleep_chart.dart';
 import 'widgets/mood_stats_card.dart';
 
 class MoodAnalyticsView extends StackedView<MoodAnalyticsViewModel> {
@@ -95,8 +95,8 @@ class MoodAnalyticsView extends StackedView<MoodAnalyticsViewModel> {
                                 // Animated Chart
                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 20.w),
-                                  child: AnimatedMoodChart(
-                                    weeklyMoodData: viewModel.weeklyMoodData!,
+                                  child: SimpleSleepChart(
+                                    sleepData: viewModel.sleepGraphResponse,
                                     isAnimated: viewModel.isAnimated,
                                   ),
                                 ),
@@ -107,6 +107,7 @@ class MoodAnalyticsView extends StackedView<MoodAnalyticsViewModel> {
                                 MoodStatsCard(
                                   weeklyMoodData: viewModel.weeklyMoodData!,
                                   insight: viewModel.getWeeklyInsight(),
+                                  viewModel: viewModel,
                                 ),
                                 
                                 SizedBox(height: 24.h),

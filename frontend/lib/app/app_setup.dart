@@ -6,6 +6,7 @@ import 'package:yefa/data/repositories/challenge_repository.dart';
 import 'package:yefa/data/repositories/journal_repository.dart';
 import 'package:yefa/data/repositories/payment_repository.dart';
 import 'package:yefa/data/repositories/reflection_repository.dart';
+import 'package:yefa/data/repositories/sleep_repository.dart';
 import 'package:yefa/data/repositories/user_repository.dart';
 import 'package:yefa/data/services/audio_api_service.dart';
 import 'package:yefa/data/services/audio_download_service.dart';
@@ -18,6 +19,7 @@ import 'package:yefa/data/services/payment_api_service.dart';
 import 'package:yefa/data/services/payment_service.dart';
 import 'package:yefa/data/services/puzzle_timer_service.dart';
 import 'package:yefa/data/services/reflection_api_service.dart';
+import 'package:yefa/data/services/sleep_api_service.dart';
 import 'package:yefa/data/services/toast_service.dart';
 import 'package:yefa/data/services/user_api_service.dart';
 
@@ -81,6 +83,7 @@ class AppSetup {
     locator.registerLazySingleton<ReflectionApiService>(
       () => ReflectionApiService(),
     );
+    locator.registerLazySingleton<SleepApiService>(() => SleepApiService());
 
     //  Register repositories (depend on API services)
     print('📚 Registering repositories...');
@@ -98,6 +101,7 @@ class AppSetup {
         locator<StorageService>(),
       ),
     );
+    locator.registerLazySingleton<SleepRepository>(() => SleepRepository());
 
     print('✅ All services registered successfully!');
 
@@ -126,6 +130,7 @@ class AppSetup {
       locator<UserApiService>();
       locator<JournalApiService>();
       locator<ReflectionApiService>();
+      locator<SleepApiService>();
 
       // Test repositories
       locator<AuthRepository>();
@@ -134,6 +139,7 @@ class AppSetup {
       locator<UserRepository>();
       locator<JournalRepository>();
       locator<ReflectionRepository>();
+      locator<SleepRepository>();
 
       print('✅ All services validated successfully!');
     } catch (e) {

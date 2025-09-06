@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../data/models/mood_analytics_model.dart';
+import '../mood_analytics_viewmodel.dart';
 
 class MoodStatsCard extends StatelessWidget {
   final WeeklyMoodData weeklyMoodData;
   final String insight;
+  final MoodAnalyticsViewModel? viewModel;
 
   const MoodStatsCard({
     super.key,
     required this.weeklyMoodData,
     required this.insight,
+    this.viewModel,
   });
 
   @override
@@ -43,7 +46,7 @@ class MoodStatsCard extends StatelessWidget {
                 child: _buildStatItem(
                   context,
                   'Average',
-                  weeklyMoodData.averageMood.toStringAsFixed(1),
+                  _getAverageValue(),
                   Icons.trending_up,
                   AppColors.primary(context),
                 ),
@@ -55,7 +58,7 @@ class MoodStatsCard extends StatelessWidget {
                 child: _buildStatItem(
                   context,
                   'Highest',
-                  weeklyMoodData.highestMood.toString(),
+                  _getHighestValue(),
                   Icons.keyboard_arrow_up,
                   const Color(0xFF4CAF50),
                 ),
@@ -67,7 +70,7 @@ class MoodStatsCard extends StatelessWidget {
                 child: _buildStatItem(
                   context,
                   'Lowest',
-                  weeklyMoodData.lowestMood.toString(),
+                  _getLowestValue(),
                   Icons.keyboard_arrow_down,
                   const Color(0xFFE91E63),
                 ),
@@ -122,6 +125,28 @@ class MoodStatsCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Helper methods to get real sleep data or fallback to zeros
+  String _getAverageValue() {
+    if (viewModel?.hasRealSleepData == true) {
+      return viewModel!.averageSleepDuration.toStringAsFixed(1);
+    }
+    return '0.0';
+  }
+
+  String _getHighestValue() {
+    if (viewModel?.hasRealSleepData == true) {
+      return viewModel!.sleepSummaryData!.longestSleep.toStringAsFixed(1);
+    }
+    return '0';
+  }
+
+  String _getLowestValue() {
+    if (viewModel?.hasRealSleepData == true) {
+      return viewModel!.sleepSummaryData!.shortestSleep.toStringAsFixed(1);
+    }
+    return '0';
   }
 
   Widget _buildStatItem(

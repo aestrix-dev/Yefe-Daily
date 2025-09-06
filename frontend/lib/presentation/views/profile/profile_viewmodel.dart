@@ -264,7 +264,8 @@ class ProfileViewModel extends BaseViewModel {
 
   void navigateToMoodAnalytics() {
     if (_context != null) {
-      _context!.go(AppRoutes.moodAnalytics);
+      // Navigate to sleep journal first, which then has button to analytics
+      _context!.go(AppRoutes.sleepJournal);
     }
   }
 

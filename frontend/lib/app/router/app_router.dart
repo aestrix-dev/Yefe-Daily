@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:yefa/presentation/views/audio/audio_view.dart';
 import 'package:yefa/presentation/views/history/history_view.dart';
 import 'package:yefa/presentation/views/profile/profile_view.dart';
+import 'package:yefa/presentation/views/sleep_journal/sleep_journal_view.dart';
 import 'package:yefa/presentation/views/mood_analytics/mood_analytics_view.dart';
 
 import '../../core/constants/app_routes.dart';
@@ -87,6 +88,14 @@ final GoRouter appRouter = GoRouter(
         context,
         state,
         const HistoryView(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.sleepJournal,
+      pageBuilder: (context, state) => PageTransitions.getTransitionForRoute(
+        context,
+        state,
+        const SleepJournalView(),
       ),
     ),
     GoRoute(

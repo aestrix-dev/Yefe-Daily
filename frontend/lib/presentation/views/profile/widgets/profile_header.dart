@@ -16,10 +16,6 @@ class ProfileHeader extends StatelessWidget {
     required this.onUpgrade,
   });
 
-  String _getFirstName(String fullName) {
-    if (fullName.isEmpty) return fullName;
-    return fullName.split(' ').first;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +69,7 @@ class ProfileHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _getFirstName(userName),
+                  userName,
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
