@@ -16,7 +16,7 @@ func NewSleepUseCase(sleepRepo domain.SleepRepository) domain.SleepUseCase {
 	return &sleepUseCase{sleepRepo}
 }
 
-func (uc *sleepUseCase) RecordSleep(ctx context.Context, userID uint, sleptAt, wokeUpAt time.Time) (*domain.Sleep, error) {
+func (uc *sleepUseCase) RecordSleep(ctx context.Context, userID string, sleptAt, wokeUpAt time.Time) (*domain.Sleep, error) {
 	sleep := &domain.Sleep{
 		UserID:   userID,
 		SleptAt:  sleptAt,
@@ -30,11 +30,11 @@ func (uc *sleepUseCase) RecordSleep(ctx context.Context, userID uint, sleptAt, w
 	return sleep, nil
 }
 
-func (uc *sleepUseCase) GetUserSleeps(ctx context.Context, userID uint) ([]*domain.Sleep, error) {
+func (uc *sleepUseCase) GetUserSleeps(ctx context.Context, userID string) ([]*domain.Sleep, error) {
 	return uc.sleepRepo.GetSleepsByUserID(ctx, userID)
 }
 
-func (uc *sleepUseCase) GetSleepGraphData(ctx context.Context, userID uint, days int) (*dto.SleepGraphResponse, error) {
+func (uc *sleepUseCase) GetSleepGraphData(ctx context.Context, userID string, days int) (*dto.SleepGraphResponse, error) {
 	sleeps, err := uc.sleepRepo.GetSleepsByUserIDAndDateRange(ctx, userID, time.Now().AddDate(0, 0, -days), time.Now())
 	if err != nil {
 		return nil, err

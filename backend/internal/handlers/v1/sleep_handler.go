@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
+	"yefe_app/v1/pkg/logger"
 
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
@@ -32,18 +34,31 @@ func (h *SleepHandler) RegisterRoutes(r chi.Router) {
 func (h *SleepHandler) recordSleep(w http.ResponseWriter, r *http.Request) {
 	var req dto.RecordSleepRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Log.WithError(err).Error("Failed to decode request payload for recordSleep")
 		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid request payload", nil)
 		return
 	}
 
-	userID, ok := r.Context().Value("userID").(uint)
-	if !ok {
-		utils.ErrorResponse(w, http.StatusUnauthorized, "Unauthorized", nil)
+	userID := getUserIDFromContext(r.Context())
+
+	// Combine date and time strings and parse them
+	sleptAt, err := time.Parse("2006-01-02 15:04:05", req.SleptDate+" "+req.SleptTime)
+	if err != nil {
+		logger.Log.WithField("slept_at", req.SleptDate+" "+req.SleptTime).WithError(err).Error("Invalid slept_at format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid format for slept_at. Use YYYY-MM-DD and HH:MM:SS", nil)
 		return
 	}
 
-	sleep, err := h.sleepUseCase.RecordSleep(r.Context(), userID, req.SleptAt, req.WokeUpAt)
+	wokeUpAt, err := time.Parse("2006-01-02 15:04:05", req.WokeUpDate+" "+req.WokeUpTime)
 	if err != nil {
+		logger.Log.WithField("woke_up_at", req.WokeUpDate+" "+req.WokeUpTime).WithError(err).Error("Invalid woke_up_at format")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Invalid format for woke_up_at. Use YYYY-MM-DD and HH:MM:SS", nil)
+		return
+	}
+
+	sleep, err := h.sleepUseCase.RecordSleep(r.Context(), userID, sleptAt, wokeUpAt)
+	if err != nil {
+		logger.Log.WithField("user_id", userID).WithError(err).Error("Failed to record sleep")
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to record sleep", nil)
 		return
 	}
@@ -52,14 +67,11 @@ func (h *SleepHandler) recordSleep(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SleepHandler) getUserSleeps(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value("userID").(uint)
-	if !ok {
-		utils.ErrorResponse(w, http.StatusUnauthorized, "Unauthorized", nil)
-		return
-	}
+	userID := getUserIDFromContext(r.Context())
 
 	sleeps, err := h.sleepUseCase.GetUserSleeps(r.Context(), userID)
 	if err != nil {
+		logger.Log.WithField("user_id", userID).WithError(err).Error("Failed to get user sleeps")
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get user sleeps", nil)
 		return
 	}
@@ -68,20 +80,22 @@ func (h *SleepHandler) getUserSleeps(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SleepHandler) getSleepGraphData(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value("userID").(uint)
-	if !ok {
-		utils.ErrorResponse(w, http.StatusUnauthorized, "Unauthorized", nil)
-		return
-	}
-
+	userID := getUserIDFromContext(r.Context())
 	days := 7 // default to 7 days
 	daysStr := r.URL.Query().Get("days")
 	if daysStr != "" {
-		days, _ = strconv.Atoi(daysStr)
+		var err error
+		days, err = strconv.Atoi(daysStr)
+		if err != nil {
+			logger.Log.WithField("days", daysStr).WithError(err).Error("Invalid 'days' query parameter")
+			utils.ErrorResponse(w, http.StatusBadRequest, "Invalid 'days' query parameter. It must be an integer.", nil)
+			return
+		}
 	}
 
 	sleepGraphResponse, err := h.sleepUseCase.GetSleepGraphData(r.Context(), userID, days)
 	if err != nil {
+		logger.Log.WithField("user_id", userID).WithField("days", days).WithError(err).Error("Failed to get user sleep graph data")
 		utils.ErrorResponse(w, http.StatusInternalServerError, "Failed to get user sleep graph data", nil)
 		return
 	}

@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"yefe_app/v1/internal/domain"
+	"yefe_app/v1/pkg/utils"
+
 	"gorm.io/gorm"
 )
 
@@ -17,10 +19,11 @@ func NewSleepRepository(db *gorm.DB) domain.SleepRepository {
 }
 
 func (r *sleepRepository) CreateSleep(ctx context.Context, sleep *domain.Sleep) error {
+  sleep.ID = utils.GenerateID()
 	return r.db.WithContext(ctx).Create(sleep).Error
 }
 
-func (r *sleepRepository) GetSleepByID(ctx context.Context, id uint) (*domain.Sleep, error) {
+func (r *sleepRepository) GetSleepByID(ctx context.Context, id string) (*domain.Sleep, error) {
 	var sleep domain.Sleep
 	if err := r.db.WithContext(ctx).First(&sleep, id).Error; err != nil {
 		return nil, err
@@ -28,7 +31,7 @@ func (r *sleepRepository) GetSleepByID(ctx context.Context, id uint) (*domain.Sl
 	return &sleep, nil
 }
 
-func (r *sleepRepository) GetSleepsByUserID(ctx context.Context, userID uint) ([]*domain.Sleep, error) {
+func (r *sleepRepository) GetSleepsByUserID(ctx context.Context, userID string) ([]*domain.Sleep, error) {
 	var sleeps []*domain.Sleep
 	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).Find(&sleeps).Error; err != nil {
 		return nil, err
@@ -36,7 +39,7 @@ func (r *sleepRepository) GetSleepsByUserID(ctx context.Context, userID uint) ([
 	return sleeps, nil
 }
 
-func (r *sleepRepository) GetSleepsByUserIDAndDateRange(ctx context.Context, userID uint, startDate, endDate time.Time) ([]*domain.Sleep, error) {
+func (r *sleepRepository) GetSleepsByUserIDAndDateRange(ctx context.Context, userID string, startDate, endDate time.Time) ([]*domain.Sleep, error) {
 	var sleeps []*domain.Sleep
 	if err := r.db.WithContext(ctx).Where("user_id = ? AND created_at BETWEEN ? AND ?", userID, startDate, endDate).Find(&sleeps).Error; err != nil {
 		return nil, err

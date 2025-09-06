@@ -12,8 +12,10 @@ This endpoint allows a user to record their sleep time.
 
 ```json
 {
-  "slept_at": "2023-10-27T22:00:00Z",
-  "woke_up_at": "2023-10-28T06:00:00Z"
+  "slept_date": "2023-10-27",
+  "slept_time": "22:00:00",
+  "woke_up_date": "2023-10-28",
+  "woke_up_time": "06:00:00"
 }
 ```
 

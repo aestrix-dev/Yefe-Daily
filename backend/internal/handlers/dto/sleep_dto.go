@@ -4,8 +4,10 @@ import "time"
 
 // RecordSleepRequest represents the request body for recording a sleep entry.
 type RecordSleepRequest struct {
-	SleptAt  time.Time `json:"slept_at" validate:"required"`
-	WokeUpAt time.Time `json:"woke_up_at" validate:"required"`
+	SleptDate string `json:"slept_date" validate:"required"`
+	SleptTime string `json:"slept_time" validate:"required"`
+	WokeUpDate string `json:"woke_up_date" validate:"required"`
+	WokeUpTime string `json:"woke_up_time" validate:"required"`
 }
 
 // SleepGraphData represents the sleep data for the graph.
