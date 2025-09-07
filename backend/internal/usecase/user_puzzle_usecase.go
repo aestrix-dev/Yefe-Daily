@@ -37,11 +37,6 @@ func (uc *puzzleUseCase) SubmitPuzzleAnswer(userID, puzzleID string, selectedAns
 		return nil, fmt.Errorf("failed to get puzzle: %w", err)
 	}
 
-	// Validate selected answer
-	if selectedAnswer < 0 || selectedAnswer >= len(puzzle.Options) {
-		return nil, fmt.Errorf("invalid answer selection")
-	}
-
 	// Check if user has already attempted this puzzle
 	existingProgress, err := uc.userPuzzleRepo.GetUserPuzzleProgress(userID, puzzleID)
 	if err != nil {

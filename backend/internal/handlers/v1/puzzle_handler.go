@@ -70,10 +70,16 @@ func (h *puzzleHandler) SubmitDailyPuzzleAnswer(w http.ResponseWriter, r *http.R
 		utils.ErrorResponse(w, http.StatusBadRequest, "Failed to submit answer: invalid request body", nil)
 		return
 	}
+	submittedAnswer := req.SelectedAnswer - 1
+	if submittedAnswer < 0 {
+		logger.Log.Error("Selected answer cannot be 0")
+		utils.ErrorResponse(w, http.StatusBadRequest, "Selected answer cannot be 0", nil)
+		return
+	}
 
 	result, err := h.puzzleUseCase.SubmitPuzzleAnswer(userID, req.PuzzleId, req.SelectedAnswer)
 	if err != nil {
-    logger.Log.WithError(err).Error("failed to submit answer: Puzzle %s", req.PuzzleId)
+		logger.Log.WithError(err).Errorf("failed to submit answer: Puzzle %s", req.PuzzleId)
 		utils.ErrorResponse(w, 400, "Failed to submit answer", err.Error())
 		return
 	}
