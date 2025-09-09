@@ -72,6 +72,23 @@ Widget _buildNavItem(
     required String route,
     required bool isActive,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
+    // Define colors based on theme and active state
+    final Color activeIconColor = isDarkMode 
+        ? AppColors.primaryLight(context) 
+        : AppColors.primary(context);
+    
+    final Color inactiveIconColor = isDarkMode 
+        ? AppColors.textSecondary(context) 
+        : Colors.grey[600]!;
+    
+    final Color inactiveTextColor = isDarkMode 
+        ? AppColors.textSecondary(context) 
+        : Colors.grey[600]!;
+    
+    final double iconOpacity = isActive ? 1.0 : (isDarkMode ? 0.8 : 0.6);
+    
     return GestureDetector(
       onTap: () => context.go(route),
       child: Column(
@@ -79,18 +96,15 @@ Widget _buildNavItem(
         children: [
           SizedBox(height: 8.h),
 
-    
           Opacity(
-            opacity: isActive
-                ? 1.0
-                : 0.4, 
+            opacity: iconOpacity,
             child: Image.asset(
               iconPath,
               width: 24.w,
               height: 24.h,
               color: isActive
-                  ? AppColors.primaryLight(context)
-                  : null, 
+                  ? activeIconColor
+                  : inactiveIconColor, 
             ),
           ),
 
@@ -100,7 +114,7 @@ Widget _buildNavItem(
             label,
             style: TextStyle(
               fontSize: 11.sp,
-              color: isActive ? AppColors.textPrimary(context) : Colors.grey[400],
+              color: isActive ? AppColors.textPrimary(context) : inactiveTextColor,
               fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
             ),
           ),

@@ -143,6 +143,7 @@ class SleepJournalView extends StackedView<SleepJournalViewModel> {
                                 onPreset7Hours: viewModel.setPreset7Hours,
                                 onPreset8Hours: viewModel.setPreset8Hours,
                                 onPreset9Hours: viewModel.setPreset9Hours,
+                                activePreset: viewModel.activePreset,
                               ),
                               
                               SizedBox(height: 20.h),
@@ -160,40 +161,6 @@ class SleepJournalView extends StackedView<SleepJournalViewModel> {
                               ),
 
                               SizedBox(height: 20.h),
-
-                              // Error message
-                              if (viewModel.errorMessage != null)
-                                Container(
-                                  width: double.infinity,
-                                  padding: EdgeInsets.all(16.w),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red.withAlpha(25),
-                                    borderRadius: BorderRadius.circular(12.r),
-                                    border: Border.all(color: Colors.red.withAlpha(50)),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.error_outline,
-                                        color: Colors.red,
-                                        size: 20.sp,
-                                      ),
-                                      SizedBox(width: 12.w),
-                                      Expanded(
-                                        child: Text(
-                                          viewModel.errorMessage!,
-                                          style: TextStyle(
-                                            fontSize: 13.sp,
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                              if (viewModel.errorMessage != null) SizedBox(height: 20.h),
 
                               // Submit Button
                               SizedBox(

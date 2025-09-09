@@ -21,16 +21,16 @@ class SleepJournalViewModel extends BaseViewModel {
   DateTime _wokeUpDate = DateTime.now();
   TimeOfDay _wokeUpTime = const TimeOfDay(hour: 6, minute: 30);
   
-  String? _errorMessage;
   bool _isSubmitting = false;
+  String? _activePreset;
 
   // Getters
   DateTime get sleptDate => _sleptDate;
   TimeOfDay get sleptTime => _sleptTime;
   DateTime get wokeUpDate => _wokeUpDate;
   TimeOfDay get wokeUpTime => _wokeUpTime;
-  String? get errorMessage => _errorMessage;
   bool get isSubmitting => _isSubmitting;
+  String? get activePreset => _activePreset;
 
   // Formatted getters for display
   String get sleptDateFormatted => DateFormat('MMM dd, yyyy').format(_sleptDate);
@@ -106,7 +106,14 @@ class SleepJournalViewModel extends BaseViewModel {
     
     if (picked != null) {
       _sleptTime = picked;
+      _activePreset = null; // Clear active preset when manually adjusting time
       notifyListeners();
+      // Check for validation errors after time change
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (!isFormValid) {
+          _checkAndShowValidationError();
+        }
+      });
     }
   }
 
@@ -137,7 +144,14 @@ class SleepJournalViewModel extends BaseViewModel {
     
     if (picked != null) {
       _wokeUpTime = picked;
+      _activePreset = null; // Clear active preset when manually adjusting time
       notifyListeners();
+      // Check for validation errors after time change
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (!isFormValid) {
+          _checkAndShowValidationError();
+        }
+      });
     }
   }
 
@@ -163,11 +177,20 @@ class SleepJournalViewModel extends BaseViewModel {
     return null;
   }
 
+  // Show validation error as toast when form becomes invalid
+  void _checkAndShowValidationError() {
+    final validationError = formValidationError;
+    if (validationError != null && _context != null) {
+      ToastOverlay.showError(
+        context: _context!,
+        message: validationError,
+      );
+    }
+  }
+
   // Submit sleep journal
   Future<void> submitSleepJournal() async {
     if (!isFormValid) {
-      _errorMessage = formValidationError;
-      
       // Show validation error toast
       if (_context != null && formValidationError != null) {
         ToastOverlay.showError(
@@ -175,13 +198,10 @@ class SleepJournalViewModel extends BaseViewModel {
           message: formValidationError!,
         );
       }
-      
-      notifyListeners();
       return;
     }
 
     _isSubmitting = true;
-    _errorMessage = null;
     notifyListeners();
 
     try {
@@ -217,7 +237,6 @@ class SleepJournalViewModel extends BaseViewModel {
         },
         failure: (error) {
           _logger.e('Failed to submit sleep journal: $error');
-          _errorMessage = error;
           
           // Show error toast
           if (_context != null) {
@@ -230,7 +249,6 @@ class SleepJournalViewModel extends BaseViewModel {
       );
     } catch (e) {
       _logger.e('Unexpected error submitting sleep journal: $e');
-      _errorMessage = 'An unexpected error occurred. Please try again.';
       
       // Show error toast
       if (_context != null) {
@@ -250,7 +268,7 @@ class SleepJournalViewModel extends BaseViewModel {
     _sleptTime = const TimeOfDay(hour: 22, minute: 0);
     _wokeUpDate = DateTime.now();
     _wokeUpTime = const TimeOfDay(hour: 6, minute: 30);
-    _errorMessage = null;
+    _activePreset = null;
     notifyListeners();
   }
 
@@ -273,18 +291,29 @@ class SleepJournalViewModel extends BaseViewModel {
   void setPreset8Hours() {
     _sleptTime = const TimeOfDay(hour: 22, minute: 0);
     _wokeUpTime = const TimeOfDay(hour: 6, minute: 0);
+    _activePreset = '8h';
+    _clearErrorMessage();
     notifyListeners();
   }
 
   void setPreset7Hours() {
     _sleptTime = const TimeOfDay(hour: 23, minute: 0);
     _wokeUpTime = const TimeOfDay(hour: 6, minute: 0);
+    _activePreset = '7h';
+    _clearErrorMessage();
     notifyListeners();
   }
 
   void setPreset9Hours() {
     _sleptTime = const TimeOfDay(hour: 21, minute: 0);
     _wokeUpTime = const TimeOfDay(hour: 6, minute: 0);
+    _activePreset = '9h';
+    _clearErrorMessage();
     notifyListeners();
+  }
+
+  void _clearErrorMessage() {
+    // This method is no longer needed since we're using toast messages
+    // but keeping for consistency with preset methods
   }
 }

@@ -6,12 +6,14 @@ class QuickPresetButtons extends StatelessWidget {
   final VoidCallback onPreset7Hours;
   final VoidCallback onPreset8Hours;
   final VoidCallback onPreset9Hours;
+  final String? activePreset;
 
   const QuickPresetButtons({
     super.key,
     required this.onPreset7Hours,
     required this.onPreset8Hours,
     required this.onPreset9Hours,
+    this.activePreset,
   });
 
   @override
@@ -55,6 +57,7 @@ class QuickPresetButtons extends StatelessWidget {
                   subtitle: '11 PM - 6 AM',
                   icon: Icons.schedule,
                   onTap: onPreset7Hours,
+                  isActive: activePreset == '7h',
                 ),
               ),
               SizedBox(width: 8.w),
@@ -65,6 +68,7 @@ class QuickPresetButtons extends StatelessWidget {
                   subtitle: '10 PM - 6 AM',
                   icon: Icons.bedtime,
                   onTap: onPreset8Hours,
+                  isActive: activePreset == '8h',
                   isRecommended: true,
                 ),
               ),
@@ -76,6 +80,7 @@ class QuickPresetButtons extends StatelessWidget {
                   subtitle: '9 PM - 6 AM',
                   icon: Icons.nights_stay,
                   onTap: onPreset9Hours,
+                  isActive: activePreset == '9h',
                 ),
               ),
             ],
@@ -91,6 +96,7 @@ class QuickPresetButtons extends StatelessWidget {
     required String subtitle,
     required IconData icon,
     required VoidCallback onTap,
+    bool isActive = false,
     bool isRecommended = false,
   }) {
     return GestureDetector(
@@ -98,11 +104,11 @@ class QuickPresetButtons extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          color: isRecommended 
+          color: isActive 
               ? AppColors.primary(context).withAlpha(25)
               : AppColors.accentDark(context),
           borderRadius: BorderRadius.circular(8.r),
-          border: isRecommended
+          border: isActive
               ? Border.all(color: AppColors.primary(context).withAlpha(100))
               : null,
         ),
@@ -118,7 +124,7 @@ class QuickPresetButtons extends StatelessWidget {
                 child: Text(
                   'Recommended',
                   style: TextStyle(
-                    fontSize: 8.sp,
+                    fontSize: 6.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
@@ -130,7 +136,7 @@ class QuickPresetButtons extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
-                color: isRecommended
+                color: isActive
                     ? AppColors.primary(context).withAlpha(50)
                     : AppColors.primary(context).withAlpha(25),
                 borderRadius: BorderRadius.circular(6.r),

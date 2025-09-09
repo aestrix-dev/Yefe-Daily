@@ -102,7 +102,6 @@ class AudioCategorySection extends StatelessWidget {
                         color: AppColors.textPrimary(context),
                       ),
                     ),
-                    SizedBox(height: 2.h),
                     Text(
                       audio.duration,
                       style: TextStyle(
