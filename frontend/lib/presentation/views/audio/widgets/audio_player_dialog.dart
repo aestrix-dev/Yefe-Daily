@@ -42,7 +42,7 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
   }
 
   void _resetProgressForNewAudio() {
-    // Check if the current audio in the service matches the dialog audio
+    // Check if the current audio in the service matches the dialog audio.
     final currentAudio = widget.playerService.currentAudio;
     if (currentAudio == null || currentAudio.id != widget.audio.id) {
       // If different audio or no audio, reset the player state
