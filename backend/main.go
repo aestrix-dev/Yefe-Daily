@@ -124,6 +124,43 @@ func main() {
 	paymentRepo := repository.NewPaymentRepository(db)
 	sleepRepo := repository.NewSleepRepository(db)
 
+	serverConfig := infrastructure.ServerConfig{
+		DB:                     db,
+		AllowedHosts:           config.Server.AllowedHosts,
+		JWT_SECRET:             config.Server.Secret,
+		EmailService:           emailService,
+		PaymentConfig:          paymentConfig,
+		InviteURL:              config.Server.InviteURL,
+		UserRepo:               userRepo,
+		SessionRepo:            sessionRepo,
+		SecEventRepo:           secEventRepo,
+		JournalRepo:            journalRepo,
+		UserPuzzleRepo:         userPuzzledRepo,
+		PuzzleRepo:             puzzleRepo,
+		ChallengeRepo:          challengeRepo,
+		UserChallengeRepo:      userChallengeRepo,
+		StatsRepo:              statsRepo,
+		AdminRepo:              adminRepo,
+		SongRepo:               songRepo,
+		PaymentRepo:            paymentRepo,
+		DailyReflectionUsecase: dailyRelectionUsecase,
+		SleepRepo:              sleepRepo,
+	}
+
+	fcmService, err := fire_base.NewFCMNotificationService(serverCtx, db, serverStopCtx, fmcConfig, serverConfig.AdminUserUsecase(), scheduler)
+	if err != nil {
+		logger.Log.Fatal("Failed to create FCM notification service:", err)
+	}
+
+	serverConfig.FMCService = fcmService
+
+	// Start the service (this will start background workers and scheduler)
+	if err := fcmService.Start(); err != nil {
+		log.Fatal("Failed to start FCM notification service:", err)
+	}
+
+	createSuperAdmin(serverCtx, userRepo, config.Server.SuperAdminEmail, config.Server.SuperAdminPassword)
+
 	dailyChallenge := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-challenge", func() any {
 		var dchallange domain.Challenge
 		dchallange, err := challengeRepo.GetTodaysChallenge()
@@ -216,44 +253,6 @@ func main() {
 		}).Debug("Created new daily reflection")
 		return nil
 	})
-
-	serverConfig := infrastructure.ServerConfig{
-		DB:                     db,
-		AllowedHosts:           config.Server.AllowedHosts,
-		JWT_SECRET:             config.Server.Secret,
-		EmailService:           emailService,
-		PaymentConfig:          paymentConfig,
-		InviteURL:              config.Server.InviteURL,
-		UserRepo:               userRepo,
-		SessionRepo:            sessionRepo,
-		SecEventRepo:           secEventRepo,
-		JournalRepo:            journalRepo,
-		UserPuzzleRepo:         userPuzzledRepo,
-		PuzzleRepo:             puzzleRepo,
-		ChallengeRepo:          challengeRepo,
-		UserChallengeRepo:      userChallengeRepo,
-		StatsRepo:              statsRepo,
-		AdminRepo:              adminRepo,
-		SongRepo:               songRepo,
-		PaymentRepo:            paymentRepo,
-		DailyReflectionUsecase: dailyRelectionUsecase,
-		SleepRepo:              sleepRepo,
-	}
-
-	fcmService, err := fire_base.NewFCMNotificationService(serverCtx, db, serverStopCtx, fmcConfig, serverConfig.AdminUserUsecase(), scheduler)
-	if err != nil {
-		logger.Log.Fatal("Failed to create FCM notification service:", err)
-	}
-
-	serverConfig.FMCService = fcmService
-
-	// Start the service (this will start background workers and scheduler)
-	if err := fcmService.Start(); err != nil {
-		log.Fatal("Failed to start FCM notification service:", err)
-	}
-
-	createSuperAdmin(serverCtx, userRepo, config.Server.SuperAdminEmail, config.Server.SuperAdminPassword)
-
 	// Setup router and server
 	router := infrastructure.NewRouter(serverConfig)
 	address := fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port)
