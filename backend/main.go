@@ -31,6 +31,7 @@ func main() {
 	pathToChallenges := path.Join(basePath, "extras", "challenges.json")
 	pathToSongs := path.Join(basePath, "extras", "mood_music_catalog.json")
 	pathToReflections := path.Join(basePath, "extras", "daily_reflection.json")
+	pathToMessages := path.Join(basePath, "extras", "motivational_messages.json")
 	firebasedb := path.Join(basePath, "extras", "firebase.db")
 
 	// Load configuration
@@ -38,6 +39,9 @@ func main() {
 	if err != nil {
 		logger.Log.WithError(err).Fatal("Failed to load config")
 		return
+	}
+	if err := utils.LoadMessages(pathToMessages); err != nil {
+		logger.Log.WithError(err).Fatal("Failed to load messages")
 	}
 	stripe.Key = config.StripeConfig.SecretKey
 	paymentConfig := config.StripeConfig
@@ -153,6 +157,29 @@ func main() {
 		}
 		logger.Log.Infof("New challenge created ID: %s, name: %s", challenge.ID, challenge.Title)
 		inmemeoryCache.SetWithTTLAndContext(serverCtx, "daily-challenge", challenge, 24*time.Hour)
+
+		// Send notification to all users
+		var preferences []fire_base.FCMUserPreferences
+		if err := db.Where("is_active = ? AND fcm_token != ''", true).Find(&preferences).Error; err != nil {
+			logger.Log.WithError(err).Error("Failed to get active user preferences for challenge notification")
+			// We don't return the error here because failing to send notifications should not stop the challenge creation.
+		} else {
+			var tokens []string
+			for _, p := range preferences {
+				tokens = append(tokens, p.FCMToken)
+			}
+
+			if len(tokens) > 0 {
+				title := "New Daily Challenge!"
+				body := fmt.Sprintf("Today's challenge is: %s", challenge.Title)
+				data := map[string]string{"type": "challenge"}
+				if err := fcmService.SendBulkNotifications(ctx, tokens, title, body, data); err != nil {
+					logger.Log.WithError(err).Error("Failed to send daily challenge notification")
+				} else {
+					logger.Log.Infof("Sent daily challenge notification to %d users", len(tokens))
+				}
+			}
+		}
 
 		logger.Log.WithFields(map[string]any{
 			"ID":   dailyChallenge.(domain.Challenge).ID,

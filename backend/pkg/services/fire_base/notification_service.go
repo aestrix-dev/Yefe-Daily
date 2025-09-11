@@ -157,6 +157,23 @@ func (fns *FCMNotificationService) AddRecurringNotification(id, prefId, title, b
 	return fns.scheduler.AddJob(id, jobName, cronSchedule, notificationFunc)
 }
 
+// AddRecurringMotivationalNotification adds a recurring notification job with a random motivational message
+func (fns *FCMNotificationService) AddRecurringMotivationalNotification(id, prefId, title, cronSchedule string, data map[string]string) error {
+	jobName := fmt.Sprintf("fcm-recurring-notification-%s", id)
+
+	notificationFunc := func(ctx context.Context) error {
+		pref, err := fns.GetUserPreferences(ctx, prefId)
+		if err != nil || !pref.IsActive {
+			logger.Log.WithError(err).Error("Error or pref is not active")
+			return err
+		}
+		req := NotificationRequest{Token: pref.FCMToken, Title: title, Body: utils.GetRandomMessage(), Data: data}
+		return fns.fcmCore.SendNotification(ctx, req)
+	}
+
+	return fns.scheduler.AddJob(id, jobName, cronSchedule, notificationFunc)
+}
+
 // RemoveScheduledNotification removes a scheduled notification
 func (fns *FCMNotificationService) RemoveScheduledNotification(id string) error {
 	return fns.scheduler.RemoveJob(id)

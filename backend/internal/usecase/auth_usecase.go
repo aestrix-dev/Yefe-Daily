@@ -252,21 +252,19 @@ func (a *authUseCase) AcceptNotificaions(ctx context.Context, fcmToken string, u
 
 	morningCron := fmt.Sprintf("0 %s %s * * *", morningMinute, morningHour)
 	eveningCron := fmt.Sprintf("0 %s %s * * *", eveningMinute, eveningHour)
-	if err := a.fmcService.AddRecurringNotification(
+	if err := a.fmcService.AddRecurringMotivationalNotification(
 		utils.GenerateID()+utils.GenerateSecureToken(),
 		preferences.UserID,
 		"Daily Motivation",
-		"Here's your daily dose of motivation!",
 		morningCron,
 		map[string]string{"type": "daily"}); err != nil {
 		logger.Log.WithError(err).Error("Failed to add recurring notification")
 		return err
 	}
-	if err := a.fmcService.AddRecurringNotification(
+	if err := a.fmcService.AddRecurringMotivationalNotification(
 		utils.GenerateID()+utils.GenerateSecureToken(),
 		preferences.UserID,
 		"Daily Motivation",
-		"Here's your daily dose of motivation!",
 		eveningCron,
 		map[string]string{"type": "daily"},
 	); err != nil {
@@ -274,6 +272,18 @@ func (a *authUseCase) AcceptNotificaions(ctx context.Context, fcmToken string, u
 		return err
 
 	}
+
+	welcomeReq := fire_base.NotificationRequest{
+		Token: fcmToken,
+		Title: "Welcome to Yefe Daily!",
+		Body:  "Your notification preferences have been saved.",
+		Data:  map[string]string{"type": "welcome"},
+	}
+
+	if err := a.fmcService.SendNotification(ctx, welcomeReq); err != nil {
+		logger.Log.WithError(err).Error("Failed to send welcome notification")
+	}
+
 	return nil
 
 }
