@@ -47,10 +47,10 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
       
-      // Clear token and redirect to login
+      // Clear token and redirect to sign-in
       if (typeof window !== 'undefined') {
         localStorage.removeItem('authToken')
-        window.location.href = '/login'
+        window.location.href = '/sign-in'
       }
     }
     

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "90840946997",
+    "project_id": "yefe-daily",
+    "storage_bucket": "yefe-daily.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:90840946997:android:f8fa8092138b61ae85d47c",
+        "android_client_info": {
+          "package_name": "com.example.yefa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJ31XEhGCSy38zyyUbP_Y0Nv4QSlFg2sk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

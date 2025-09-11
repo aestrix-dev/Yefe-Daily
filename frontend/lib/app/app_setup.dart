@@ -26,6 +26,7 @@ import 'package:yefa/data/services/user_api_service.dart';
 import '../core/utils/navigation_service.dart';
 import '../data/services/storage_service.dart';
 import '../data/services/theme_service.dart';
+import '../data/services/firebase_notification_service.dart';
 
 final locator = GetIt.instance;
 
@@ -60,6 +61,12 @@ class AppSetup {
     // Register puzzle timer service
     print('⏰ Registering puzzle timer service...');
     locator.registerSingleton<PuzzleTimerService>(PuzzleTimerService());
+
+    // Register and initialize Firebase notification service
+    print('🔔 Initializing Firebase notification service...');
+    final notificationService = FirebaseNotificationService();
+    await notificationService.initialize();
+    locator.registerSingleton<FirebaseNotificationService>(notificationService);
 
     // Register HTTP client service
     print('🌐 Registering HTTP client...');
@@ -122,6 +129,7 @@ class AppSetup {
       locator<StorageService>();
       locator<ThemeService>();
       locator<DioService>();
+      locator<FirebaseNotificationService>();
 
       // Test API services
       locator<AuthApiService>();

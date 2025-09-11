@@ -9,7 +9,10 @@ import {
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import { Button } from "@/components/ui/button"
+import { IconLogout } from "@tabler/icons-react"
+import { authService } from "@/services/auth.service"
+import { useRouter } from "next/navigation"
 
 import {
   Sidebar,
@@ -18,15 +21,11 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
+  SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -52,6 +51,17 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+      router.push('/sign-in') // Redirect to sign-in page after logout
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -67,7 +77,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleLogout} className="w-full">
+              <IconLogout className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )

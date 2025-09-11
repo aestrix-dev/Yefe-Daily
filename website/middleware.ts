@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
     
     if (!token) {
       const url = request.nextUrl.clone()
-      url.pathname = '/'
+      url.pathname = '/sign-in'
       url.searchParams.set('redirectTo', pathname) 
       return NextResponse.redirect(url)
     }
@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
      
       if (!refreshToken) {
         const url = request.nextUrl.clone()
-        url.pathname = '/'
+        url.pathname = '/sign-in'
         url.searchParams.set('redirectTo', pathname)
         url.searchParams.set('reason', 'expired')
         return NextResponse.redirect(url)
@@ -45,7 +45,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if user is trying to access login page while already authenticated
-  if (pathname === '/' || pathname === '/login') {
+  if (pathname === '/' || pathname === '/sign-in') {
     const token = request.cookies.get('authToken')?.value
     if (token) {
       const url = request.nextUrl.clone()
