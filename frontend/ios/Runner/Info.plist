@@ -81,6 +81,7 @@
 	<array>
 		<string>audio</string>
 		<string>background-processing</string>
+		<string>remote-notification</string>
 	</array>
 	
 	<!-- Audio Session Configuration -->
@@ -99,5 +100,13 @@
     <string>tg</string>
     <string>telegram</string>
 </array>
+
+	<!-- Notification Permissions -->
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
+
+	<!-- Privacy descriptions -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app needs network access to sync your devotional content and send notifications about daily challenges and reminders.</string>
 </dict>
 </plist>

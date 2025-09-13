@@ -9,10 +9,12 @@ import '../../../app/app_setup.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../data/services/storage_service.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../../data/services/firebase_notification_service.dart';
 
 class OnboardingViewModel extends BaseViewModel {
   final _storageService = locator<StorageService>();
   final _authRepository = locator<AuthRepository>();
+  final _fcmService = FirebaseNotificationService();
 
   final PageController pageController = PageController();
   int _currentIndex = 0;
@@ -167,6 +169,19 @@ class OnboardingViewModel extends BaseViewModel {
 
         // Mark onboarding as completed
         await _storageService.setBool('hasSeenOnboarding', true);
+
+        // Submit FCM token after successful registration
+        print('OnboardingViewModel: Submitting FCM token...');
+        try {
+          bool fcmSuccess = await _fcmService.submitTokenToServer();
+          if (fcmSuccess) {
+            print('✅ OnboardingViewModel: FCM token submitted successfully');
+          } else {
+            print('⚠️ OnboardingViewModel: FCM token submission failed');
+          }
+        } catch (e) {
+          print('❌ OnboardingViewModel: FCM token error: $e');
+        }
 
         _setAuthenticating(false);
 

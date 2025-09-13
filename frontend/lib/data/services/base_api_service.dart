@@ -25,7 +25,7 @@ abstract class BaseApiService {
     } on ApiException catch (e) {
       return Failure(e.message);
     } catch (e) {
-      return Failure('Unexpected error occurred: ${e.toString()}');
+      return Failure('Network error');
     }
   }
 
@@ -49,7 +49,7 @@ abstract class BaseApiService {
     } on ApiException catch (e) {
       return Failure(e.message);
     } catch (e) {
-      return Failure('Unexpected error occurred: ${e.toString()}');
+      return Failure('Network error');
     }
   }
 
@@ -68,7 +68,7 @@ abstract class BaseApiService {
     } on ApiException catch (e) {
       return Failure(e.message);
     } catch (e) {
-      return Failure('Unexpected error occurred: ${e.toString()}');
+      return Failure('Network error');
     }
   }
 
@@ -89,7 +89,7 @@ abstract class BaseApiService {
     } on ApiException catch (e) {
       return Failure(e.message);
     } catch (e) {
-      return Failure('Unexpected error occurred: ${e.toString()}');
+      return Failure('Network error');
     }
   }
 }

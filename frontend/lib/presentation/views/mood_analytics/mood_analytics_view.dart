@@ -62,7 +62,7 @@ class MoodAnalyticsView extends StackedView<MoodAnalyticsViewModel> {
                     SizedBox(width: 16.w),
                     
                     Text(
-                      'Mood Analytics',
+                      'Sleep Analytics',
                       style: TextStyle(
                         fontSize: 20.sp,
                         fontWeight: FontWeight.w700,

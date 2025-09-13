@@ -76,6 +76,12 @@ class AuthRepository extends BaseRepository {
     return token != null && user != null;
   }
 
+  // Accept notifications by sending FCM token to server
+  Future<ApiResult<AcceptNotificationResponse>> acceptNotifications(String fcmToken) async {
+    final request = AcceptNotificationRequest(fcmToken: fcmToken);
+    return await handleApiResult(_apiService.acceptNotifications(request));
+  }
+
   // Private helper method to store all auth data
   Future<void> _storeAuthData({
     required TokenData token,

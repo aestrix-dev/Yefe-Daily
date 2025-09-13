@@ -122,7 +122,7 @@ class QuickPresetButtons extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4.r),
                 ),
                 child: Text(
-                  'Recommended',
+                  'Healthy',
                   style: TextStyle(
                     fontSize: 6.sp,
                     fontWeight: FontWeight.w600,

@@ -124,7 +124,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
                   isNotificationsEnabled: viewModel.isNotificationsEnabled,
                   isPremium: viewModel.isPremium,
                   onThemeToggle: viewModel.toggleTheme,
-                  onNotificationsToggle: viewModel.toggleNotifications,
+                  onNotificationsToggle: () => viewModel.showNotificationDialog(),
                   onMoodAnalyticsTap: viewModel.navigateToMoodAnalytics,
                   onUpgradeTap: viewModel.showUpgradeCard,
                 ),

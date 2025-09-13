@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import '../../app/router/app_router.dart';
+import '../repositories/auth_repository.dart';
+import '../../core/utils/api_result.dart';
+import 'local_notification_service.dart';
 
 class FirebaseNotificationService {
   static final FirebaseNotificationService _instance =
@@ -14,7 +17,8 @@ class FirebaseNotificationService {
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final Logger _logger = Logger();
-  
+  final LocalNotificationService _localNotificationService = LocalNotificationService();
+
   String? _fcmToken;
   
   // Getters
@@ -25,6 +29,9 @@ class FirebaseNotificationService {
   Future<void> initialize() async {
     try {
       _logger.i('🔔 Initializing Firebase Notification Service...');
+
+      // Initialize local notifications first
+      await _localNotificationService.initialize();
 
       // Request permission for notifications
       await _requestPermission();
@@ -164,7 +171,7 @@ class FirebaseNotificationService {
     _firebaseMessaging.onTokenRefresh.listen((newToken) {
       _logger.i('🔄 FCM Token refreshed: ${newToken.substring(0, 20)}...');
       _fcmToken = newToken;
-      // TODO: Send updated token to your server
+      // Send updated token to server
       _sendTokenToServer(newToken);
     });
   }
@@ -176,10 +183,13 @@ class FirebaseNotificationService {
     _logger.i('📝 Body: ${message.notification?.body}');
     _logger.i('📦 Data: ${message.data}');
 
+    // Show local notification immediately for foreground messages
+    _showLocalNotification(message);
+
     // Handle notification based on type
     final String? notificationType = message.data['type'];
-    if (notificationType != null && 
-        message.notification?.title != null && 
+    if (notificationType != null &&
+        message.notification?.title != null &&
         message.notification?.body != null) {
       handleNotificationByType(
         type: notificationType,
@@ -188,9 +198,6 @@ class FirebaseNotificationService {
         additionalData: message.data,
       );
     }
-
-    // Show local notification or handle custom UI
-    _showLocalNotification(message);
   }
 
   /// Handle background message clicks
@@ -221,13 +228,46 @@ class FirebaseNotificationService {
     }
   }
 
-  /// Show local notification (you might want to use flutter_local_notifications)
+  /// Show local notification for foreground messages
   void _showLocalNotification(RemoteMessage message) {
-    // For now, just log. You can implement flutter_local_notifications here
     _logger.i('🔔 Showing local notification: ${message.notification?.title}');
-    
-    // TODO: Implement local notification display
-    // This would typically use flutter_local_notifications package
+
+    try {
+      // Extract notification details
+      final String? title = message.notification?.title;
+      final String? body = message.notification?.body;
+      final String? type = message.data['type'];
+
+      if (title != null && body != null) {
+        // Generate unique notification ID
+        final int notificationId = _localNotificationService.generateNotificationId();
+
+        // Show local notification based on type
+        if (type != null) {
+          _localNotificationService.showNotificationByType(
+            id: notificationId,
+            title: title,
+            body: body,
+            type: type,
+            data: message.data,
+          );
+        } else {
+          // Show default notification
+          _localNotificationService.showNotification(
+            id: notificationId,
+            title: title,
+            body: body,
+            payload: message.data.toString(),
+          );
+        }
+
+        _logger.i('✅ Local notification displayed successfully');
+      } else {
+        _logger.w('⚠️ Notification missing title or body, skipping display');
+      }
+    } catch (e) {
+      _logger.e('❌ Error showing local notification: $e');
+    }
   }
 
   /// Handle notification navigation based on notification types
@@ -303,18 +343,41 @@ class FirebaseNotificationService {
     }
   }
 
-  /// Send token to your server
-  Future<void> _sendTokenToServer(String token) async {
+  /// Send current FCM token to server (public method for manual calls)
+  Future<bool> submitTokenToServer() async {
+    if (_fcmToken != null && _fcmToken!.isNotEmpty) {
+      return await _sendTokenToServer(_fcmToken!);
+    } else {
+      _logger.w('⚠️ No FCM token available to submit');
+      return false;
+    }
+  }
+
+  /// Send token to your server (private method)
+  Future<bool> _sendTokenToServer(String token) async {
     try {
       _logger.i('📤 Sending FCM token to server...');
-      
-      // TODO: Implement API call to send token to your backend
-      // Example:
-      // await UserApiService().updateFCMToken(token);
-      
-      _logger.i('✅ FCM token sent to server successfully');
+
+      // Check if services are ready (GetIt is initialized)
+      try {
+        final authRepository = AuthRepository();
+        final result = await authRepository.acceptNotifications(token);
+
+        if (result.isSuccess) {
+          _logger.i('✅ FCM token sent to server successfully: ${result.data!.message}');
+          return true;
+        } else {
+          _logger.w('⚠️ Failed to send FCM token to server: ${result.error}');
+          return false;
+        }
+      } catch (dependencyError) {
+        _logger.w('⚠️ Services not ready yet, will retry later: $dependencyError');
+        // Store token for later manual submission
+        return false;
+      }
     } catch (e) {
       _logger.e('❌ Failed to send FCM token to server: $e');
+      return false;
     }
   }
 

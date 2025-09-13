@@ -14,6 +14,7 @@ dependencies:
 
   firebase_core: ^4.1.0
   firebase_messaging: ^16.0.1
+  flutter_local_notifications: ^17.2.3
   # Payment packages 
   webview_flutter: ^4.4.2            
   flutter_stripe: ^10.1.0 

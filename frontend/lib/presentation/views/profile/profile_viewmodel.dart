@@ -11,9 +11,11 @@ import 'package:yefa/data/repositories/payment_repository.dart';
 import 'package:yefa/data/services/payment_service.dart';
 import 'package:yefa/data/services/storage_service.dart';
 import 'package:yefa/data/services/theme_service.dart';
+import 'package:yefa/data/services/firebase_notification_service.dart';
 import 'package:yefa/presentation/shared/widgets/payment_provider_sheet.dart';
 import 'package:yefa/presentation/shared/widgets/toast_overlay.dart';
 import 'widgets/upgrade_popup.dart';
+import 'widgets/notification_popup.dart';
 
 class ProfileViewModel extends BaseViewModel {
   final _themeService = locator<ThemeService>();
@@ -22,6 +24,7 @@ class ProfileViewModel extends BaseViewModel {
   final PaymentService _paymentService = locator<PaymentService>();
   final ChallengeRepository _challengeRepository =
       locator<ChallengeRepository>();
+  final _fcmService = FirebaseNotificationService();
 
   BuildContext? _context;
   bool contextAlreadySet = false;
@@ -251,14 +254,80 @@ class ProfileViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  void toggleNotifications() {
+  Future<void> showNotificationDialog() async {
+    if (_context == null) return;
+
+    // Show the notification popup
+    showDialog(
+      context: _context!,
+      barrierDismissible: false,
+      builder: (context) => NotificationPopup(
+        isEnabled: _isNotificationsEnabled,
+        onEnable: () async {
+          await _handleNotificationToggle();
+        },
+        onCancel: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }
+
+  Future<void> _handleNotificationToggle() async {
     _isNotificationsEnabled = !_isNotificationsEnabled;
     _storageService.setBool('isNotificationsEnabled', _isNotificationsEnabled);
 
     print('=== NOTIFICATIONS TOGGLED ===');
     print('Notifications enabled: $_isNotificationsEnabled');
-    print('============================');
 
+    if (_isNotificationsEnabled) {
+      print('📤 Attempting to submit FCM token manually...');
+
+      try {
+        // Try to submit FCM token to server
+        bool success = await _fcmService.submitTokenToServer();
+
+        if (success) {
+          print('✅ FCM token submitted successfully');
+          if (_context != null) {
+            Navigator.of(_context!).pop(); // Close popup
+            ToastOverlay.showSuccess(
+              context: _context!,
+              message: 'Notifications enabled successfully! 🔔',
+            );
+          }
+        } else {
+          print('⚠️ FCM token submission failed');
+          if (_context != null) {
+            Navigator.of(_context!).pop(); // Close popup
+            ToastOverlay.showError(
+              context: _context!,
+              message: 'Failed to enable notifications. Please try again.',
+            );
+          }
+        }
+      } catch (e) {
+        print('❌ Error submitting FCM token: $e');
+        if (_context != null) {
+          Navigator.of(_context!).pop(); // Close popup
+          ToastOverlay.showError(
+            context: _context!,
+            message: 'Network error. Please try again.',
+          );
+        }
+      }
+    } else {
+      print('🔕 Notifications disabled');
+      if (_context != null) {
+        Navigator.of(_context!).pop(); // Close popup
+        ToastOverlay.showSuccess(
+          context: _context!,
+          message: 'Notifications disabled',
+        );
+      }
+    }
+
+    print('============================');
     notifyListeners();
   }
 

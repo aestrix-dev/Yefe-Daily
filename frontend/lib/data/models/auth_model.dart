@@ -152,3 +152,32 @@ class RegisterData {
     );
   }
 }
+
+// FCM Accept Notification models
+class AcceptNotificationRequest {
+  final String fcmToken;
+
+  const AcceptNotificationRequest({
+    required this.fcmToken,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fcm_token': fcmToken,
+    };
+  }
+}
+
+class AcceptNotificationResponse {
+  final String message;
+
+  const AcceptNotificationResponse({
+    required this.message,
+  });
+
+  factory AcceptNotificationResponse.fromJson(Map<String, dynamic> json) {
+    return AcceptNotificationResponse(
+      message: json['message'] ?? '',
+    );
+  }
+}
