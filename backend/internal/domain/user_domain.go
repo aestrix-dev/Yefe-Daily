@@ -228,22 +228,3 @@ func (u *User) CancelPlan() {
 	u.PlanStatus = "cancelled"
 	u.PlanAutoRenew = false
 }
-
-func (u *User) GetPlanFeatures() map[string]any {
-	if u.PlanType == "yefe_plus" {
-		return map[string]any{
-			"api_calls":        10000,
-			"storage_gb":       10,
-			"projects":         -1,
-			"priority_support": true,
-		}
-	}
-
-	// Default free plan features
-	return map[string]any{
-		"api_calls":        1000,
-		"storage_gb":       1,
-		"projects":         3,
-		"priority_support": false,
-	}
-}
