@@ -13,6 +13,8 @@ Here is a summary of the notification types:
 | **Welcome**           | `welcome`   | User enables notifications            | Display the notification                     |
 | **Daily Motivation**  | `daily`     | User's scheduled morning/evening time | Open the app's main dashboard/home screen    |
 | **New Daily Challenge** | `challenge` | Once daily when a new challenge is set  | Navigate to the daily challenge screen       |
+| **Payment Success** | `payment_success` | A payment is successfully processed | Navigate to a payment confirmation/history screen |
+| **Payment Failed** | `payment_failed` | A payment fails to process | Navigate to a payment screen to retry or update payment method |
 
 ---
 
@@ -68,3 +70,39 @@ This notification is sent to all users once a day when a new daily challenge bec
   }
   ```
 - **Frontend Action:** When the user taps this notification, you should navigate them directly to the new daily challenge screen within the app so they can view and complete it.
+
+### 4. Payment Success Notification
+
+This notification is sent when a user's payment is successfully processed.
+
+- **Event:** Successful payment via webhook (Stripe or Paystack).
+- **Payload Example:**
+  ```json
+  {
+    "title": "Payment Successful",
+    "body": "Your payment of NGN 5000 was successful.",
+    "data": {
+      "type": "payment_success",
+      "payment_id": "some-payment-id"
+    }
+  }
+  ```
+- **Frontend Action:** When the user taps this notification, you should navigate them to a screen showing the payment confirmation or their payment history. The `payment_id` can be used to fetch more details.
+
+### 5. Payment Failed Notification
+
+This notification is sent when a user's payment fails.
+
+- **Event:** Failed payment via webhook (Stripe or Paystack).
+- **Payload Example:**
+  ```json
+  {
+    "title": "Payment Failed",
+    "body": "Your payment of NGN 5000 failed.",
+    "data": {
+      "type": "payment_failed",
+      "payment_id": "some-payment-id"
+    }
+  }
+  ```
+- **Frontend Action:** When the user taps this notification, you should navigate them to a screen where they can retry the payment or update their payment method. The `payment_id` can be used to provide context.
