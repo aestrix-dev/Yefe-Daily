@@ -7,6 +7,7 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/logger"
+	"yefe_app/v1/pkg/services/fire_base"
 	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 
@@ -20,10 +21,11 @@ type stripePaymentProvider struct {
 	paymentConfig utils.PaymentConfig
 	emailService  domain.EmailService
 	securityRepo  domain.SecurityEventRepository
+	fmcService    *fire_base.FCMNotificationService
 }
 
-func NewStripePaymentProvider(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.PaymentConfig, emailSerice domain.EmailService, securityRepo domain.SecurityEventRepository) domain.PaymentProvider {
-	return &stripePaymentProvider{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig, emailService: emailSerice, securityRepo: securityRepo}
+func NewStripePaymentProvider(repo domain.PaymentRepository, adminUC domain.AdminUserUseCase, paymentConfig utils.PaymentConfig, emailSerice domain.EmailService, securityRepo domain.SecurityEventRepository, fmcService *fire_base.FCMNotificationService) domain.PaymentProvider {
+	return &stripePaymentProvider{repo: repo, adminUC: adminUC, paymentConfig: paymentConfig, emailService: emailSerice, securityRepo: securityRepo, fmcService: fmcService}
 }
 
 func (u *stripePaymentProvider) CreatePaymentIntent(ctx context.Context, req dto.CreatePaymentIntentRequest) (dto.CreatePaymentIntentResponse, error) {
@@ -200,6 +202,24 @@ func (u *stripePaymentProvider) handlePaymentSucceeded(ctx context.Context, data
 		logger.Log.WithError(err).Error("could not send payment confirmation email")
 		return fmt.Errorf("Could not process payment")
 	}
+
+	fcmToken, err := u.adminUC.GetUserFCMToken(ctx, user.ID)
+	if err != nil {
+		logger.Log.WithError(err).Warnf("could not get fcm token for user %s", user.ID)
+	}
+
+	if fcmToken != "" {
+		notificationReq := fire_base.NotificationRequest{
+			Token: fcmToken,
+			Title: "Payment Successful",
+			Body:  fmt.Sprintf("Your payment of %s %d was successful.", payment.Currency, int(payment.Amount/100)),
+			Data:  map[string]string{"type": "payment_success", "payment_id": payment.ID},
+		}
+		if err := u.fmcService.SendNotification(ctx, notificationReq); err != nil {
+			logger.Log.WithError(err).Error("Failed to send payment success notification")
+		}
+	}
+
 	logger.Log.Infof("Payment %s processed successfully via webhook", payment.ID)
 	err = u.securityRepo.LogSecurityEvent(ctx, payment.UserID, types.EventPaymentSuccessfull, "", "", types.JSONMap{
 		"payment_id": payment.ID,
@@ -280,6 +300,24 @@ func (u *stripePaymentProvider) handlePaymentFailed(ctx context.Context, data ma
 		logger.Log.WithError(err).Error("could not send payment confirmation email")
 		return fmt.Errorf("Could not process payment")
 	}
+
+	fcmToken, err := u.adminUC.GetUserFCMToken(ctx, user.ID)
+	if err != nil {
+		logger.Log.WithError(err).Warnf("could not get fcm token for user %s", user.ID)
+	}
+
+	if fcmToken != "" {
+		notificationReq := fire_base.NotificationRequest{
+			Token: fcmToken,
+			Title: "Payment Failed",
+			Body:  fmt.Sprintf("Your payment of %s %d failed.", payment.Currency, int(payment.Amount/100)),
+			Data:  map[string]string{"type": "payment_failed", "payment_id": payment.ID},
+		}
+		if err := u.fmcService.SendNotification(ctx, notificationReq); err != nil {
+			logger.Log.WithError(err).Error("Failed to send payment failed notification")
+		}
+	}
+
 	logger.Log.Infof("Payment %s marked as failed via webhook", payment.ID)
 	err = u.securityRepo.LogSecurityEvent(ctx, payment.UserID, types.EventPaymentFailed, "", "", types.JSONMap{
 		"payment_id": payment.ID,

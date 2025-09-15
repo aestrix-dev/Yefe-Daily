@@ -8,12 +8,14 @@ import (
 	"yefe_app/v1/internal/domain"
 	"yefe_app/v1/internal/handlers/dto"
 	"yefe_app/v1/pkg/logger"
+	"yefe_app/v1/pkg/services/fire_base"
 	"yefe_app/v1/pkg/types"
 	"yefe_app/v1/pkg/utils"
 )
 
 type paystackPaymentProvider struct {
 	repo           domain.PaymentRepository
+	fmcService     *fire_base.FCMNotificationService
 	emailService   domain.EmailService
 	adminUC        domain.AdminUserUseCase
 	paystackClient domain.PaymentProviderClient
@@ -28,6 +30,7 @@ func NewPaystackPaymentProvider(
 	paystackClient domain.PaymentProviderClient,
 	securityRepo domain.SecurityEventRepository,
 	paymentConfig utils.PaymentConfig,
+	fmcService *fire_base.FCMNotificationService,
 ) domain.PaymentProvider {
 	return &paystackPaymentProvider{
 		repo:           repo,
@@ -36,6 +39,7 @@ func NewPaystackPaymentProvider(
 		paystackClient: paystackClient,
 		securityRepo:   securityRepo,
 		paymentConfig:  paymentConfig,
+		fmcService:     fmcService,
 	}
 }
 
@@ -220,6 +224,23 @@ func (u *paystackPaymentProvider) handlePaystackChargeSuccess(ctx context.Contex
 		return fmt.Errorf("could not process payment")
 	}
 
+	fcmToken, err := u.adminUC.GetUserFCMToken(ctx, user.ID)
+	if err != nil {
+		logger.Log.WithError(err).Warnf("could not get fcm token for user %s", user.ID)
+	}
+
+	if fcmToken != "" {
+		notificationReq := fire_base.NotificationRequest{
+			Token: fcmToken,
+			Title: "Payment Successful",
+			Body:  fmt.Sprintf("Your payment of %s %d was successful.", payment.Currency, int(payment.Amount/100)),
+			Data:  map[string]string{"type": "payment_success", "payment_id": payment.ID},
+		}
+		if err := u.fmcService.SendNotification(ctx, notificationReq); err != nil {
+			logger.Log.WithError(err).Error("Failed to send payment success notification")
+		}
+	}
+
 	logger.Log.Infof("Payment %s processed successfully via Paystack webhook", payment.ID)
 
 	// Log security event
@@ -281,6 +302,23 @@ func (u *paystackPaymentProvider) handlePaystackChargeFailed(ctx context.Context
 	if err != nil {
 		logger.Log.WithError(err).Error("could not send payment confirmation email")
 		return fmt.Errorf("could not process payment")
+	}
+
+	fcmToken, err := u.adminUC.GetUserFCMToken(ctx, user.ID)
+	if err != nil {
+		logger.Log.WithError(err).Warnf("could not get fcm token for user %s", user.ID)
+	}
+
+	if fcmToken != "" {
+		notificationReq := fire_base.NotificationRequest{
+			Token: fcmToken,
+			Title: "Payment Failed",
+			Body:  fmt.Sprintf("Your payment of %s %d failed.", payment.Currency, int(payment.Amount/100)),
+			Data:  map[string]string{"type": "payment_failed", "payment_id": payment.ID},
+		}
+		if err := u.fmcService.SendNotification(ctx, notificationReq); err != nil {
+			logger.Log.WithError(err).Error("Failed to send payment failed notification")
+		}
 	}
 
 	logger.Log.Infof("Payment %s marked as failed via Paystack webhook", payment.ID)
