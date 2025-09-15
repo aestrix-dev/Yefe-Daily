@@ -40,6 +40,7 @@ type ServerConfig struct {
 	SongRepo          domain.SongRepository
 	PaymentRepo       domain.PaymentRepository
 	SleepRepo         domain.SleepRepository
+	FMCRepo           domain.FCMRepository
 
 	DailyReflectionUsecase domain.DailyReflectionUseCase
 }
@@ -49,7 +50,7 @@ func (conf ServerConfig) auth_usecase() domain.AuthUseCase {
 }
 
 func (conf ServerConfig) AdminUserUsecase() domain.AdminUserUseCase {
-	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo, conf.EmailService, conf.InviteURL)
+	return usecase.NewAdminUserUseCase(conf.AdminRepo, conf.UserRepo, conf.FMCRepo, conf.EmailService, conf.InviteURL)
 }
 
 func (conf ServerConfig) payment_usercase() domain.PaymentUseCase {
@@ -83,11 +84,11 @@ func (conf ServerConfig) sleep_usecase() domain.SleepUseCase {
 
 func (conf ServerConfig) paystack_payemnt() domain.PaymentProvider {
 	paystackClient := service.NewpaystackClient(conf.PaymentConfig.PaystackPrivateKey)
-	return payments.NewPaystackPaymentProvider(conf.PaymentRepo, conf.EmailService, conf.AdminUserUsecase(), paystackClient, conf.SecEventRepo, conf.PaymentConfig)
+	return payments.NewPaystackPaymentProvider(conf.PaymentRepo, conf.EmailService, conf.AdminUserUsecase(), paystackClient, conf.SecEventRepo, conf.PaymentConfig, conf.FMCService)
 }
 
 func (conf ServerConfig) stripe_payemnt() domain.PaymentProvider {
-	return payments.NewStripePaymentProvider(conf.PaymentRepo, conf.AdminUserUsecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo)
+	return payments.NewStripePaymentProvider(conf.PaymentRepo, conf.AdminUserUsecase(), conf.PaymentConfig, conf.EmailService, conf.SecEventRepo, conf.FMCService)
 }
 
 func (conf ServerConfig) auth_middleware() *middlewares.AuthMiddleware {

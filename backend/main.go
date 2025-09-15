@@ -123,6 +123,7 @@ func main() {
 	}
 	paymentRepo := repository.NewPaymentRepository(db)
 	sleepRepo := repository.NewSleepRepository(db)
+	fmcRepo := repository.NewFCMRepository(db)
 
 	serverConfig := infrastructure.ServerConfig{
 		DB:                     db,
@@ -145,6 +146,7 @@ func main() {
 		PaymentRepo:            paymentRepo,
 		DailyReflectionUsecase: dailyRelectionUsecase,
 		SleepRepo:              sleepRepo,
+		FMCRepo:                fmcRepo,
 	}
 
 	fcmService, err := fire_base.NewFCMNotificationService(serverCtx, db, serverStopCtx, fmcConfig, serverConfig.AdminUserUsecase(), scheduler)
@@ -173,6 +175,7 @@ func main() {
 			logger.Log.WithError(err).Error("Could not generate daily challenge")
 			return err
 		}
+
 		return challenge
 	}, 24*time.Hour)
 

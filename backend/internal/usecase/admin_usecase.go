@@ -14,6 +14,7 @@ import (
 type adminUserUseCase struct {
 	adminRepo    domain.AdminUserRepository
 	userRepo     domain.UserRepository
+	fcmRepo      domain.FCMRepository
 	emailService domain.EmailService
 	inviteUrl    string
 }
@@ -21,16 +22,23 @@ type adminUserUseCase struct {
 func NewAdminUserUseCase(
 	adminRepo domain.AdminUserRepository,
 	userRepo domain.UserRepository,
+	fcmRepo domain.FCMRepository,
 	emailService domain.EmailService,
 	inviteUrl string,
 ) domain.AdminUserUseCase {
 	return &adminUserUseCase{
 		adminRepo:    adminRepo,
 		userRepo:     userRepo,
+		fcmRepo:      fcmRepo,
 		emailService: emailService,
 		inviteUrl:    inviteUrl,
 	}
 }
+
+func (u *adminUserUseCase) GetUserFCMToken(ctx context.Context, userID string) (string, error) {
+	return u.fcmRepo.GetFCMToken(ctx, userID)
+}
+
 
 func (r *adminUserUseCase) GetMonthlyAnylics(ctx context.Context) ([]domain.MonthlyRegistrations, error) {
 	return r.adminRepo.GetMonthlyAnylics(ctx)

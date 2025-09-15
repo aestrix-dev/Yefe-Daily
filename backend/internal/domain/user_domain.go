@@ -123,6 +123,10 @@ type UserProfileRepository interface {
 	Count(ctx context.Context) (int64, error)
 	Exists(ctx context.Context, userID string) (bool, error)
 }
+type FCMRepository interface {
+	GetFCMToken(ctx context.Context, userID string) (string, error)
+}
+
 type AdminUserRepository interface {
 	GetAllUsers(ctx context.Context, filter dto.UserListFilter) (dto.UserListResponse, error)
 	GetUserStats(ctx context.Context) (dto.UserStats, error)
@@ -147,6 +151,7 @@ type AdminUserUseCase interface {
 	GetUserByID(ctx context.Context, userID string) (*User, error)
 	GetMonthlyAnylics(ctx context.Context) ([]MonthlyRegistrations, error)
 	DeleteUser(ctx context.Context, userID string) error
+	GetUserFCMToken(ctx context.Context, userID string) (string, error)
 }
 type AuthUseCase interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*User, error)
