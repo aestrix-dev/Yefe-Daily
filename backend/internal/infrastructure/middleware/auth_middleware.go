@@ -16,6 +16,7 @@ type AuthMiddleware struct {
 	sessionRepo  domain.SessionRepository
 	userRepo     domain.UserRepository
 	secEventRepo domain.SecurityEventRepository
+	adminUsecase domain.AdminUserUseCase
 }
 
 func NewAuthMiddleware(
@@ -23,12 +24,14 @@ func NewAuthMiddleware(
 	sessionRepo domain.SessionRepository,
 	userRepo domain.UserRepository,
 	secEventRepo domain.SecurityEventRepository,
+	adminUsecase domain.AdminUserUseCase,
 ) *AuthMiddleware {
 	return &AuthMiddleware{
 		jwtSecret:    jwtSecret,
 		sessionRepo:  sessionRepo,
 		userRepo:     userRepo,
 		secEventRepo: secEventRepo,
+		adminUsecase: adminUsecase,
 	}
 }
 
@@ -179,6 +182,17 @@ func (m *AuthMiddleware) PaidUserOnly(next http.Handler) http.Handler {
 		user, ok := r.Context().Value("user").(*domain.User)
 		if !ok {
 			utils.ErrorResponse(w, http.StatusUnauthorized, "Unauthorized", nil)
+			return
+		}
+
+		if user.IsYefePlusPlan() && user.IsPlanExpired() {
+			err := m.adminUsecase.UpdateUserPlan(r.Context(), user.ID, "free")
+			if err != nil {
+				logger.Log.WithError(err).Error("failed to downgrade user plan")
+				utils.ErrorResponse(w, http.StatusInternalServerError, "An internal error occurred", nil)
+				return
+			}
+			utils.ErrorResponse(w, http.StatusForbidden, "This feature is for paid users only. Your plan has expired.", nil)
 			return
 		}
 
