@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import Firebase
+import FirebaseMessaging
 import UserNotifications
 
 @main
@@ -48,5 +49,20 @@ import UserNotifications
                                      withCompletionHandler completionHandler: @escaping () -> Void) {
     // Handle the notification tap
     completionHandler()
+  }
+
+  // Handle successful APNS token registration
+  override func application(_ application: UIApplication,
+                           didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    // Pass the device token to Firebase
+    Messaging.messaging().apnsToken = deviceToken
+    super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
+  }
+
+  // Handle APNS token registration failure
+  override func application(_ application: UIApplication,
+                           didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    print("Failed to register for remote notifications: \(error)")
+    super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
   }
 }

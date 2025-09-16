@@ -1,13 +1,15 @@
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import '../../app/router/app_router.dart';
+import '../../app/app_setup.dart';
 import '../repositories/auth_repository.dart';
 import '../../core/utils/api_result.dart';
 import 'local_notification_service.dart';
+import 'storage_service.dart';
+import '../models/user_model.dart';
 
 class FirebaseNotificationService {
   static final FirebaseNotificationService _instance =
@@ -85,70 +87,58 @@ class FirebaseNotificationService {
     }
   }
 
-  /// Get FCM token with iOS simulator handling
+  /// Get FCM token
   Future<void> _getFCMToken() async {
     try {
       _logger.i('🔑 Getting FCM token...');
-      
-      // Check if running on iOS simulator
-      if (await _isIOSSimulator()) {
-        _logger.w('⚠️ Running on iOS Simulator - FCM tokens not available');
-        _logger.i('💡 Use a physical device or Android emulator for full FCM testing');
-        _fcmToken = 'simulator-mock-token-${DateTime.now().millisecondsSinceEpoch}';
-        _logger.i('🔧 Mock token created for simulator: ${_fcmToken!.substring(0, 20)}...');
-        return;
+
+      // For iOS devices, wait for APNS token with retries
+      if (Platform.isIOS) {
+        await _waitForAPNSToken();
       }
-      
-      // For real devices, try to get APNS token first on iOS
-      try {
-        final apnsToken = await _firebaseMessaging.getAPNSToken();
-        if (apnsToken != null) {
-          _logger.i('📱 APNS token available: ${apnsToken.substring(0, 20)}...');
-        } else {
-          _logger.w('⚠️ APNS token not available yet, retrying...');
-          // Wait a bit and retry
-          await Future.delayed(const Duration(seconds: 2));
-        }
-      } catch (e) {
-        _logger.w('⚠️ APNS token not available: $e');
-      }
-      
+
       _fcmToken = await _firebaseMessaging.getToken();
-      
+
       if (_fcmToken != null) {
         _logger.i('✅ FCM Token obtained: ${_fcmToken!.substring(0, 20)}...');
-        // Send token to server for real devices
+        // Send token to server
         await _sendTokenToServer(_fcmToken!);
       } else {
         _logger.w('⚠️ Failed to obtain FCM token');
       }
     } catch (e) {
       _logger.e('❌ Error getting FCM token: $e');
-      if (e.toString().contains('apns-token-not-set')) {
-        _logger.w('💡 This is likely an iOS simulator - use a physical device for FCM testing');
-        // Create a mock token for simulator testing
-        _fcmToken = 'simulator-mock-token-${DateTime.now().millisecondsSinceEpoch}';
-      }
     }
   }
 
-  /// Check if running on iOS simulator
-  Future<bool> _isIOSSimulator() async {
-    try {
-      if (!Platform.isIOS) return false;
-      
-      // Check if running in debug mode (simulators typically run in debug)
-      if (kDebugMode) {
-        _logger.i('🔍 Running in debug mode on iOS - likely simulator');
-        return true;
+  /// Wait for APNS token on iOS with retries
+  Future<void> _waitForAPNSToken() async {
+    const maxRetries = 5;
+    const retryDelay = Duration(seconds: 2);
+
+    for (int i = 0; i < maxRetries; i++) {
+      try {
+        final apnsToken = await _firebaseMessaging.getAPNSToken();
+        if (apnsToken != null) {
+          _logger.i('📱 APNS token available: ${apnsToken.substring(0, 20)}...');
+          return;
+        } else {
+          _logger.w('⚠️ APNS token not available yet, attempt ${i + 1}/$maxRetries');
+          if (i < maxRetries - 1) {
+            await Future.delayed(retryDelay);
+          }
+        }
+      } catch (e) {
+        _logger.w('⚠️ APNS token error (attempt ${i + 1}/$maxRetries): $e');
+        if (i < maxRetries - 1) {
+          await Future.delayed(retryDelay);
+        }
       }
-      
-      return false;
-    } catch (e) {
-      _logger.w('⚠️ Error checking if iOS simulator: $e');
-      return false;
     }
+
+    _logger.w('⚠️ Could not get APNS token after $maxRetries attempts, proceeding anyway...');
   }
+
 
   /// Setup message handlers
   void _setupMessageHandlers() {
@@ -290,6 +280,14 @@ class FirebaseNotificationService {
         case 'challenge':
           _logger.i('🎯 New daily challenge notification - navigating to challenges screen');
           _navigateToChallenges();
+          break;
+        case 'payment_success':
+          _logger.i('💰 Payment success notification - updating premium status');
+          _handlePaymentSuccessNotification(data);
+          break;
+        case 'payment_failed':
+          _logger.i('❌ Payment failed notification - updating premium status');
+          _handlePaymentFailedNotification(data);
           break;
         default:
           _logger.i('🏠 Unknown notification type, navigating to home screen');
@@ -456,6 +454,12 @@ class FirebaseNotificationService {
       case 'challenge':
         _handleChallengeNotification(title, body, additionalData);
         break;
+      case 'payment_success':
+        _handlePaymentSuccessNotificationForeground(title, body, additionalData);
+        break;
+      case 'payment_failed':
+        _handlePaymentFailedNotificationForeground(title, body, additionalData);
+        break;
       default:
         _logger.w('⚠️ Unknown notification type: $type');
     }
@@ -474,15 +478,94 @@ class FirebaseNotificationService {
     // These should navigate to home/dashboard when tapped
   }
 
-  /// Handle challenge notification  
+  /// Handle challenge notification
   void _handleChallengeNotification(String title, String body, Map<String, dynamic>? data) {
     _logger.i('🎯 Challenge notification received');
     // These should navigate to challenges screen when tapped
-    
+
     // Extract any challenge-specific data if needed
     if (data != null && data.containsKey('challengeId')) {
       final challengeId = data['challengeId'];
       _logger.i('🎯 Challenge ID: $challengeId');
+    }
+  }
+
+  /// Handle payment success notification (foreground)
+  void _handlePaymentSuccessNotificationForeground(String title, String body, Map<String, dynamic>? data) {
+    _logger.i('💰 Payment success notification received in foreground');
+    _updatePremiumStatus(true, data);
+  }
+
+  /// Handle payment failed notification (foreground)
+  void _handlePaymentFailedNotificationForeground(String title, String body, Map<String, dynamic>? data) {
+    _logger.i('❌ Payment failed notification received in foreground');
+    _updatePremiumStatus(false, data);
+  }
+
+  /// Handle payment success notification (background/tap)
+  void _handlePaymentSuccessNotification(Map<String, dynamic> data) {
+    _logger.i('💰 Payment success notification tapped');
+    _updatePremiumStatus(true, data);
+    // Navigate to payment confirmation or home
+    _navigateToHome();
+  }
+
+  /// Handle payment failed notification (background/tap)
+  void _handlePaymentFailedNotification(Map<String, dynamic> data) {
+    _logger.i('❌ Payment failed notification tapped');
+    _updatePremiumStatus(false, data);
+    // Navigate to payment screen to retry
+    _navigateToHome();
+  }
+
+  /// Update premium status based on payment notification
+  Future<void> _updatePremiumStatus(bool isSuccess, Map<String, dynamic>? data) async {
+    try {
+      _logger.i('👑 Updating premium status: success=$isSuccess');
+
+      final storageService = locator<StorageService>();
+
+      // Get current user
+      final user = await storageService.getUser();
+      if (user == null) {
+        _logger.w('⚠️ No user found to update premium status');
+        return;
+      }
+
+      // Extract payment information if available
+      final paymentId = data?['payment_id'];
+      _logger.i('💳 Payment ID: $paymentId');
+
+      // Update user's premium status
+      final updatedUser = UserModel(
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        isEmailVerified: user.isEmailVerified,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        updatedAt: DateTime.now(),
+        lastLoginAt: user.lastLoginAt,
+        role: user.role,
+        planType: isSuccess ? 'premium' : 'free',
+        planName: isSuccess ? 'Yefa +' : 'Free',
+        planStartDate: isSuccess ? DateTime.now() : user.planStartDate,
+        planEndDate: isSuccess ? null : user.planEndDate, // No end date for premium
+        planAutoRenew: user.planAutoRenew,
+        planStatus: isSuccess ? 'active' : 'inactive',
+      );
+
+      // Save updated user to storage
+      await storageService.saveUser(updatedUser);
+
+      _logger.i('✅ Premium status updated successfully: ${isSuccess ? 'PREMIUM' : 'FREE'}');
+
+      // Store a flag for UI updates
+      await storageService.setBool('premium_status_updated', true);
+      await storageService.setString('premium_update_type', isSuccess ? 'success' : 'failed');
+
+    } catch (e) {
+      _logger.e('❌ Error updating premium status: $e');
     }
   }
 }

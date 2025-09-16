@@ -4,7 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../shared/widgets/custom_bottom_nav.dart';
+import '../../shared/widgets/back_button_handler.dart';
 import 'challenges_viewmodel.dart';
 import 'widgets/puzzle_section.dart';
 import 'widgets/challenge_card.dart';
@@ -27,7 +29,9 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    return BackButtonHandler(
+      currentRoute: AppRoutes.challenges,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDarkMode
@@ -237,6 +241,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
           ),
         ),
         bottomNavigationBar: const CustomBottomNav(),
+      ),
       ),
     );
   }

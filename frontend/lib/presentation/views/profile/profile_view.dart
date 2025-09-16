@@ -4,7 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../shared/widgets/custom_bottom_nav.dart';
+import '../../shared/widgets/back_button_handler.dart';
 import 'profile_viewmodel.dart';
 import 'widgets/profile_header.dart';
 import 'widgets/settings_section.dart';
@@ -28,7 +30,9 @@ class ProfileView extends StackedView<ProfileViewModel> {
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    return BackButtonHandler(
+      currentRoute: AppRoutes.profile,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDarkMode
@@ -143,6 +147,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
           ),
         ),
         bottomNavigationBar: const CustomBottomNav(),
+      ),
       ),
     );
   }

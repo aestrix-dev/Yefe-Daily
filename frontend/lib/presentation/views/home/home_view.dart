@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 import 'package:yefa/core/constants/app_colors.dart';
+import 'package:yefa/core/constants/app_routes.dart';
 
 import 'home_viewmodel.dart';
 import 'widgets/greeting_header.dart';
@@ -11,6 +12,7 @@ import 'widgets/quick_actions.dart';
 import 'widgets/challenge_card.dart';
 import 'widgets/recent_activities.dart';
 import '../../shared/widgets/custom_bottom_nav.dart';
+import '../../shared/widgets/back_button_handler.dart';
 
 class HomeView extends StackedView<HomeViewModel> {
   const HomeView({super.key});
@@ -19,7 +21,9 @@ class HomeView extends StackedView<HomeViewModel> {
   Widget builder(BuildContext context, HomeViewModel viewModel, Widget? child) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    return BackButtonHandler(
+      currentRoute: AppRoutes.home,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDarkMode
@@ -76,6 +80,7 @@ class HomeView extends StackedView<HomeViewModel> {
           ),
         ),
         bottomNavigationBar: const CustomBottomNav(),
+      ),
       ),
     );
   }

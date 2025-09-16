@@ -6,6 +6,7 @@ import '../../app/app_setup.dart';
 
 class DioService {
   static const String baseUrl = 'https://yefe-backend.onrender.com/';
+  // static const String baseUrl = 'https://adapted-kindly-perch.ngrok-free.app/';
 
   late Dio _dio;
   final _storageService = locator<StorageService>();
@@ -178,6 +179,7 @@ class _ErrorInterceptor extends Interceptor {
     // Log for debugging (only in debug mode)
     if (kDebugMode) {
       print('🔴 API Error: ${err.type} - ${err.response?.statusCode ?? 'No status'}');
+      print('🔴 Response data: ${err.response?.data}');
     }
 
     switch (err.type) {
@@ -209,51 +211,92 @@ class _ErrorInterceptor extends Interceptor {
   }
 
   void _handleStatusError(DioException err) {
-    // Try to get custom error message from server response
+    final int? statusCode = err.response?.statusCode;
     String? serverMessage = _extractServerErrorMessage(err.response?.data);
 
-    switch (err.response?.statusCode) {
-      case 400:
-        throw ApiException(serverMessage ?? 'Invalid request');
-      case 401:
-        throw ApiException('Please login again');
-      case 403:
-        throw ApiException('Access denied');
-      case 404:
-        throw ApiException('Not found');
-      case 422:
-        throw ApiException(serverMessage ?? 'Validation failed');
-      case 429:
-        throw ApiException('Too many requests');
-      case 500:
-        throw ApiException('Server error');
-      case 502:
-      case 503:
-      case 504:
-        throw ApiException('Service unavailable');
-      default:
-        if (err.response?.statusCode != null && err.response!.statusCode! >= 500) {
-          throw ApiException('Server error');
-        } else {
-          throw ApiException(serverMessage ?? 'Request failed');
-        }
+    if (statusCode == null) {
+      throw ApiException('Network error - no response');
     }
+
+    // Handle 5xx Server Errors
+    if (statusCode >= 500) {
+      throw ApiException('Server error. Please try again later.');
+    }
+
+    // Handle 4xx Client Errors
+    if (statusCode >= 400 && statusCode < 500) {
+      switch (statusCode) {
+        case 400:
+          throw ApiException(serverMessage ?? 'Bad request. Please check your input.');
+        case 401:
+          throw ApiException('Authentication required. Please login again.');
+        case 403:
+          throw ApiException(serverMessage ?? 'Access denied. You don\'t have permission.');
+        case 404:
+          throw ApiException('Resource not found.');
+        case 405:
+          throw ApiException('Method not allowed.');
+        case 408:
+          throw ApiException('Request timeout. Please try again.');
+        case 409:
+          throw ApiException(serverMessage ?? 'Conflict. Resource already exists.');
+        case 410:
+          throw ApiException('Resource no longer available.');
+        case 413:
+          throw ApiException('Request too large. Please reduce file size.');
+        case 422:
+          throw ApiException(serverMessage ?? 'Validation failed. Please check your input.');
+        case 429:
+          throw ApiException('Too many requests. Please wait and try again.');
+        case 431:
+          throw ApiException('Request header fields too large.');
+        case 451:
+          throw ApiException('Unavailable for legal reasons.');
+        default:
+          throw ApiException(serverMessage ?? 'Client error ($statusCode). Please check your request.');
+      }
+    }
+
+    // Handle 3xx Redirects (shouldn't normally reach here)
+    if (statusCode >= 300 && statusCode < 400) {
+      throw ApiException('Redirect error ($statusCode). Please contact support.');
+    }
+
+    // Handle 2xx Success (shouldn't reach here)
+    if (statusCode >= 200 && statusCode < 300) {
+      throw ApiException('Unexpected success status in error handler ($statusCode).');
+    }
+
+    // Handle any other status codes
+    throw ApiException('HTTP error ($statusCode). Please try again.');
   }
 
   // Extract error message from server response if available
   String? _extractServerErrorMessage(dynamic responseData) {
     try {
       if (responseData is Map<String, dynamic>) {
-        // Common error message fields
+        // Common error message fields - try multiple variations
         return responseData['message'] ??
                responseData['error'] ??
                responseData['detail'] ??
-               responseData['msg'];
+               responseData['msg'] ??
+               responseData['errorMessage'] ??
+               responseData['description'] ??
+               responseData['reason'];
       } else if (responseData is String) {
-        return responseData.length > 100 ? null : responseData; // Avoid long strings
+        // Clean up the string - remove "Error: " prefix if present
+        String cleanMessage = responseData.trim();
+        if (cleanMessage.startsWith('Error: ')) {
+          cleanMessage = cleanMessage.substring(7);
+        }
+        return cleanMessage.length > 100 ? null : cleanMessage;
       }
     } catch (e) {
-      // Ignore extraction errors
+      // Log the error for debugging
+      if (kDebugMode) {
+        print('🔴 Error extracting server message: $e');
+        print('🔴 Response data: $responseData');
+      }
     }
     return null;
   }
@@ -266,5 +309,24 @@ class ApiException implements Exception {
   ApiException(this.message);
 
   @override
-  String toString() => message;
+  String toString() {
+    // Ensure we never expose technical details to users
+    String cleanMessage = message;
+
+    // Remove any DioException prefixes
+    if (cleanMessage.contains('DioException')) {
+      // Extract only the meaningful part after the last colon
+      final parts = cleanMessage.split(':');
+      if (parts.length > 1) {
+        cleanMessage = parts.last.trim();
+      }
+    }
+
+    // Remove "Error: " prefix if present
+    if (cleanMessage.startsWith('Error: ')) {
+      cleanMessage = cleanMessage.substring(7);
+    }
+
+    return cleanMessage;
+  }
 }

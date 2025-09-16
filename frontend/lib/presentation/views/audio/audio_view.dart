@@ -5,7 +5,9 @@ import 'package:stacked/stacked.dart';
 import 'package:yefa/data/models/audio_model.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../shared/widgets/custom_bottom_nav.dart';
+import '../../shared/widgets/back_button_handler.dart';
 import 'audio_viewmodel.dart';
 import 'widgets/audio_category_section.dart';
 
@@ -26,7 +28,9 @@ class AudioView extends StackedView<AudioViewModel> {
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    return BackButtonHandler(
+      currentRoute: AppRoutes.audio,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDarkMode
@@ -277,6 +281,7 @@ class AudioView extends StackedView<AudioViewModel> {
             );
           },
         ),
+      ),
       ),
     );
   }

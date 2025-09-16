@@ -68,7 +68,7 @@ class SettingsSection extends StatelessWidget {
               _buildSettingItem(
                 context: context,
                 icon: Icons.analytics,
-                title: 'Mood Analytics',
+                title: 'Sleep Analytics',
                 trailing: isPremium 
                   ? Icon(
                       Icons.chevron_right,

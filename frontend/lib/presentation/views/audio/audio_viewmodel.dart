@@ -69,6 +69,9 @@ class AudioViewModel extends BaseViewModel {
     // Load premium status
     await _loadPremiumStatus();
 
+    // Check for premium status updates from notifications
+    await _checkForPremiumStatusUpdates();
+
     // Load cached data first, then fetch fresh data
     await _loadCachedAudios();
     await _loadFreshDataIfOnline();
@@ -77,6 +80,7 @@ class AudioViewModel extends BaseViewModel {
   Future<void> _refreshUIStateOnly() async {
     // Only refresh premium status (lightweight operation)
     await _loadPremiumStatus();
+    await _checkForPremiumStatusUpdates();
     
     // Load cached data if we don't have any (but don't fetch fresh data)
     if (_audioCategories.isEmpty) {
@@ -104,6 +108,44 @@ class AudioViewModel extends BaseViewModel {
     } catch (e) {
       print('❌ Error loading premium status: $e');
       _isPremiumUser = false;
+    }
+  }
+
+  /// Check if premium status was updated from payment notifications
+  Future<void> _checkForPremiumStatusUpdates() async {
+    try {
+      final wasUpdated = _storageService.getBool('premium_status_updated') ?? false;
+
+      if (wasUpdated) {
+        print('👑 Premium status was updated from notification in AudioView, refreshing...');
+
+        // Clear the update flag
+        await _storageService.remove('premium_status_updated');
+
+        // Get the update type
+        final updateType = _storageService.getString('premium_update_type') ?? 'unknown';
+        await _storageService.remove('premium_update_type');
+
+        // Reload premium status
+        await _loadPremiumStatus();
+
+        // Show appropriate message to user if context is available
+        if (_context != null) {
+          if (updateType == 'success') {
+            ToastOverlay.showSuccess(
+              context: _context!,
+              message: 'Welcome to Yefa Plus! Enjoy unlimited audio content 🎵👑',
+            );
+          } else if (updateType == 'failed') {
+            ToastOverlay.showError(
+              context: _context!,
+              message: 'Payment failed. Please try again.',
+            );
+          }
+        }
+      }
+    } catch (e) {
+      print('❌ Error checking premium status updates in AudioView: $e');
     }
   }
 

@@ -69,6 +69,7 @@ class ProfileViewModel extends BaseViewModel {
   void onModelReady() {
     _loadUserData();
     _loadChallengeStats();
+    _checkForPremiumStatusUpdates();
   }
 
   Future<void> _loadUserData() async {
@@ -96,6 +97,49 @@ class ProfileViewModel extends BaseViewModel {
     } catch (e) {
       print('Error loading challenge stats in profile: $e');
     }
+  }
+
+  /// Check if premium status was updated from payment notifications
+  Future<void> _checkForPremiumStatusUpdates() async {
+    try {
+      final wasUpdated = _storageService.getBool('premium_status_updated') ?? false;
+
+      if (wasUpdated) {
+        print('👑 Premium status was updated from notification, refreshing UI...');
+
+        // Clear the update flag
+        await _storageService.remove('premium_status_updated');
+
+        // Get the update type
+        final updateType = _storageService.getString('premium_update_type') ?? 'unknown';
+        await _storageService.remove('premium_update_type');
+
+        // Reload user data to get latest premium status
+        await _loadUserData();
+
+        // Show appropriate message to user if context is available
+        if (_context != null) {
+          if (updateType == 'success') {
+            ToastOverlay.showSuccess(
+              context: _context!,
+              message: 'Welcome to Yefa Plus! Your payment was successful 🎉👑',
+            );
+          } else if (updateType == 'failed') {
+            ToastOverlay.showError(
+              context: _context!,
+              message: 'Payment failed. Please try again or contact support.',
+            );
+          }
+        }
+      }
+    } catch (e) {
+      print('❌ Error checking premium status updates: $e');
+    }
+  }
+
+  /// Public method to refresh premium status (can be called from other parts of the app)
+  Future<void> refreshPremiumStatus() async {
+    await _loadUserData();
   }
 
   void showUpgradeCard() {
@@ -157,16 +201,15 @@ class ProfileViewModel extends BaseViewModel {
       Navigator.of(_context!).pop();
 
       if (result.isSuccess) {
-        print('✅ ProfileViewModel: Stripe payment successful!');
+        print('✅ ProfileViewModel: Stripe payment initiated successfully!');
 
-        // Update premium status
-        _isPremium = true;
-        notifyListeners();
+        // DO NOT update premium status here - wait for payment notification
+        // _isPremium = true; // REMOVED - only update from notification
 
-        // Show success message
+        // Show processing message
         ToastOverlay.showSuccess(
           context: _context!,
-          message: 'Welcome to Yefa Plus! 🎉👑',
+          message: 'Payment initiated! You\'ll be notified when complete.',
         );
       } else {
         print('❌ ProfileViewModel: Stripe payment failed: ${result.error}');
@@ -204,16 +247,15 @@ class ProfileViewModel extends BaseViewModel {
       Navigator.of(_context!).pop();
 
       if (result.isSuccess) {
-        print('✅ ProfileViewModel: Paystack payment successful!');
+        print('✅ ProfileViewModel: Paystack payment initiated successfully!');
 
-        // Update premium status
-        _isPremium = true;
-        notifyListeners();
+        // DO NOT update premium status here - wait for payment notification
+        // _isPremium = true; // REMOVED - only update from notification
 
-        // Show success message
+        // Show processing message
         ToastOverlay.showSuccess(
           context: _context!,
-          message: 'Welcome to Yefa Plus! 🎉👑',
+          message: 'Payment initiated! You\'ll be notified when complete.',
         );
       } else {
         print('❌ ProfileViewModel: Paystack payment failed: ${result.error}');

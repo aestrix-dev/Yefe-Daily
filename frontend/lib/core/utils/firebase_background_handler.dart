@@ -32,6 +32,14 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     case 'challenge':
       logger.i('🎯 Processing new daily challenge notification in background');
       break;
+    case 'payment_success':
+      logger.i('💰 Processing payment success notification in background');
+      // Handle payment success in background
+      break;
+    case 'payment_failed':
+      logger.i('❌ Processing payment failed notification in background');
+      // Handle payment failure in background
+      break;
     default:
       logger.i('❓ Processing unknown notification type in background');
   }

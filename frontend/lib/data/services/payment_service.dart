@@ -62,6 +62,9 @@ class PaymentService {
     try {
       print('💳 PaymentService: Starting Paystack payment...');
 
+      // Force garbage collection before heavy WebView operation
+      await Future.delayed(const Duration(milliseconds: 100));
+
       final result = await PaystackWebViewService.processPayment(
         paymentUrl: paymentUrl,
         context: context,

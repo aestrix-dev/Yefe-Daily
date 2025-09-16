@@ -6,6 +6,7 @@ import 'package:yefa/core/utils/api_result.dart';
 import 'package:yefa/data/models/payment_model.dart';
 import 'package:yefa/data/services/payment_api_service.dart';
 import 'package:yefa/data/services/payment_service.dart';
+import 'package:yefa/data/services/paystack_webview_service.dart';
 import 'base_repository.dart';
 
 class PaymentRepository extends BaseRepository {
@@ -54,15 +55,23 @@ class PaymentRepository extends BaseRepository {
           return Failure('No payment URL provided for Paystack');
         }
 
-        await _paymentService.processPaystackPayment(
-          paymentUrl: paymentIntent.paymentUrl!,
-          context: context,
-          onResult: (success, error, paymentReference) {
-            paymentSuccessful = success;
-            paymentError = error;
-            paystackPaymentReference = paymentReference;
-          },
-        );
+        try {
+          // Use simple direct WebView service
+          final result = await PaystackWebViewService.processPayment(
+            paymentUrl: paymentIntent.paymentUrl!,
+            context: context,
+          );
+
+          paymentSuccessful = result.isSuccessful;
+          paystackPaymentReference = result.paymentReference;
+
+          if (!result.isSuccessful) {
+            paymentError = result.errorMessage ?? 'Payment failed';
+          }
+        } catch (e) {
+          paymentSuccessful = false;
+          paymentError = 'Payment error: $e';
+        }
       } else {
         return Failure('Unsupported payment provider: $provider');
       }

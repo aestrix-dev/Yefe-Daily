@@ -43,6 +43,7 @@ class CommunitySection extends StatelessWidget {
             children: [
               // Yefa Man Cave
               _buildCommunityItem(
+                context,
                 iconPath: 'assets/icons/whatsapp.png',
                 title: 'Yefa Man Cave',
                 subtitle: 'Join our WhatsApp group',
@@ -52,6 +53,7 @@ class CommunitySection extends StatelessWidget {
 
               // Towel Talk (Telegram)
               _buildCommunityItem(
+                context,
                 iconPath: 'assets/icons/telegram.png',
                 title: 'Towel Talk',
                 subtitle: 'Join our Telegram channel',
@@ -65,7 +67,8 @@ class CommunitySection extends StatelessWidget {
     );
   }
 
-  Widget _buildCommunityItem({
+  Widget _buildCommunityItem(
+    BuildContext context, {
     required String iconPath,
     required String title,
     required String subtitle,
@@ -120,13 +123,16 @@ class CommunitySection extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[700],
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   SizedBox(height: 2.h),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors.textSecondary(context),
+                    ),
                   ),
                 ],
               ),
