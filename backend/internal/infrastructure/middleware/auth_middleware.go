@@ -48,6 +48,20 @@ func (m *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
+		if user.IsYefePlusPlan() && user.IsPlanExpired() {
+			err := m.adminUsecase.UpdateUserPlan(r.Context(), user.ID, "free")
+			if err != nil {
+				logger.Log.WithError(err).Error("failed to downgrade user plan")
+			} else {
+				refreshedUser, refreshErr := m.userRepo.GetByID(r.Context(), user.ID)
+				if refreshErr != nil {
+					logger.Log.WithError(refreshErr).Error("failed to refresh user after plan downgrade")
+				} else {
+					user = refreshedUser
+				}
+			}
+		}
+
 		// Add user and session to context
 		ctx := r.Context()
 		ctx = context.WithValue(ctx, "user", user)
@@ -66,6 +80,20 @@ func (m *AuthMiddleware) OptionalAuth(next http.Handler) http.Handler {
 
 		ctx := r.Context()
 		if err == nil {
+			if user.IsYefePlusPlan() && user.IsPlanExpired() {
+				err := m.adminUsecase.UpdateUserPlan(r.Context(), user.ID, "free")
+				if err != nil {
+					logger.Log.WithError(err).Error("failed to downgrade user plan")
+				} else {
+					// Re-fetch user to get updated plan status
+					refreshedUser, refreshErr := m.userRepo.GetByID(r.Context(), user.ID)
+					if refreshErr != nil {
+						logger.Log.WithError(refreshErr).Error("failed to refresh user after plan downgrade")
+					} else {
+						user = refreshedUser
+					}
+				}
+			}
 			// Add user and session to context if authentication successful
 			ctx = context.WithValue(ctx, "user", user)
 			ctx = context.WithValue(ctx, "session", session)
@@ -95,7 +123,7 @@ func (m *AuthMiddleware) authenticateRequest(r *http.Request) (*domain.User, *do
 	// Get session from database
 	session, err := m.sessionRepo.GetByID(r.Context(), sessionID)
 	if err != nil || session == nil {
-		logger.Log.WithError(err).Errorf("Session not found: ", sessionID)
+		logger.Log.WithError(err).Errorf("Session not found: %s", sessionID)
 		return nil, nil, domain.ErrSessionNotFound
 	}
 
@@ -182,17 +210,6 @@ func (m *AuthMiddleware) PaidUserOnly(next http.Handler) http.Handler {
 		user, ok := r.Context().Value("user").(*domain.User)
 		if !ok {
 			utils.ErrorResponse(w, http.StatusUnauthorized, "Unauthorized", nil)
-			return
-		}
-
-		if user.IsYefePlusPlan() && user.IsPlanExpired() {
-			err := m.adminUsecase.UpdateUserPlan(r.Context(), user.ID, "free")
-			if err != nil {
-				logger.Log.WithError(err).Error("failed to downgrade user plan")
-				utils.ErrorResponse(w, http.StatusInternalServerError, "An internal error occurred", nil)
-				return
-			}
-			utils.ErrorResponse(w, http.StatusForbidden, "This feature is for paid users only. Your plan has expired.", nil)
 			return
 		}
 
