@@ -90,7 +90,6 @@ func (uc *journalUseCase) GetEntry(ctx context.Context, userID, entryID string) 
 
 // GetEntries retrieves journal entries with filtering and pagination
 func (uc *journalUseCase) GetEntries(ctx context.Context, userID string, filter dto.JournalEntryFilter) (*dto.JournalEntriesResponse, error) {
-	var res dto.JournalEntryResponse
 	// Set default values
 	if filter.Limit <= 0 {
 		filter.Limit = 20
@@ -135,6 +134,7 @@ func (uc *journalUseCase) GetEntries(ctx context.Context, userID string, filter 
 	entryDTOs := make([]dto.JournalEntryResponse, len(entries))
 	for i, entry := range entries {
 
+		var res dto.JournalEntryResponse
 		if err := utils.TypeConverter(entry, &res); err != nil {
 
 			return nil, fmt.Errorf("failed to create journal entry: %w", err)
@@ -271,7 +271,7 @@ func (uc *journalUseCase) GetStats(ctx context.Context, userID string) (*dto.Jou
 	// Calculate streaks
 	currentStreak, longestStreak := uc.calculateStreaks(ctx, userID)
 
-	// Get tags usage 
+	// Get tags usage
 	tagsUsage := uc.calculateTagsUsage(recentEntries)
 
 	// Get monthly progress (last 6 months)

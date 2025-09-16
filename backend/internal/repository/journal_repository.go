@@ -63,6 +63,7 @@ func (r *journalRepository) GetByUserID(ctx context.Context, userID string, limi
 	if err != nil {
 		return nil, err
 	}
+
 	return entries, err
 }
 
@@ -78,6 +79,7 @@ func (r *journalRepository) GetByUserIDAndType(ctx context.Context, userID, entr
 	}
 
 	err := query.Find(&entries).Error
+
 	return entries, err
 }
 
@@ -87,6 +89,7 @@ func (r *journalRepository) GetByUserIDAndDateRange(ctx context.Context, userID 
 		Where("user_id = ? AND created_at BETWEEN ? AND ?", userID, startDate, endDate).
 		Order("created_at DESC").
 		Find(&entries).Error
+
 	return entries, err
 }
 
@@ -113,11 +116,11 @@ func (r *journalRepository) GetByUserIDAndTags(ctx context.Context, userID strin
 }
 
 func (r *journalRepository) Update(ctx context.Context, entry *domain.JournalEntry) error {
-  var dbJournal models.JournalEntry
-  err := utils.TypeConverter(entry, &dbJournal)
-  if err != nil{
-    return err
-  }
+	var dbJournal models.JournalEntry
+	err := utils.TypeConverter(entry, &dbJournal)
+	if err != nil {
+		return err
+	}
 	return r.db.WithContext(ctx).Save(dbJournal).Error
 }
 
