@@ -27,6 +27,7 @@ import '../core/utils/navigation_service.dart';
 import '../data/services/storage_service.dart';
 import '../data/services/theme_service.dart';
 import '../data/services/firebase_notification_service.dart';
+import '../data/services/premium_status_service.dart';
 
 final locator = GetIt.instance;
 
@@ -57,6 +58,10 @@ class AppSetup {
     // Register toast service
     print('🍞 Registering toast service...');
     locator.registerSingleton<ToastService>(ToastService.instance);
+
+    // Register premium status service
+    print('👑 Registering premium status service...');
+    locator.registerSingleton<PremiumStatusService>(PremiumStatusService());
 
     // Register puzzle timer service
     print('⏰ Registering puzzle timer service...');
@@ -130,6 +135,7 @@ class AppSetup {
       locator<ThemeService>();
       locator<DioService>();
       locator<FirebaseNotificationService>();
+      locator<PremiumStatusService>();
 
       // Test API services
       locator<AuthApiService>();

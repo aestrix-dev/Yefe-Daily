@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:yefa/core/utils/api_result.dart';
 import '../../../data/repositories/journal_repository.dart';
 import '../../../data/repositories/payment_repository.dart';
 import '../../../data/services/payment_service.dart';
+import '../../../data/services/premium_status_service.dart';
 import '../../shared/widgets/payment_provider_sheet.dart';
 import '../../shared/widgets/toast_overlay.dart';
 import '../../../app/app_setup.dart';
@@ -12,6 +14,7 @@ class JournalViewModel extends BaseViewModel {
   final JournalRepository _journalRepository = locator<JournalRepository>();
   final PaymentRepository _paymentRepository = locator<PaymentRepository>();
   final PaymentService _paymentService = locator<PaymentService>();
+  final PremiumStatusService _premiumStatusService = locator<PremiumStatusService>();
 
   int _selectedTabIndex = 0;
   String _journalContent = '';
@@ -19,6 +22,7 @@ class JournalViewModel extends BaseViewModel {
   bool _isPremiumUser = false;
   final bool _hasUpgraded = false;
   bool _isSaving = false;
+  StreamSubscription<PremiumStatusUpdate>? _premiumStatusSubscription;
 
   BuildContext? _context;
   bool contextAlreadySet = false;
@@ -28,6 +32,7 @@ class JournalViewModel extends BaseViewModel {
       _context = context;
       contextAlreadySet = true;
       _checkPremiumStatus();
+      _setupPremiumStatusListener();
     }
   }
 
@@ -35,6 +40,47 @@ class JournalViewModel extends BaseViewModel {
   Future<void> _checkPremiumStatus() async {
     _isPremiumUser = await _paymentService.isUserPremium();
     notifyListeners();
+  }
+
+  /// Set up listener for premium status updates from notifications
+  void _setupPremiumStatusListener() {
+    _premiumStatusSubscription = _premiumStatusService.premiumStatusUpdates.listen(
+      (update) {
+        print('🔔 Premium status update received in JournalView: $update');
+
+        // Update the premium status immediately
+        _isPremiumUser = update.isPremium;
+
+        // Show toast message to user if context is available
+        if (_context != null) {
+          if (update.updateType == 'success') {
+            ToastOverlay.showSuccess(
+              context: _context!,
+              message: 'Welcome to Yefa Plus! Evening journaling is now unlocked 📝👑',
+            );
+          } else if (update.updateType == 'failed') {
+            ToastOverlay.showError(
+              context: _context!,
+              message: 'Payment failed. Please try again or contact support.',
+            );
+          }
+        }
+
+        // Notify UI to rebuild
+        notifyListeners();
+
+        print('👑 Premium status updated in JournalView UI: $_isPremiumUser');
+      },
+      onError: (error) {
+        print('❌ Error listening to premium status updates in JournalView: $error');
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _premiumStatusSubscription?.cancel();
+    super.dispose();
   }
 
   // Getters

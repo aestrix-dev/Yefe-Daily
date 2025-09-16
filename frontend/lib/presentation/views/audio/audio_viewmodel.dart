@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -11,6 +12,7 @@ import 'package:yefa/data/services/storage_service.dart';
 import 'package:yefa/data/services/cache/audio_cache.dart';
 import 'package:yefa/data/services/payment_service.dart';
 import 'package:yefa/data/repositories/payment_repository.dart';
+import 'package:yefa/data/services/premium_status_service.dart';
 import 'package:yefa/presentation/shared/widgets/payment_provider_sheet.dart';
 import 'package:yefa/presentation/shared/widgets/toast_overlay.dart';
 import 'package:yefa/presentation/views/audio/widgets/audio_player_dialog.dart';
@@ -22,6 +24,7 @@ class AudioViewModel extends BaseViewModel {
   final StorageService _storageService = locator<StorageService>();
   final PaymentService _paymentService = locator<PaymentService>();
   final PaymentRepository _paymentRepository = locator<PaymentRepository>();
+  final PremiumStatusService _premiumStatusService = locator<PremiumStatusService>();
 
   List<AudioCategoryModel> _audioCategories = [];
   String? _showUpgradeCardForCategory;
@@ -31,6 +34,7 @@ class AudioViewModel extends BaseViewModel {
   String? _errorMessage;
   final Map<String, bool> _downloadingStates = {};
   final Map<String, double> _downloadProgress = {};
+  StreamSubscription<PremiumStatusUpdate>? _premiumStatusSubscription;
 
   // Getters
   List<AudioCategoryModel> get audioCategories => _audioCategories;
@@ -71,6 +75,9 @@ class AudioViewModel extends BaseViewModel {
 
     // Check for premium status updates from notifications
     await _checkForPremiumStatusUpdates();
+
+    // Set up premium status listener
+    _setupPremiumStatusListener();
 
     // Load cached data first, then fetch fresh data
     await _loadCachedAudios();
@@ -147,6 +154,42 @@ class AudioViewModel extends BaseViewModel {
     } catch (e) {
       print('❌ Error checking premium status updates in AudioView: $e');
     }
+  }
+
+  /// Set up listener for premium status updates from notifications
+  void _setupPremiumStatusListener() {
+    _premiumStatusSubscription = _premiumStatusService.premiumStatusUpdates.listen(
+      (update) {
+        print('🔔 Premium status update received in AudioView: $update');
+
+        // Update the premium status immediately
+        _isPremiumUser = update.isPremium;
+        _showUpgradeCardForCategory = null; // Hide upgrade card if showing
+
+        // Show toast message to user if context is available
+        if (_context != null) {
+          if (update.updateType == 'success') {
+            ToastOverlay.showSuccess(
+              context: _context!,
+              message: 'Welcome to Yefa Plus! Enjoy unlimited audio content 🎵👑',
+            );
+          } else if (update.updateType == 'failed') {
+            ToastOverlay.showError(
+              context: _context!,
+              message: 'Payment failed. Please try again or contact support.',
+            );
+          }
+        }
+
+        // Notify UI to rebuild
+        notifyListeners();
+
+        print('👑 Premium status updated in AudioView UI: $_isPremiumUser');
+      },
+      onError: (error) {
+        print('❌ Error listening to premium status updates in AudioView: $error');
+      },
+    );
   }
 
   Future<void> _loadFreshDataIfOnline() async {
@@ -621,6 +664,8 @@ class AudioViewModel extends BaseViewModel {
     print(
       '🎵 AudioViewModel: Dispose called - NOT disposing singleton services',
     );
+    // Cancel premium status subscription
+    _premiumStatusSubscription?.cancel();
     // Don't dispose singleton services
     super.dispose();
   }

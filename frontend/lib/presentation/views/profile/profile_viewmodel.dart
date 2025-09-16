@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
 import 'package:stacked/stacked.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yefa/app/app_setup.dart';
@@ -12,6 +13,7 @@ import 'package:yefa/data/services/payment_service.dart';
 import 'package:yefa/data/services/storage_service.dart';
 import 'package:yefa/data/services/theme_service.dart';
 import 'package:yefa/data/services/firebase_notification_service.dart';
+import 'package:yefa/data/services/premium_status_service.dart';
 import 'package:yefa/presentation/shared/widgets/payment_provider_sheet.dart';
 import 'package:yefa/presentation/shared/widgets/toast_overlay.dart';
 import 'widgets/upgrade_popup.dart';
@@ -25,9 +27,11 @@ class ProfileViewModel extends BaseViewModel {
   final ChallengeRepository _challengeRepository =
       locator<ChallengeRepository>();
   final _fcmService = FirebaseNotificationService();
+  final _premiumStatusService = locator<PremiumStatusService>();
 
   BuildContext? _context;
   bool contextAlreadySet = false;
+  StreamSubscription<PremiumStatusUpdate>? _premiumStatusSubscription;
 
   // User data
   String _userName = 'Guest';
@@ -70,6 +74,13 @@ class ProfileViewModel extends BaseViewModel {
     _loadUserData();
     _loadChallengeStats();
     _checkForPremiumStatusUpdates();
+    _setupPremiumStatusListener();
+  }
+
+  @override
+  void dispose() {
+    _premiumStatusSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadUserData() async {
@@ -135,6 +146,41 @@ class ProfileViewModel extends BaseViewModel {
     } catch (e) {
       print('❌ Error checking premium status updates: $e');
     }
+  }
+
+  /// Set up listener for premium status updates from notifications
+  void _setupPremiumStatusListener() {
+    _premiumStatusSubscription = _premiumStatusService.premiumStatusUpdates.listen(
+      (update) {
+        print('🔔 Premium status update received: $update');
+
+        // Update the premium status immediately
+        _isPremium = update.isPremium;
+
+        // Show toast message to user if context is available
+        if (_context != null) {
+          if (update.updateType == 'success') {
+            ToastOverlay.showSuccess(
+              context: _context!,
+              message: 'Welcome to Yefa Plus! Your payment was successful 🎉👑',
+            );
+          } else if (update.updateType == 'failed') {
+            ToastOverlay.showError(
+              context: _context!,
+              message: 'Payment failed. Please try again or contact support.',
+            );
+          }
+        }
+
+        // Notify UI to rebuild
+        notifyListeners();
+
+        print('👑 Premium status updated in UI: $_isPremium');
+      },
+      onError: (error) {
+        print('❌ Error listening to premium status updates: $error');
+      },
+    );
   }
 
   /// Public method to refresh premium status (can be called from other parts of the app)

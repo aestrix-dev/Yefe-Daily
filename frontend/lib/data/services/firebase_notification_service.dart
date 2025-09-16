@@ -9,6 +9,7 @@ import '../repositories/auth_repository.dart';
 import '../../core/utils/api_result.dart';
 import 'local_notification_service.dart';
 import 'storage_service.dart';
+import 'premium_status_service.dart';
 import '../models/user_model.dart';
 
 class FirebaseNotificationService {
@@ -524,6 +525,7 @@ class FirebaseNotificationService {
       _logger.i('👑 Updating premium status: success=$isSuccess');
 
       final storageService = locator<StorageService>();
+      final premiumStatusService = locator<PremiumStatusService>();
 
       // Get current user
       final user = await storageService.getUser();
@@ -560,9 +562,18 @@ class FirebaseNotificationService {
 
       _logger.i('✅ Premium status updated successfully: ${isSuccess ? 'PREMIUM' : 'FREE'}');
 
-      // Store a flag for UI updates
+      // Store a flag for UI updates (keeping for backwards compatibility)
       await storageService.setBool('premium_status_updated', true);
       await storageService.setString('premium_update_type', isSuccess ? 'success' : 'failed');
+
+      // NEW: Broadcast the premium status change to all listeners
+      premiumStatusService.notifyPremiumStatusUpdate(
+        isPremium: isSuccess,
+        updateType: isSuccess ? 'success' : 'failed',
+        paymentId: paymentId,
+      );
+
+      _logger.i('🔔 Premium status update broadcasted to all listeners');
 
     } catch (e) {
       _logger.e('❌ Error updating premium status: $e');
