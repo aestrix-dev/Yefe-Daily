@@ -85,11 +85,11 @@ class _ToastNotificationState extends State<ToastNotification>
   Color _getBackgroundColor(BuildContext context) {
     switch (widget.type) {
       case ToastType.success:
-        return Colors.green;
+        return AppColors.primary(context); // Use app's primary color for success
       case ToastType.error:
-        return Colors.red;
+        return const Color(0xFFD32F2F); // Custom red that matches app theme
       case ToastType.warning:
-        return Colors.orange;
+        return const Color(0xFFF57C00); // Custom orange that matches app theme
       case ToastType.info:
         return AppColors.primary(context);
     }

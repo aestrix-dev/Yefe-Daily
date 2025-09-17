@@ -1,5 +1,5 @@
 name: yefa
-description: "Yefa daily motivation task app"
+description: "Yefa Daily - Tower Talk devotional app with daily challenges, puzzles, and audio content"
 
 publish_to: 'none'
 
@@ -11,6 +11,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  firebase_core: ^4.1.0
+  firebase_messaging: ^16.0.1
+  flutter_local_notifications: ^17.2.3
+  # Payment packages 
+  webview_flutter: ^4.4.2            
+  flutter_stripe: ^10.1.0 
 
   # Audio packages
   just_audio: ^0.9.39
@@ -24,7 +31,7 @@ dependencies:
   stacked_services: ^1.2.0
   get_it: ^7.6.4
 
-  intl: ^0.19.0
+  intl: ^0.17.0
 
   # Navigation
   go_router: ^12.1.3
@@ -48,6 +55,7 @@ dependencies:
   # Utils
   logger: ^2.0.2+1
   equatable: ^2.0.5
+  url_launcher: ^6.2.2
 
   cupertino_icons: ^1.0.8
 
@@ -62,6 +70,23 @@ dev_dependencies:
   json_serializable: ^6.7.1
 
   flutter_lints: ^5.0.0
+  
+  # Icon generation
+  flutter_launcher_icons: ^0.13.1
+
+# Flutter Launcher Icons Configuration
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  
+  # Android adaptive icon configuration
+  adaptive_icon_background: "#2E3B2C"
+  adaptive_icon_foreground: "assets/images/logo.png"
+  background_color_ios: "#2E3B2C"
+  
+  # Remove old launcher icons
+  remove_alpha_ios: true
 
 flutter:
   uses-material-design: true

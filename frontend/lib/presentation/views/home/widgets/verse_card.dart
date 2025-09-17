@@ -14,38 +14,40 @@ class VerseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-      height: 150.h, 
-      child: Stack(
-        children: [
-         
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12.r),
-              child: Image.asset(
-                'assets/images/background.png',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-
-         
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.secondaryDark(context).withOpacity(
-                  0.97,
-                ), 
+      constraints: BoxConstraints(
+        minHeight: 120.h, // Minimum height to ensure it's not too small
+      ),
+      child: IntrinsicHeight(
+        child: Stack(
+          children: [
+            // Background image
+            Positioned.fill(
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.r),
+                child: Image.asset(
+                  'assets/images/background.png',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
 
-         
-          Positioned.fill(
-            child: Padding(
+            // Overlay
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.secondaryDark(context).withOpacity(0.97),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+            ),
+
+            // Content
+            Container(
+              width: double.infinity,
               padding: EdgeInsets.all(16.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   // Header
                   Row(
@@ -59,48 +61,33 @@ class VerseCard extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => _showVersePopup(context),
-                            child: Image.asset(
-                              'assets/icons/bulb.png',
-                              width: 18.w,
-                              height: 18.h,
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          GestureDetector(
-                            onTap: onBookmarkTap,
-                            child: Image.asset(
-                              'assets/icons/speaker.png',
-                              width: 18.w,
-                              height: 18.h,
-                            ),
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: () => _showVersePopup(context),
+                        child: Image.asset(
+                          'assets/icons/bulb.png',
+                          width: 18.w,
+                          height: 18.h,
+                        ),
                       ),
                     ],
                   ),
 
                   SizedBox(height: 12.h),
 
-                  // Verse text
-                  Expanded(
-                    child: Text(
-                      verse.text,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        height: 1.4,
-                        color: Colors.black87,
-                        fontStyle: FontStyle.italic,
-                      ),
+                  // Verse text - now flexible height
+                  Text(
+                    verse.text,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      height: 1.4,
+                      color: Colors.black87,
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
 
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 12.h),
 
-                  
+                  // Reference
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
@@ -115,8 +102,8 @@ class VerseCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import '../services/challenge_api_service.dart';
 import '../models/challenge_model.dart';
+import '../models/challenge_stats_model.dart';
 import '../models/puzzle_model.dart';
 import '../../core/utils/api_result.dart';
 import '../../app/app_setup.dart';
@@ -12,6 +13,7 @@ class ChallengeRepository extends BaseRepository {
   Future<ApiResult<List<ChallengeModel>>> getActiveChallenges() async {
     return await _apiService.getActiveChallenges();
   }
+
   // Get today challenges
   Future<ApiResult<List<ChallengeModel>>> getTodayChallenge() async {
     return await _apiService.getTodayChallenge();
@@ -25,6 +27,11 @@ class ChallengeRepository extends BaseRepository {
   // Mark challenge as complete
   Future<ApiResult<bool>> markChallengeComplete(String challengeId) async {
     return await _apiService.markChallengeComplete(challengeId);
+  }
+
+  // Get challenge statistics
+  Future<ApiResult<ChallengeStatsModel>> getChallengeStats() async {
+    return await _apiService.getChallengeStats();
   }
 
   // Get daily puzzle

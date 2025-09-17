@@ -12,10 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Eye, User as UserIcon, ChevronUp, ChevronDown, RefreshCw, CrownIcon } from 'lucide-react'
+import { Eye, User as UserIcon, ChevronUp, ChevronDown, RefreshCw, CrownIcon, ChevronLeft, ChevronRight, Shield, ShieldOff } from 'lucide-react'
 import type { User } from '@/lib/types'
 import UserModal from '@/components/modals/UserModal'
-import { userService, type ApiUser } from '@/services/user.service'
+import { userService } from '@/services/user.service'
+import type { ApiUser } from '@/lib/types/api'
 import { 
   UserManagementSkeleton,
   EmptyUsersState
@@ -102,12 +103,16 @@ const SortableHeader: React.FC<{
 export default function UserManagement() {
   const [allUsers, setAllUsers] = useState<User[]>([])
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
+  const [paginatedUsers, setPaginatedUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [suspendingUsers, setSuspendingUsers] = useState<Set<string>>(new Set())
 
   // Fetch all users from API
   const fetchUsers = async () => {
@@ -173,6 +178,47 @@ export default function UserManagement() {
     }
   }
 
+  // Handle user suspension/activation
+  const handleUserStatusToggle = async (userId: string, currentStatus: User['status']) => {
+    try {
+      setSuspendingUsers(prev => new Set(prev).add(userId))
+
+      const newStatus = currentStatus === 'Active' ? 'suspend' : 'active'
+      await userService.updateUserStatus(userId, { status: newStatus })
+
+      // Update the user in the local state
+      setAllUsers(prev =>
+        prev.map(user =>
+          user.id === userId
+            ? { ...user, status: newStatus === 'suspend' ? 'Suspended' : 'Active' }
+            : user
+        )
+      )
+
+      toast.success(
+        `User ${newStatus === 'suspend' ? 'suspended' : 'activated'} successfully`,
+        {
+          duration: 3000,
+          position: 'top-right',
+        }
+      )
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message ||
+                          err?.message ||
+                          `Failed to ${currentStatus === 'Active' ? 'suspend' : 'activate'} user`
+
+      toast.error(errorMessage, {
+        duration: 4000,
+        position: 'top-right',
+      })
+    } finally {
+      setSuspendingUsers(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(userId)
+        return newSet
+      })
+    }
+  }
 
   useEffect(() => {
     let filtered = [...allUsers]
@@ -201,7 +247,17 @@ export default function UserManagement() {
     }
 
     setFilteredUsers(filtered)
+    // Reset to first page when filters change
+    setCurrentPage(1)
   }, [allUsers, searchQuery, sortField, sortDirection])
+
+  // Pagination effect
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    setPaginatedUsers(filteredUsers.slice(startIndex, endIndex))
+  }, [filteredUsers, currentPage, itemsPerPage])
+
 
   // Initial data fetch
   useEffect(() => {
@@ -215,6 +271,20 @@ export default function UserManagement() {
       setSortField(field)
       setSortDirection('asc')
     }
+  }
+
+  // Pagination helpers
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage + 1
+  const endIndex = Math.min(currentPage * itemsPerPage, filteredUsers.length)
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage)
+    setCurrentPage(1)
   }
 
   // Error state
@@ -249,48 +319,68 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-screen animate-fadeIn">
+    <div className="p-3 md:p-6 space-y-4 md:space-y-6 bg-gray-50 min-h-screen animate-fadeIn">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">User Management</h1>
-        <p className="text-gray-600 mt-1">Manage user accounts, subscriptions, and activity</p>
+        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">User Management</h1>
+        <p className="text-gray-600 mt-1 text-sm md:text-base">Manage user accounts, subscriptions, and activity</p>
       </div>
 
       {/* Search Bar */}
-      <div className="flex items-center justify-between">
-        <CustomSearchInput
-          placeholder="Search users by name or email..."
-          value={searchQuery}
-          onChange={setSearchQuery}
-          width="400px"
-        />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-1 max-w-md">
+          <CustomSearchInput
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={setSearchQuery}
+            width="100%"
+          />
+        </div>
         
         <Button 
           variant="outline" 
           onClick={refreshData}
           disabled={refreshing}
+          size="sm"
+          className="w-full sm:w-auto"
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-          {refreshing ? 'Refreshing...' : 'Refresh Data'}
+          {refreshing ? 'Refreshing...' : 'Refresh'}
         </Button>
       </div>
 
-      {/* Users Table */}
-      <Card className="shadow-none px-4">
+      {/* Users Table/Cards */}
+      <Card className="shadow-none px-2 md:px-4">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <CardTitle className="text-lg font-semibold text-gray-900">All Users</CardTitle>
               <p className="text-sm text-gray-600 mt-1">
-                Showing {filteredUsers.length} of {allUsers.length} users
+                Showing {filteredUsers.length > 0 ? startIndex : 0}-{endIndex} of {filteredUsers.length} users
                 {searchQuery && ` (filtered by "${searchQuery}")`}
               </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <label htmlFor="itemsPerPage" className="text-sm text-gray-600 hidden sm:block">Show:</label>
+              <select
+                id="itemsPerPage"
+                value={itemsPerPage}
+                onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                className="border border-gray-300 rounded-md px-2 py-1 text-sm"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+              <span className="text-sm text-gray-600 hidden sm:block">per page</span>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <Table className="min-w-full">
               <TableHeader>
                 <TableRow>
                   <SortableHeader 
@@ -345,29 +435,53 @@ export default function UserManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
+                {paginatedUsers.length > 0 ? (
+                  paginatedUsers.map((user) => (
                     <TableRow key={user.id} className="hover:bg-gray-50">
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell className="text-gray-600">{user.email}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-medium whitespace-nowrap">{user.name}</TableCell>
+                      <TableCell className="text-gray-600 whitespace-nowrap">{user.email}</TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <PlanBadge plan={user.plan} />
                       </TableCell>
-                      <TableCell className="text-gray-600">{user.joinDate}</TableCell>
-                      <TableCell className="text-gray-600">{user.lastLogin}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-gray-600 whitespace-nowrap">{user.joinDate}</TableCell>
+                      <TableCell className="text-gray-600 whitespace-nowrap">{user.lastLogin}</TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <StatusBadge status={user.status} />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           <Button variant="ghost" size="sm">
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <UserModal user={user}>
+                          <UserModal
+                            user={user}
+                            onStatusToggle={handleUserStatusToggle}
+                            isLoading={suspendingUsers.has(user.id)}
+                          >
                             <Button variant="ghost" size="sm">
                               <UserIcon className="w-4 h-4" />
                             </Button>
                           </UserModal>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleUserStatusToggle(user.id, user.status)}
+                            disabled={suspendingUsers.has(user.id)}
+                            className={`${
+                              user.status === 'Active'
+                                ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                                : 'text-green-600 hover:text-green-700 hover:bg-green-50'
+                            }`}
+                            title={user.status === 'Active' ? 'Suspend user' : 'Activate user'}
+                          >
+                            {suspendingUsers.has(user.id) ? (
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                            ) : user.status === 'Active' ? (
+                              <ShieldOff className="w-4 h-4" />
+                            ) : (
+                              <Shield className="w-4 h-4" />
+                            )}
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -402,6 +516,74 @@ export default function UserManagement() {
               </TableBody>
             </Table>
           </div>
+          {/* Pagination Controls */}
+          {filteredUsers.length > 0 && totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-3 md:px-4 py-4 border-t">
+              <div className="text-sm text-gray-600 text-center sm:text-left">
+                Showing {startIndex} to {endIndex} of {filteredUsers.length} results
+              </div>
+              <div className="flex items-center justify-center space-x-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1">Previous</span>
+                </Button>
+                
+                <div className="flex items-center space-x-1">
+                  {/* Page numbers */}
+                  <div className="hidden sm:flex items-center space-x-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum
+                      if (totalPages <= 5) {
+                        pageNum = i + 1
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i
+                      } else {
+                        pageNum = currentPage - 2 + i
+                      }
+                      
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(pageNum)}
+                          className="w-8 h-8 p-0"
+                        >
+                          {pageNum}
+                        </Button>
+                      )
+                    })}
+                  </div>
+                  
+                  {/* Mobile: Just show current page */}
+                  <div className="sm:hidden">
+                    <span className="text-sm text-gray-600">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                  </div>
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-2"
+                >
+                  <span className="hidden sm:inline mr-1">Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

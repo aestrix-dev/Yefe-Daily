@@ -16,6 +16,7 @@ class ProfileHeader extends StatelessWidget {
     required this.onUpgrade,
   });
 
+
   @override
   Widget build(BuildContext context) {
     final isPremium = userPlan == 'Yefa +';
@@ -36,7 +37,9 @@ class ProfileHeader extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isPremium ? AppColors.primary(context) : Colors.grey[300]!,
+                color: isPremium
+                    ? AppColors.primary(context)
+                    : Colors.grey[300]!,
                 width: 2.w,
               ),
             ),
@@ -88,7 +91,9 @@ class ProfileHeader extends StatelessWidget {
                       userPlan,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: isPremium ? AppColors.textSecondary(context) : Colors.grey[600],
+                        color: isPremium
+                            ? AppColors.textSecondary(context)
+                            : Colors.grey[600],
                         fontWeight: isPremium
                             ? FontWeight.w600
                             : FontWeight.normal,

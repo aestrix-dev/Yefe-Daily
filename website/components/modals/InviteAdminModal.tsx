@@ -12,35 +12,38 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 
-import { X, Plus } from 'lucide-react'
+import { X, Plus, RefreshCw } from 'lucide-react'
 
 interface InviteAdminModalProps {
   children: React.ReactNode;
-  onInvite?: (adminData: { email: string; role: string }) => void;
+  onInvite?: (adminData: { email: string; role: string }) => Promise<void>;
+  isLoading?: boolean;
 }
 
-const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ children, onInvite }) => {
+const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ children, onInvite, isLoading = false }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    role: ''
+    email: ''
   })
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Basic validation
-    if (!formData.name || !formData.email || !formData.role) {
+    if (!formData.email) {
       return
     }
 
-    // Call the onInvite callback if provided
-    onInvite?.(formData)
-    
-    // Reset form and close modal
-    setFormData({ name: '', email: '', role: '' })
-    setIsOpen(false)
+    try {
+      // Call the onInvite callback if provided
+      await onInvite?.({ email: formData.email, role: 'Admin' })
+
+      // Reset form and close modal on success
+      setFormData({ email: '' })
+      setIsOpen(false)
+    } catch (error) {
+      // Error handling is done in parent component
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -73,44 +76,48 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ children, onInvite 
         {/* Content */}
         <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="admin-name">Full Name</Label>
+            <Label htmlFor="admin-email">Email Address</Label>
             <Input
               id="admin-email"
               type="email"
-              placeholder="Enter full name"
-              value={formData.name}
+              placeholder="Enter email address"
+              value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="admin-email">Assign Role</Label>
-            <Input
-              id="admin-email"
-              type="text"
-              placeholder="role (e.g. Admin)"
-              value={formData.email}
-              onChange={(e) => handleInputChange('role', e.target.value)}
-              required
-            />
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <p className="text-sm text-gray-600">
+              <strong>Note:</strong> An invitation email will be sent to this address.
+              The new admin will be assigned the "Admin" role by default.
+            </p>
           </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               className="flex-1"
               onClick={() => setIsOpen(false)}
+              disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 bg-[#374035] hover:bg-[#2d332b] text-white"
+              disabled={isLoading}
             >
-              Send Invitation
+              {isLoading ? (
+                <div className="flex items-center">
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Sending...
+                </div>
+              ) : (
+                'Send Invitation'
+              )}
             </Button>
           </div>
         </form>

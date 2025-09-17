@@ -28,6 +28,13 @@ apiClient.interceptors.request.use(
       }
     }
 
+    // Mark requests that should skip 401 auto-redirect
+    if (config.url?.includes('/invitations/accept') ||
+        config.url?.includes('/admin/invite') ||
+        config.url?.includes('/auth/')) {
+      (config as any).skipAutoRedirect = true
+    }
+
     return config
   },
   (error: AxiosError) => {
@@ -41,19 +48,31 @@ apiClient.interceptors.response.use(
     return response
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean }
-    
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+      skipAutoRedirect?: boolean;
+    }
+
     // Handle 401 errors (unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-      
-      // Clear token and redirect to login
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('authToken')
-        window.location.href = '/login'
+
+      // Check if this request should skip auto-redirect
+      const shouldSkipRedirect = (originalRequest as any).skipAutoRedirect ||
+                                originalRequest.url?.includes('/invitations/accept') ||
+                                originalRequest.url?.includes('/admin/invite') ||
+                                originalRequest.url?.includes('/auth/')
+
+      if (!shouldSkipRedirect) {
+        // Clear token and redirect to sign-in for protected routes
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('authToken')
+          window.location.href = '/sign-in'
+        }
       }
+      // For endpoints that should skip redirect, just let the error propagate
     }
-    
+
     return Promise.reject(error)
   }
 )

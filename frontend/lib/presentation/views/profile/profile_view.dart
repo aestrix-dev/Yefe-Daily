@@ -4,9 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../shared/widgets/custom_bottom_nav.dart';
+import '../../shared/widgets/back_button_handler.dart';
 import 'profile_viewmodel.dart';
-import 'widgets/upgrade_popup.dart';
 import 'widgets/profile_header.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/community_section.dart';
@@ -20,9 +21,18 @@ class ProfileView extends StackedView<ProfileViewModel> {
     ProfileViewModel viewModel,
     Widget? child,
   ) {
+    // Set context for payment functionality
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!viewModel.contextAlreadySet) {
+        viewModel.setContext(context);
+      }
+    });
+
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    return BackButtonHandler(
+      currentRoute: AppRoutes.profile,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDarkMode
@@ -50,17 +60,16 @@ class ProfileView extends StackedView<ProfileViewModel> {
                   ),
                 ),
 
-               
                 ProfileHeader(
                   userName: viewModel.userName,
                   userPlan: viewModel.userPlan,
                   avatarUrl: viewModel.avatarUrl,
-                  onUpgrade: () => _showUpgradePopup(context, viewModel),
+                  onUpgrade:
+                      viewModel.showUpgradeCard, // Call showUpgradeCard instead
                 ),
 
                 SizedBox(height: 16.h),
 
-              
                 Container(
                   margin: EdgeInsets.symmetric(
                     horizontal: 16.w,
@@ -89,19 +98,20 @@ class ProfileView extends StackedView<ProfileViewModel> {
                           _buildProgressItem(
                             context: context,
                             iconPath: 'assets/icons/fire.png',
-                            value: '7/365 day',
+                            value: '${viewModel.challengeStats.currentStreak}',
                             label: 'streak',
                           ),
                           _buildProgressItem(
                             context: context,
                             iconPath: 'assets/icons/challenge.png',
-                            value: '12',
+                            value:
+                                '${viewModel.challengeStats.totalChallenges}',
                             label: 'Challenges',
                           ),
                           _buildProgressItem(
                             context: context,
                             iconPath: 'assets/icons/badge.png',
-                            value: '5',
+                            value: '${viewModel.challengeStats.numberOfBadges}',
                             label: 'Badges',
                           ),
                         ],
@@ -116,9 +126,11 @@ class ProfileView extends StackedView<ProfileViewModel> {
                 SettingsSection(
                   isDarkMode: viewModel.isDarkMode,
                   isNotificationsEnabled: viewModel.isNotificationsEnabled,
+                  isPremium: viewModel.isPremium,
                   onThemeToggle: viewModel.toggleTheme,
-                  onNotificationsToggle: viewModel.toggleNotifications,
-                  onVerseLanguageTap: viewModel.navigateToVerseLanguage,
+                  onNotificationsToggle: () => viewModel.showNotificationDialog(),
+                  onMoodAnalyticsTap: viewModel.navigateToMoodAnalytics,
+                  onUpgradeTap: viewModel.showUpgradeCard,
                 ),
 
                 SizedBox(height: 20.h),
@@ -136,13 +148,8 @@ class ProfileView extends StackedView<ProfileViewModel> {
         ),
         bottomNavigationBar: const CustomBottomNav(),
       ),
+      ),
     );
-  }
-
-  void _showUpgradePopup(BuildContext context, ProfileViewModel viewModel) {
-    if (!viewModel.isPremium) {
-      UpgradePopup.show(context, onUpgrade: viewModel.upgradeToPremium);
-    }
   }
 
   Widget _buildProgressItem({
@@ -153,11 +160,7 @@ class ProfileView extends StackedView<ProfileViewModel> {
   }) {
     return Column(
       children: [
-        Image.asset(
-          iconPath,
-          width: 32.sp,
-          height: 32.sp,
-        ),
+        Image.asset(iconPath, width: 32.sp, height: 32.sp),
         SizedBox(height: 8.h),
         Text(
           '$value $label',

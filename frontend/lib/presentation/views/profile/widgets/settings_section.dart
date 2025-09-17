@@ -5,17 +5,21 @@ import '../../../../core/constants/app_colors.dart';
 class SettingsSection extends StatelessWidget {
   final bool isDarkMode;
   final bool isNotificationsEnabled;
+  final bool isPremium;
   final VoidCallback onThemeToggle;
   final VoidCallback onNotificationsToggle;
-  final VoidCallback onVerseLanguageTap;
+  final VoidCallback onMoodAnalyticsTap;
+  final VoidCallback onUpgradeTap;
 
   const SettingsSection({
     super.key,
     required this.isDarkMode,
     required this.isNotificationsEnabled,
+    required this.isPremium,
     required this.onThemeToggle,
     required this.onNotificationsToggle,
-    required this.onVerseLanguageTap,
+    required this.onMoodAnalyticsTap,
+    required this.onUpgradeTap,
   });
 
   @override
@@ -60,17 +64,36 @@ class SettingsSection extends StatelessWidget {
                 showBottomBorder: true,
               ),
 
-              // Verse Language
+              // Mood Analytics
               _buildSettingItem(
                 context: context,
-                icon: Icons.translate,
-                title: 'Verse Language',
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: Colors.grey[600],
-                  size: 20.sp,
-                ),
-                onTap: onVerseLanguageTap,
+                icon: Icons.analytics,
+                title: 'Sleep Analytics',
+                trailing: isPremium 
+                  ? Icon(
+                      Icons.chevron_right,
+                      color: Colors.grey[600],
+                      size: 20.sp,
+                    )
+                  : GestureDetector(
+                      onTap: onUpgradeTap,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 8.w),
+                        child: Image.asset(
+                          'assets/icons/unlock.png',
+                          width: 32.w,
+                          height: 32.h,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.lock,
+                              size: 16.sp,
+                              color: AppColors.accentLight(context),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                onTap: isPremium ? onMoodAnalyticsTap : null,
                 showBottomBorder: true,
               ),
 
@@ -112,7 +135,7 @@ class SettingsSection extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 20.sp, color: Colors.grey[700]),
+            Icon(icon, size: 28.sp, color: Colors.grey[700]),
             SizedBox(width: 16.w),
             Expanded(
               child: Text(

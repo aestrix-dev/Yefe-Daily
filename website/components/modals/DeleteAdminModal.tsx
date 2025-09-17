@@ -10,21 +10,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { X, Trash2, AlertTriangle } from 'lucide-react'
+import { X, Trash2, AlertTriangle, RefreshCw } from 'lucide-react'
 import type { Admin } from '@/lib/types'
 
 interface DeleteAdminModalProps {
   admin: Admin;
   children: React.ReactNode;
-  onDelete?: (adminId: string) => void;
+  onDelete?: (adminId: string) => Promise<void>;
+  isLoading?: boolean;
 }
 
-const DeleteAdminModal: React.FC<DeleteAdminModalProps> = ({ admin, children, onDelete }) => {
+const DeleteAdminModal: React.FC<DeleteAdminModalProps> = ({ admin, children, onDelete, isLoading = false }) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleDelete = () => {
-    onDelete?.(admin.id)
-    setIsOpen(false)
+  const handleDelete = async () => {
+    try {
+      await onDelete?.(admin.id)
+      setIsOpen(false)
+    } catch (error) {
+      // Error handling is done in parent component
+    }
   }
 
   return (
@@ -79,20 +84,31 @@ const DeleteAdminModal: React.FC<DeleteAdminModalProps> = ({ admin, children, on
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="flex-1"
               onClick={() => setIsOpen(false)}
+              disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               className="flex-1"
               onClick={handleDelete}
+              disabled={isLoading}
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete Admin
+              {isLoading ? (
+                <div className="flex items-center">
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Admin
+                </div>
+              )}
             </Button>
           </div>
         </div>

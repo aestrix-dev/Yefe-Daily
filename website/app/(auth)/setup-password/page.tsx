@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/login-form"
+import { Suspense } from "react"
 import { SetPassword } from "@/components/set-password"
 
 export default function Page() {
@@ -12,7 +12,9 @@ export default function Page() {
       
       {/* Content */}
       <div className="relative z-10 w-full max-w-sm">
-        <SetPassword />
+        <Suspense fallback={<div>Loading...</div>}>
+          <SetPassword />
+        </Suspense>
       </div>
     </div>
   )

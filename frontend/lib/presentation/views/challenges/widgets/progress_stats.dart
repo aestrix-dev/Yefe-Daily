@@ -1,12 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:yefa/data/models/puzzle_model.dart';
+import 'package:yefa/data/models/challenge_stats_model.dart';
 import '../../../../core/constants/app_colors.dart';
 
-class ProgressStats extends StatelessWidget {
-  final ProgressStatsModel stats;
+class ProgressStats extends StatefulWidget {
+  final ChallengeStatsModel stats;
 
   const ProgressStats({super.key, required this.stats});
+
+  @override
+  State<ProgressStats> createState() => _ProgressStatsState();
+}
+
+class _ProgressStatsState extends State<ProgressStats>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _progressAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _progressAnimation =
+        Tween<double>(begin: 0.0, end: widget.stats.progressPercentage).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeInOut,
+          ),
+        );
+
+    // Start animation after a short delay
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _animationController.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +53,7 @@ class ProgressStats extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: AppColors.accentLight(context), 
+        color: AppColors.accentLight(context),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
@@ -34,12 +73,14 @@ class ProgressStats extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Current Streak',
-                style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary(context),
+                '7-Day Progress',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
               Text(
-                '${stats.currentStreak} Days',
+                '${widget.stats.sevenDaysProgress}/7 Days',
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
@@ -58,23 +99,20 @@ class ProgressStats extends StatelessWidget {
             children: [
               _buildStatItem(
                 context: context,
-                iconPath:
-                    'assets/icons/badge.png', 
-                count: stats.totalBadges,
+                iconPath: 'assets/icons/badge.png',
+                count: widget.stats.numberOfBadges,
                 label: 'Badges',
               ),
               _buildStatItem(
                 context: context,
-                iconPath:
-                    'assets/icons/challenge.png',
-                count: stats.totalChallenges,
+                iconPath: 'assets/icons/challenge.png',
+                count: widget.stats.totalChallenges,
                 label: 'Challenges',
               ),
               _buildStatItem(
                 context: context,
-                iconPath:
-                    'assets/icons/streak.png', 
-                count: stats.topStreak,
+                iconPath: 'assets/icons/streak.png',
+                count: widget.stats.longestStreak,
                 label: 'Top Streak',
               ),
             ],
@@ -85,11 +123,7 @@ class ProgressStats extends StatelessWidget {
   }
 
   Widget _buildProgressBar(BuildContext context) {
-    
-    double progress = stats.topStreak > 0
-        ? stats.currentStreak / stats.topStreak
-        : 0.0;
-    progress = progress.clamp(0.0, 1.0);
+    // Progress is based on 7-day progress, animation handled by _progressAnimation
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,21 +136,31 @@ class ProgressStats extends StatelessWidget {
             color: Colors.grey[300],
             borderRadius: BorderRadius.circular(4.r),
           ),
-          child: FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: progress,
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.primary(context),
-                borderRadius: BorderRadius.circular(4.r),
-              ),
-            ),
+          child: AnimatedBuilder(
+            animation: _progressAnimation,
+            builder: (context, child) {
+              return FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: _progressAnimation.value,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.primary(context),
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                ),
+              );
+            },
           ),
         ),
         SizedBox(height: 4.h),
-        Text(
-          '${(progress * 100).toInt()}% Complete',
-          style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
+        AnimatedBuilder(
+          animation: _progressAnimation,
+          builder: (context, child) {
+            return Text(
+              '${(_progressAnimation.value * 100).toInt()}% Complete',
+              style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
+            );
+          },
         ),
       ],
     );
@@ -136,7 +180,7 @@ class ProgressStats extends StatelessWidget {
           height: 29.h,
           errorBuilder: (context, error, stackTrace) {
             return Icon(
-              Icons.emoji_events, 
+              Icons.emoji_events,
               size: 16.sp,
               color: AppColors.primary(context),
             );

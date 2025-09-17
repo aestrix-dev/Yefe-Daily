@@ -1,8 +1,8 @@
 
-import 'package:dio/dio.dart';
 import 'package:yefa/app/app_setup.dart';
 import 'package:yefa/data/models/auth_model.dart';
 import 'package:yefa/data/services/storage_service.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../core/utils/api_result.dart';
 import 'base_api_service.dart';
@@ -10,39 +10,37 @@ import 'base_api_service.dart';
 class AuthApiService extends BaseApiService {
   // Single register endpoint that handles both registration and login
   Future<ApiResult<RegisterResponse>> register(RegisterRequest request) async {
-    try {
+    if (kDebugMode) {
       print('🔍 AuthApiService: Starting registration request');
-      print('📤 Request Data: ${request.toJson()}');
-
-      // Make the API call with detailed logging
-      final response = await dioService.post(
-        'v1/auth/register',
-        data: request.toJson(),
-      );
-
-      print('✅ Response Status: ${response.statusCode}');
-      print('📥 Response Data: ${response.data}');
-
-      // Parse the response
-      final registerResponse = RegisterResponse.fromJson(response.data);
-      final user = registerResponse.data.user;
-      await locator<StorageService>().saveUser(user);
-      print('👤 User saved: ${user.toJson()}');
-      return Success(registerResponse);
-    } catch (e) {
-      print('❌ AuthApiService Error: $e');
-      if (e is DioException) {
-        print('🔍 DioException Details:');
-        print('   - Type: ${e.type}');
-        print('   - Message: ${e.message}');
-        print('   - Response Status: ${e.response?.statusCode}');
-        print('   - Response Data: ${e.response?.data}');
-        print('   - Request Path: ${e.requestOptions.path}');
-        print('   - Request Data: ${e.requestOptions.data}');
-        print('   - Request Headers: ${e.requestOptions.headers}');
-      }
-      return Failure('Registration failed: $e');
     }
+
+    final result = await safeApiCall<RegisterResponse>(
+      () => dioService.post('v1/auth/register', data: request.toJson()),
+      (json) => RegisterResponse.fromJson(json),
+    );
+
+    // Save user data on successful registration
+    if (result.isSuccess) {
+      final user = result.data!.data.user;
+      await locator<StorageService>().saveUser(user);
+      if (kDebugMode) {
+        print('👤 User saved: ${user.name}');
+      }
+    }
+
+    return result;
+  }
+
+  // Accept notifications by sending FCM token to server
+  Future<ApiResult<AcceptNotificationResponse>> acceptNotifications(AcceptNotificationRequest request) async {
+    if (kDebugMode) {
+      print('🔍 AuthApiService: Starting accept notifications request');
+    }
+
+    return await safeApiCall<AcceptNotificationResponse>(
+      () => dioService.post('v1/auth/accept', data: request.toJson()),
+      (json) => AcceptNotificationResponse.fromJson(json),
+    );
   }
 }
 

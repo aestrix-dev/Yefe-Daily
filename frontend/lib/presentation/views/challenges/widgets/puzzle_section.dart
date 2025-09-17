@@ -64,9 +64,14 @@ class PuzzleSection extends StatelessWidget {
 
           SizedBox(height: 16.h),
 
-          // Answer options
+          // Answer options - FIXED: Using proper 1-based indexing to match backend
           ...puzzleState.puzzle!.options.entries.map(
-            (entry) => _buildAnswerOption(context, entry.key, entry.value),
+            (entry) => _buildAnswerOption(
+              context,
+              int.parse(entry.key), // Use the actual key from backend (1, 2, 3)
+              entry.key,
+              entry.value,
+            ),
           ),
 
           SizedBox(height: 16.h),
@@ -93,11 +98,14 @@ class PuzzleSection extends StatelessWidget {
     );
   }
 
-  Widget _buildAnswerOption(BuildContext context, String key, String value) {
-    // Convert key to actual array index (key "1" = index 0, key "2" = index 1, etc.)
-    final optionNumber = int.tryParse(key) ?? 1;
-    
-    final isSelected = puzzleState.selectedAnswer == optionNumber;
+  Widget _buildAnswerOption(
+    BuildContext context,
+    int answerNumber, // This is the 1-based answer number (1, 2, 3)
+    String key,
+    String value,
+  ) {
+    // Use the 1-based answer number for selection and comparison
+    final isSelected = puzzleState.selectedAnswer == answerNumber;
     final canSelect = puzzleState.canSelectAnswer;
 
     // Show correct/incorrect colors after submission
@@ -107,8 +115,8 @@ class PuzzleSection extends StatelessWidget {
 
     if (puzzleState.hasSubmitted) {
       final isCorrectAnswer =
-          optionNumber == puzzleState.submissionResult?.correctAnswer;
-      final isUserAnswer = optionNumber == puzzleState.selectedAnswer;
+          answerNumber == puzzleState.submissionResult?.correctAnswer;
+      final isUserAnswer = answerNumber == puzzleState.selectedAnswer;
 
       if (isCorrectAnswer) {
         backgroundColor = Colors.green.withOpacity(0.2);
@@ -138,8 +146,11 @@ class PuzzleSection extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 8.h),
       child: GestureDetector(
         onTap: canSelect
-            ? () => onAnswerSelected(optionNumber)
-            : null, 
+            ? () =>
+                  onAnswerSelected(
+                    answerNumber,
+                  ) // FIXED: Now sending 1-based answer number to match backend
+            : null,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: EdgeInsets.all(13.w),
@@ -150,7 +161,7 @@ class PuzzleSection extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Option letter/number
+              // Option letter/number - still showing the key for display
               Container(
                 width: 24.w,
                 height: 24.h,
@@ -187,15 +198,16 @@ class PuzzleSection extends StatelessWidget {
               if (puzzleState.hasSubmitted) ...[
                 SizedBox(width: 8.w),
                 Icon(
-                  optionNumber == puzzleState.submissionResult?.correctAnswer
+                  answerNumber == puzzleState.submissionResult?.correctAnswer
                       ? Icons.check_circle
-                      : (optionNumber == puzzleState.selectedAnswer &&
-                            optionNumber !=
+                      : (answerNumber == puzzleState.selectedAnswer &&
+                            answerNumber !=
                                 puzzleState.submissionResult?.correctAnswer)
                       ? Icons.cancel
                       : null,
                   color:
-                      optionNumber == puzzleState.submissionResult?.correctAnswer
+                      answerNumber ==
+                          puzzleState.submissionResult?.correctAnswer
                       ? Colors.green
                       : Colors.red,
                   size: 20.sp,
@@ -397,9 +409,9 @@ class PuzzleSection extends StatelessWidget {
     );
   }
 
-Widget _buildCountdownCard(BuildContext context) {
+  Widget _buildCountdownCard(BuildContext context) {
     return SizedBox(
-      width: double.infinity, // 💡 Ensures full width
+      width: double.infinity,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         padding: EdgeInsets.all(20.w),
@@ -409,7 +421,7 @@ Widget _buildCountdownCard(BuildContext context) {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center, // 💡 Center contents
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               Icons.access_time,
@@ -460,41 +472,45 @@ Widget _buildCountdownCard(BuildContext context) {
     );
   }
 
-
   Widget _buildEmptyState(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: AppColors.accentLight(context),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            Icons.quiz_outlined,
-            size: 48.sp,
-            color: AppColors.primary(context),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'Daily Puzzle',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary(context),
+    return SizedBox(
+      width: double.infinity,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+        padding: EdgeInsets.all(20.w),
+        decoration: BoxDecoration(
+          color: AppColors.accentLight(context),
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.quiz_outlined,
+              size: 48.sp,
+              color: AppColors.primary(context),
             ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Loading your daily challenge...',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: AppColors.textSecondary(context),
+            SizedBox(height: 16.h),
+            Text(
+              'Daily Puzzle',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary(context),
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            SizedBox(height: 8.h),
+            Text(
+              'Loading your daily challenge...',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.textSecondary(context),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

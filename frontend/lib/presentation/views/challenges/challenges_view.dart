@@ -4,7 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../shared/widgets/custom_bottom_nav.dart';
+import '../../shared/widgets/back_button_handler.dart';
 import 'challenges_viewmodel.dart';
 import 'widgets/puzzle_section.dart';
 import 'widgets/challenge_card.dart';
@@ -19,8 +21,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
     ChallengesViewModel viewModel,
     Widget? child,
   ) {
-
-       WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (viewModel.contextAlreadySet != true) {
         viewModel.setContext(context);
       }
@@ -28,7 +29,9 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    return BackButtonHandler(
+      currentRoute: AppRoutes.challenges,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDarkMode
@@ -146,9 +149,10 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                         ...viewModel.activeChallenges.map(
                           (challenge) => ChallengeCard(
                             challenge: challenge,
-                            onMarkComplete: () =>
-                                viewModel.markChallengeAsComplete(challenge.id),
-                            isEnabled: viewModel.isPuzzleCompleted,
+                            onMarkComplete: () async => await viewModel
+                                .markChallengeAsComplete(challenge.id),
+                            isEnabled: viewModel.shouldEnableMarkAsDone(challenge),
+                            isBeingMarked: viewModel.isChallengeBeingMarked(challenge.id),
                           ),
                         ),
                       ] else ...[
@@ -173,12 +177,59 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
                         SizedBox(height: 8.h),
 
                         // Completed Challenges
-                        ...viewModel.completedChallenges.map(
-                          (challenge) => ChallengeCard(
-                            challenge: challenge,
-                            isCompleted: true,
+                        if (viewModel.completedChallenges.isNotEmpty) ...[
+                          ...viewModel.completedChallenges.map(
+                            (challenge) => ChallengeCard(
+                              challenge: challenge,
+                              isCompleted: true,
+                            ),
                           ),
-                        ),
+                        ] else ...[
+                          // Empty state for completed challenges
+                          SizedBox(
+                            width: double.infinity,
+                            child: Container(
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 20.w,
+                                vertical: 10.h,
+                              ),
+                              padding: EdgeInsets.all(20.w),
+                              decoration: BoxDecoration(
+                                color: AppColors.accentLight(context),
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.emoji_events_outlined,
+                                    size: 48.sp,
+                                    color: AppColors.primary(context),
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  Text(
+                                    'No completed challenges yet',
+                                    style: TextStyle(
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textPrimary(context),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  Text(
+                                    'Complete your first challenge to see it here!',
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: AppColors.textSecondary(context),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
 
                       SizedBox(height: 20.h),
@@ -191,6 +242,7 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
         ),
         bottomNavigationBar: const CustomBottomNav(),
       ),
+      ),
     );
   }
 
@@ -198,10 +250,9 @@ class ChallengesView extends StackedView<ChallengesViewModel> {
   ChallengesViewModel viewModelBuilder(BuildContext context) =>
       ChallengesViewModel();
 
- @override
+  @override
   void onViewModelReady(ChallengesViewModel viewModel) {
     super.onViewModelReady(viewModel);
-    viewModel.onModelReady(); 
+    viewModel.onModelReady();
   }
-
 }

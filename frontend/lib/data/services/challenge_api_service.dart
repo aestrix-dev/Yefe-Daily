@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../models/challenge_model.dart';
+import '../models/challenge_stats_model.dart';
 import '../models/puzzle_model.dart';
 import '../../core/utils/api_result.dart';
 import 'base_api_service.dart';
@@ -13,7 +14,7 @@ class ChallengeApiService extends BaseApiService {
     );
   }
 
-Future<ApiResult<List<ChallengeModel>>> getTodayChallenge() async {
+  Future<ApiResult<List<ChallengeModel>>> getTodayChallenge() async {
     try {
       final response = await dioService.get('/v1/challenges/today');
 
@@ -34,17 +35,105 @@ Future<ApiResult<List<ChallengeModel>>> getTodayChallenge() async {
 
   // Get completed challenges
   Future<ApiResult<List<ChallengeModel>>> getCompletedChallenges() async {
-    return safeApiCallList(
-      () => dioService.get('/v1/challenges/completed'),
-      (json) => ChallengeModel.fromJson(json),
-    );
+    try {
+      print('📋 Getting completed challenges...');
+
+      final response = await dioService.get('/v1/challenges/history');
+
+      print('✅ Completed Challenges Response: ${response.statusCode}');
+      print('📥 Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final challengesList =
+            response.data['challenge'] as List<dynamic>? ?? [];
+
+        final completedChallenges = challengesList.map((item) {
+          // Extract the nested challenge data and add completion info
+          final challengeData = item['challenge'] as Map<String, dynamic>;
+          final status = item['status'] as String?;
+          final completedAt = item['completed_at'] as String?;
+
+          // Add completion status to the challenge data
+          challengeData['is_completed'] = status == 'completed';
+          challengeData['completed_date'] = completedAt;
+
+          return ChallengeModel.fromJson(challengeData);
+        }).toList();
+
+        print('✅ Parsed ${completedChallenges.length} completed challenges');
+        return Success(completedChallenges);
+      } else {
+        return Failure(
+          'Failed to get completed challenges with status ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      print('❌ Completed Challenges Error: ${e.message}');
+      print('📍 Status: ${e.response?.statusCode}');
+      print('📦 Response: ${e.response?.data}');
+
+      String errorMessage = 'Failed to get completed challenges';
+      if (e.response?.data != null) {
+        final responseData = e.response!.data;
+        if (responseData is Map<String, dynamic>) {
+          errorMessage =
+              responseData['message'] ?? responseData['error'] ?? errorMessage;
+        }
+      }
+
+      return Failure(errorMessage, statusCode: e.response?.statusCode);
+    } catch (e) {
+      print('❌ General Error in getCompletedChallenges: $e');
+      return Failure('An unexpected error occurred: $e');
+    }
   }
 
   // Mark challenge as complete
   Future<ApiResult<bool>> markChallengeComplete(String challengeId) async {
     return safeApiCallBool(
-      () => dioService.post('/v1/challenges/$challengeId/complete'),
+      () => dioService.put('/v1/challenges/$challengeId/complete'),
     );
+  }
+
+  // Get challenge statistics
+  Future<ApiResult<ChallengeStatsModel>> getChallengeStats() async {
+    try {
+      print('📊 Getting challenge stats...');
+
+      final response = await dioService.get('/v1/challenges/stats');
+
+      print('✅ Challenge Stats Response: ${response.statusCode}');
+      print('📥 Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final stats = ChallengeStatsModel.fromJson(response.data);
+        return Success(stats);
+      } else {
+        return Failure(
+          'Failed to get challenge stats with status ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      print('❌ Challenge Stats Error: ${e.message}');
+      print('📍 Status: ${e.response?.statusCode}');
+      print('📦 Response: ${e.response?.data}');
+
+      String errorMessage = 'Failed to get challenge stats';
+      if (e.response?.data != null) {
+        final responseData = e.response!.data;
+        if (responseData is Map<String, dynamic>) {
+          errorMessage =
+              responseData['message'] ?? responseData['error'] ?? errorMessage;
+        }
+      }
+
+      return Failure(errorMessage, statusCode: e.response?.statusCode);
+    } catch (e) {
+      print('❌ General Error in getChallengeStats: $e');
+      return Failure('An unexpected error occurred: $e');
+    }
   }
 
   // Get daily puzzle
@@ -103,7 +192,7 @@ Future<ApiResult<List<ChallengeModel>>> getTodayChallenge() async {
       print('✅ Submit Answer Response: ${response.statusCode}');
       print('📥 Response Data: ${response.data}');
 
-     if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final fullJson = response.data as Map<String, dynamic>;
 
         final innerData = fullJson['data']?['data'];
@@ -121,8 +210,7 @@ Future<ApiResult<List<ChallengeModel>>> getTodayChallenge() async {
         );
 
         return Success(submissionResponse);
-      }
-        else {
+      } else {
         return Failure(
           'Failed to submit puzzle answer with status ${response.statusCode}',
           statusCode: response.statusCode,
@@ -148,5 +236,4 @@ Future<ApiResult<List<ChallengeModel>>> getTodayChallenge() async {
       return Failure('An unexpected error occurred: $e');
     }
   }
-
 }

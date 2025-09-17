@@ -4,6 +4,9 @@ import 'package:yefa/data/repositories/audio_repository.dart';
 import 'package:yefa/data/repositories/auth_repository.dart';
 import 'package:yefa/data/repositories/challenge_repository.dart';
 import 'package:yefa/data/repositories/journal_repository.dart';
+import 'package:yefa/data/repositories/payment_repository.dart';
+import 'package:yefa/data/repositories/reflection_repository.dart';
+import 'package:yefa/data/repositories/sleep_repository.dart';
 import 'package:yefa/data/repositories/user_repository.dart';
 import 'package:yefa/data/services/audio_api_service.dart';
 import 'package:yefa/data/services/audio_download_service.dart';
@@ -12,15 +15,19 @@ import 'package:yefa/data/services/auth_service.dart';
 import 'package:yefa/data/services/challenge_api_service.dart';
 import 'package:yefa/data/services/dio_service.dart';
 import 'package:yefa/data/services/journal_api_service.dart';
+import 'package:yefa/data/services/payment_api_service.dart';
+import 'package:yefa/data/services/payment_service.dart';
 import 'package:yefa/data/services/puzzle_timer_service.dart';
+import 'package:yefa/data/services/reflection_api_service.dart';
+import 'package:yefa/data/services/sleep_api_service.dart';
 import 'package:yefa/data/services/toast_service.dart';
 import 'package:yefa/data/services/user_api_service.dart';
 
 import '../core/utils/navigation_service.dart';
 import '../data/services/storage_service.dart';
 import '../data/services/theme_service.dart';
-
-
+import '../data/services/firebase_notification_service.dart';
+import '../data/services/premium_status_service.dart';
 
 final locator = GetIt.instance;
 
@@ -38,7 +45,7 @@ class AppSetup {
     locator.registerSingleton(DialogService());
     locator.registerSingleton(SnackbarService());
 
-    //  Register and initialize storage service 
+    //  Register and initialize storage service
     print('💾 Initializing storage service...');
     final storageService = StorageService();
     await storageService.init();
@@ -48,20 +55,31 @@ class AppSetup {
     print('🎨 Registering theme service...');
     locator.registerSingleton<ThemeService>(ThemeService());
 
-     // Register toast service
+    // Register toast service
     print('🍞 Registering toast service...');
     locator.registerSingleton<ToastService>(ToastService.instance);
 
-     // Register puzzle timer service
+    // Register premium status service
+    print('👑 Registering premium status service...');
+    locator.registerSingleton<PremiumStatusService>(PremiumStatusService());
+
+    // Register puzzle timer service
     print('⏰ Registering puzzle timer service...');
     locator.registerSingleton<PuzzleTimerService>(PuzzleTimerService());
+
+    // Register and initialize Firebase notification service
+    print('🔔 Initializing Firebase notification service...');
+    final notificationService = FirebaseNotificationService();
+    await notificationService.initialize();
+    locator.registerSingleton<FirebaseNotificationService>(notificationService);
 
     // Register HTTP client service
     print('🌐 Registering HTTP client...');
     locator.registerLazySingleton<DioService>(() => DioService());
 
-// Add these in your setupServices() method, probably after the API services section:
-
+    print('💳 Registering payment services...');
+    locator.registerLazySingleton<PaymentApiService>(() => PaymentApiService());
+    locator.registerLazySingleton<PaymentService>(() => PaymentService());
     print('🎵 Registering audio services...');
     locator.registerSingleton<AudioDownloadService>(AudioDownloadService());
     locator.registerSingleton<AudioPlayerService>(AudioPlayerService());
@@ -69,20 +87,36 @@ class AppSetup {
     print('🔌 Registering API services...');
     locator.registerLazySingleton<AuthApiService>(() => AuthApiService());
     locator.registerLazySingleton<AudioApiService>(() => AudioApiService());
-    locator.registerLazySingleton<ChallengeApiService>(() => ChallengeApiService());
+    locator.registerLazySingleton<ChallengeApiService>(
+      () => ChallengeApiService(),
+    );
     locator.registerLazySingleton<UserApiService>(() => UserApiService());
     locator.registerLazySingleton<JournalApiService>(() => JournalApiService());
+    locator.registerLazySingleton<ReflectionApiService>(
+      () => ReflectionApiService(),
+    );
+    locator.registerLazySingleton<SleepApiService>(() => SleepApiService());
 
     //  Register repositories (depend on API services)
     print('📚 Registering repositories...');
     locator.registerLazySingleton<AuthRepository>(() => AuthRepository());
     locator.registerLazySingleton<AudioRepository>(() => AudioRepository());
-    locator.registerLazySingleton<ChallengeRepository>(() => ChallengeRepository());
+    locator.registerLazySingleton<ChallengeRepository>(
+      () => ChallengeRepository(),
+    );
     locator.registerLazySingleton<UserRepository>(() => UserRepository());
     locator.registerLazySingleton<JournalRepository>(() => JournalRepository());
+    locator.registerLazySingleton<PaymentRepository>(() => PaymentRepository());
+    locator.registerLazySingleton<ReflectionRepository>(
+      () => ReflectionRepository(
+        locator<ReflectionApiService>(),
+        locator<StorageService>(),
+      ),
+    );
+    locator.registerLazySingleton<SleepRepository>(() => SleepRepository());
 
     print('✅ All services registered successfully!');
-    
+
     // Validate setup
     _validateServices();
   }
@@ -95,30 +129,38 @@ class AppSetup {
       // Audio services
       locator<AudioDownloadService>();
       locator<AudioPlayerService>();
-      
+
       // Test core services
       locator<StorageService>();
       locator<ThemeService>();
       locator<DioService>();
-      
+      locator<FirebaseNotificationService>();
+      locator<PremiumStatusService>();
+
       // Test API services
       locator<AuthApiService>();
       locator<AudioApiService>();
       locator<ChallengeApiService>();
       locator<UserApiService>();
       locator<JournalApiService>();
-      
+      locator<ReflectionApiService>();
+      locator<SleepApiService>();
+
       // Test repositories
       locator<AuthRepository>();
       locator<AudioRepository>();
       locator<ChallengeRepository>();
       locator<UserRepository>();
       locator<JournalRepository>();
-      
+      locator<ReflectionRepository>();
+      locator<SleepRepository>();
+
       print('✅ All services validated successfully!');
     } catch (e) {
       print('❌ Service validation failed: $e');
-      print('❌ Make sure all required files are created and imported correctly!');
+      print(
+        '❌ Make sure all required files are created and imported correctly!',
+      );
     }
   }
 

@@ -8,6 +8,7 @@ class ChallengeCard extends StatelessWidget {
   final VoidCallback? onMarkComplete;
   final bool isCompleted;
   final bool isEnabled;
+  final bool isBeingMarked;
 
   const ChallengeCard({
     super.key,
@@ -15,6 +16,7 @@ class ChallengeCard extends StatelessWidget {
     this.onMarkComplete,
     this.isCompleted = false,
     this.isEnabled = true,
+    this.isBeingMarked = false,
   });
 
   @override
@@ -42,16 +44,11 @@ class ChallengeCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (challenge.type == ChallengeType.manhood &&
-                  !challenge.isCompleted) ...[
-                Icon(
-                  Icons.local_fire_department,
-                  size: 16.sp,
-                  color: Colors.orange,
-                ),
+              if (!challenge.isCompleted) ...[
+                Text('🔥', style: TextStyle(fontSize: 16.sp)),
                 SizedBox(width: 4.w),
                 Text(
-                  '+${challenge.points} points',
+                  '${challenge.points}pts',
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
@@ -77,7 +74,7 @@ class ChallengeCard extends StatelessWidget {
           SizedBox(height: 16.h),
 
           // Action button or completed status
-          if (isCompleted)
+          if (challenge.isCompleted)
             Row(
               children: [
                 Container(
@@ -107,13 +104,15 @@ class ChallengeCard extends StatelessWidget {
               width: double.infinity,
               height: 40.h,
               child: ElevatedButton(
-                onPressed: challenge.isCompleted
+                onPressed: challenge.isCompleted || !isEnabled || isBeingMarked
                     ? null
-                    : (isEnabled ? onMarkComplete : null),
+                    : onMarkComplete,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: challenge.isCompleted
                       ? AppColors.primary(context)
-                      : (isEnabled ? AppColors.primary(context) : AppColors.accentDark(context)),
+                      : (isEnabled && !isBeingMarked
+                            ? AppColors.primary(context)
+                            : AppColors.accentDark(context)),
                   disabledBackgroundColor: challenge.isCompleted
                       ? AppColors.primary(context)
                       : Colors.grey[400],
@@ -127,13 +126,25 @@ class ChallengeCard extends StatelessWidget {
                     if (challenge.isCompleted) ...[
                       Icon(Icons.check, size: 18.sp, color: Colors.white),
                       SizedBox(width: 8.w),
+                    ] else if (isBeingMarked) ...[
+                      SizedBox(
+                        width: 16.w,
+                        height: 16.h,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
                     ],
                     Text(
                       challenge.isCompleted
                           ? 'Completed'
-                          : (isEnabled
-                                ? 'Mark as done'
-                                : 'Complete puzzle first'),
+                          : isBeingMarked
+                              ? 'Marking...'
+                              : (isEnabled
+                                    ? 'Mark as done'
+                                    : 'Complete puzzle first'),
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,

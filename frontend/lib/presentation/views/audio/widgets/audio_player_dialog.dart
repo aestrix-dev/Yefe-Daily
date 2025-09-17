@@ -5,7 +5,6 @@ import 'package:yefa/data/models/audio_model.dart';
 import 'package:yefa/data/services/audio_player_service.dart';
 import '../../../../core/constants/app_colors.dart';
 
-
 class AudioPlayerBottomSheet extends StatefulWidget {
   final AudioModel audio;
   final AudioPlayerService playerService;
@@ -34,6 +33,25 @@ class AudioPlayerBottomSheet extends StatefulWidget {
 
 class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
   bool _isDownloading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Reset position streams when dialog opens for a new audio
+    _resetProgressForNewAudio();
+  }
+
+  void _resetProgressForNewAudio() {
+    // Check if the current audio in the service matches the dialog audio.
+    final currentAudio = widget.playerService.currentAudio;
+    if (currentAudio == null || currentAudio.id != widget.audio.id) {
+      // If different audio or no audio, reset the player state
+      print(
+        '🎵 AudioPlayerDialog: Resetting progress for new audio ${widget.audio.title}',
+      );
+      // The progress will show zero until the new audio starts playing
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +136,14 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
                         trackHeight: 6.h,
                       ),
                       child: Slider(
-                        value: positionData.position.inMilliseconds.toDouble(),
+                        value: positionData.position.inMilliseconds
+                            .toDouble()
+                            .clamp(
+                              0.0,
+                              positionData.duration.inMilliseconds
+                                  .toDouble()
+                                  .clamp(1.0, double.infinity),
+                            ),
                         max: positionData.duration.inMilliseconds
                             .toDouble()
                             .clamp(1.0, double.infinity),
@@ -213,7 +238,16 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
 
                 // Play/Pause button with loading state
                 StreamBuilder<bool>(
-                  stream: widget.playerService.audioPlayer.playingStream,
+                  stream: Rx.combineLatest2<bool, AudioModel?, bool>(
+                    widget.playerService.audioPlayer.playingStream,
+                    widget.playerService.playlist.map(
+                      (_) => widget.playerService.currentAudio,
+                    ),
+                    (isPlaying, currentAudio) {
+                      // Only show playing state if this dialog's audio is the current audio
+                      return isPlaying && currentAudio?.id == widget.audio.id;
+                    },
+                  ),
                   builder: (context, playingSnapshot) {
                     final isPlaying = playingSnapshot.data ?? false;
 
@@ -313,15 +347,31 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
   }
 
   Stream<PositionData> get _positionDataStream =>
-      Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+      Rx.combineLatest4<
+        Duration,
+        Duration,
+        Duration?,
+        AudioModel?,
+        PositionData
+      >(
         widget.playerService.audioPlayer.positionStream,
         widget.playerService.audioPlayer.bufferedPositionStream,
         widget.playerService.audioPlayer.durationStream,
-        (position, bufferedPosition, duration) => PositionData(
-          position: position,
-          bufferedPosition: bufferedPosition,
-          duration: duration ?? Duration.zero,
+        widget.playerService.playlist.map(
+          (_) => widget.playerService.currentAudio,
         ),
+        (position, bufferedPosition, duration, currentAudio) {
+          // Only show progress if the current playing audio matches this dialog's audio
+          final isCurrentAudio = currentAudio?.id == widget.audio.id;
+
+          return PositionData(
+            position: isCurrentAudio ? position : Duration.zero,
+            bufferedPosition: isCurrentAudio ? bufferedPosition : Duration.zero,
+            duration: isCurrentAudio
+                ? (duration ?? Duration.zero)
+                : Duration.zero,
+          );
+        },
       );
 
   String _formatDuration(Duration duration) {

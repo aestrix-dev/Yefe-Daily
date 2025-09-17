@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:stacked/stacked.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -16,9 +17,15 @@ class OnboardingView extends StackedView<OnboardingViewModel> {
     OnboardingViewModel viewModel,
     Widget? child,
   ) {
-    return Scaffold(
-        
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.white, // Hardcoded white status bar
+        statusBarIconBrightness: Brightness.dark, // Dark icons on white background
+        statusBarBrightness: Brightness.light, // For iOS - light status bar
+      ),
+      child: Scaffold(
       backgroundColor: AppColors.primary1,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         top: false,
         bottom: false, 
@@ -46,6 +53,7 @@ class OnboardingView extends StackedView<OnboardingViewModel> {
           ],
         ),
       ),
+    ),
     );
   }
 

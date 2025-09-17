@@ -43,6 +43,7 @@ class CommunitySection extends StatelessWidget {
             children: [
               // Yefa Man Cave
               _buildCommunityItem(
+                context,
                 iconPath: 'assets/icons/whatsapp.png',
                 title: 'Yefa Man Cave',
                 subtitle: 'Join our WhatsApp group',
@@ -50,11 +51,12 @@ class CommunitySection extends StatelessWidget {
                 showBottomBorder: true,
               ),
 
-              // Towel Talk
+              // Towel Talk (Telegram)
               _buildCommunityItem(
-                iconPath: 'assets/icons/video.png',
+                context,
+                iconPath: 'assets/icons/telegram.png',
                 title: 'Towel Talk',
-                subtitle: 'Watch our latest videos',
+                subtitle: 'Join our Telegram channel',
                 onTap: onTowelTalkTap,
                 showBottomBorder: false,
               ),
@@ -65,7 +67,8 @@ class CommunitySection extends StatelessWidget {
     );
   }
 
-  Widget _buildCommunityItem({
+  Widget _buildCommunityItem(
+    BuildContext context, {
     required String iconPath,
     required String title,
     required String subtitle,
@@ -83,40 +86,32 @@ class CommunitySection extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 60.w,
-              height: 60.h,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(8.w),
-                child: Image.asset(
-                  iconPath,
-                  width: 44.w,
-                  height: 44.h,
-                  errorBuilder: (context, error, stackTrace) {
-                    // Fallback icons
-                    IconData fallbackIcon;
-                    Color fallbackColor;
+            Image.asset(
+              iconPath,
+              width: 40.w,
+              height: 40.h,
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback icons
+                IconData fallbackIcon;
+                Color fallbackColor;
 
-                    if (iconPath.contains('whatsapp')) {
-                      fallbackIcon = Icons.group;
-                      fallbackColor = Colors.green;
-                    } else {
-                      fallbackIcon = Icons.forum;
-                      fallbackColor = Colors.blue;
-                    }
+                if (iconPath.contains('whatsapp')) {
+                  fallbackIcon = Icons.group;
+                  fallbackColor = Colors.green;
+                } else if (iconPath.contains('telegram')) {
+                  fallbackIcon = Icons.send;
+                  fallbackColor = Colors.blue;
+                } else {
+                  fallbackIcon = Icons.forum;
+                  fallbackColor = Colors.blue;
+                }
 
-                    return Icon(
-                      fallbackIcon,
-                      size: 20.sp,
-                      color: fallbackColor,
-                    );
-                  },
-                ),
-              ),
+                return Icon(
+                  fallbackIcon,
+                  size: 40.sp,
+                  color: fallbackColor,
+                );
+              },
             ),
             SizedBox(width: 16.w),
             Expanded(
@@ -128,13 +123,16 @@ class CommunitySection extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[700],
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   SizedBox(height: 2.h),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors.textSecondary(context),
+                    ),
                   ),
                 ],
               ),

@@ -10,7 +10,8 @@ import Users from '@/components/icons/Users'
 import Premium from '@/components/icons/Premium'
 import Daily from '@/components/icons/Daily'
 import Challenge from '@/components/icons/Challenge'
-import { dashboardService, type DashboardResponse } from '@/services/dashboard.service'
+import { dashboardService } from '@/services/dashboard.service'
+import type { DashboardResponse } from '@/lib/types/api'
 import { authService } from '@/services/auth.service'
 import { 
   DashboardSkeleton, 
@@ -22,17 +23,29 @@ import {
 } from '@/components/skeletons/SkeletonComponents'
 
 // Transform API data to match component structure
-const transformDashboardData = (apiData: DashboardResponse['data']) => {
-  // Helper function to get change percentage
-  const getChangePercentage = (metric: typeof apiData.totalUsers) => {
-    if (metric.changeType === 'same') return '0.0%'
+const transformDashboardData = (apiData: DashboardResponse['data'] | any) => {
+  // Handle completely null/undefined apiData
+  if (!apiData || typeof apiData !== 'object') {
+    apiData = {}
+  }
+  // Helper function to safely get change percentage
+  const getChangePercentage = (metric: any) => {
+    if (!metric || typeof metric !== 'object') return '0.0%'
+    if (metric.changeType === 'same' || !metric.change) return '0.0%'
     const sign = metric.changeType === 'increase' ? '+' : '-'
-    return `${sign}${Math.abs(metric.change * 100).toFixed(1)}%`
+    const changeValue = typeof metric.change === 'number' ? metric.change : 0
+    return `${sign}${Math.abs(changeValue * 100).toFixed(1)}%`
   }
 
-  // Helper function to get trend
+  // Helper function to safely get trend
   const getTrend = (changeType: string): "up" | "down" => {
     return changeType === 'increase' ? 'up' : 'down'
+  }
+
+  // Helper function to safely get value
+  const getValue = (metric: any): number => {
+    if (!metric || typeof metric !== 'object') return 0
+    return typeof metric.value === 'number' ? metric.value : 0
   }
 
   // Helper function to format description
@@ -44,59 +57,69 @@ const transformDashboardData = (apiData: DashboardResponse['data']) => {
     return 'Activity logged'
   }
 
+  // Safe access to nested data with fallbacks - API uses camelCase
+  const totalUsers = apiData?.totalUsers || { value: 0, changeType: 'same', change: 0 }
+  const premiumSubscribers = apiData?.premiumSubscribers || { value: 0, changeType: 'same', change: 0 }
+  const quickInsights = apiData?.quickInsights || {
+    activeUsersToday: 0,
+    premiumConversionRate: 0,
+    pendingInvitations: 0
+  }
+  const recentActivity = apiData?.recentActivity || []
+
   return {
     stats: [
       {
         title: "Total Users",
-        value: apiData.totalUsers.value.toLocaleString(),
-        change: getChangePercentage(apiData.totalUsers),
-        trend: getTrend(apiData.totalUsers.changeType),
+        value: getValue(totalUsers).toLocaleString(),
+        change: getChangePercentage(totalUsers),
+        trend: getTrend(totalUsers.changeType || 'same'),
         description: "from last month",
         icon: Users
       },
       {
         title: "Daily Active Users",
-        value: apiData.quickInsights.activeUsersToday.toLocaleString(),
-        change: "+3.1%", 
+        value: (quickInsights.activeUsersToday || 0).toLocaleString(),
+        change: "+3.1%",
         trend: "up" as const,
         description: "from last month",
         icon: Daily
       },
       {
         title: "Premium Subscribers",
-        value: apiData.premiumSubscribers.value.toLocaleString(),
-        change: getChangePercentage(apiData.premiumSubscribers),
-        trend: getTrend(apiData.premiumSubscribers.changeType),
+        value: getValue(premiumSubscribers).toLocaleString(),
+        change: getChangePercentage(premiumSubscribers),
+        trend: getTrend(premiumSubscribers.changeType || 'same'),
         description: "from last month",
         icon: Premium
       },
       {
         title: "Conversion Rate",
-        value: `${apiData.quickInsights.premiumConversionRate.toFixed(1)}%`,
-        change: "+2.1%", 
+        value: `${(quickInsights.premiumConversionRate || 0).toFixed(1)}%`,
+        change: "+2.1%",
         trend: "up" as const,
         description: "from last month",
         icon: Challenge
       }
     ] as Stat[],
-    recentActivity: apiData.recentActivity.map(activity => ({
-      type: activity.type.charAt(0).toUpperCase() + activity.type.slice(1).replace('_', ' '),
-      email: activity.user,
-      description: formatDescription(activity.description),
-      time: activity.timeAgo
+    recentActivity: recentActivity.map((activity: any) => ({
+      type: (activity?.type || 'activity').charAt(0).toUpperCase() + (activity?.type || 'activity').slice(1).replace('_', ' '),
+      email: activity?.user || 'Unknown user',
+      description: formatDescription(activity?.description),
+      time: activity?.timeAgo || 'Unknown time'
     })) as ActivityT[],
     quickInsights: [
       {
         title: "Premium Conversion Rate",
-        value: `${apiData.quickInsights.premiumConversionRate.toFixed(1)}%`
+        value: `${(quickInsights.premiumConversionRate || 0).toFixed(1)}%`
       },
       {
         title: "Active Users Today",
-        value: apiData.quickInsights.activeUsersToday.toLocaleString()
+        value: (quickInsights.activeUsersToday || 0).toLocaleString()
       },
       {
         title: "Pending Invitations",
-        value: apiData.quickInsights.pendingInvitations.toString()
+        value: (quickInsights.pendingInvitations || 0).toString()
       }
     ] as Insight[]
   }
@@ -126,11 +149,12 @@ export default function Dashboard() {
       
       const response = await dashboardService.getDashboardData()
       
-      if (response && response.success && response.data) {
-        const transformedData = transformDashboardData(response.data)
+      if (response && response.success) {
+        // Even if data is empty or partially missing, transform it safely
+        const transformedData = transformDashboardData(response.data || {})
         setDashboardData(transformedData)
-        setLastUpdated(response.data.lastUpdated)
-        
+        setLastUpdated(response.data?.lastUpdated || new Date().toISOString())
+
         // Show success toast only on initial load or retry
         // if (!dashboardData) {
         //   toast.success('Dashboard loaded successfully', {
