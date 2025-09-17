@@ -222,7 +222,7 @@ export default function Dashboard() {
          
         </h1>
         <div className="flex items-center justify-between mt-1">
-          <p className="text-gray-600">Here's what's happening with Yafa today.</p>
+          <p className="text-gray-600">Here's what's happening with Yefa today.</p>
           {lastUpdated && (
             <p className="text-xs text-gray-400">
               Last updated: {new Date(lastUpdated).toLocaleString()}
