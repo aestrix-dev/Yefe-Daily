@@ -250,7 +250,7 @@ func (r *adminUserRepository) GetAdminInvitationByID(ctx context.Context, token 
 		return nil, errors.New("email cannot be empty")
 	}
 	err := r.db.WithContext(ctx).
-		Where("invitation_token = ? AND deleted_at IS NULL", token).
+		Where("invitation_token = ?", token).
 		First(&dbInvitation).Error
 
 	if err != nil {

@@ -278,7 +278,6 @@ func (h *adminUserHandler) getPendingInvitations(w http.ResponseWriter, r *http.
 // @Failure 400 {object} web.ErrorResponse
 // @Failure 404 {object} web.ErrorResponse
 // @Failure 500 {object} web.ErrorResponse
-// @Router /admin/invitations/accept [post]
 func (h *adminUserHandler) AcceptInvitation(w http.ResponseWriter, r *http.Request) {
 	var req dto.AcceptInviteDTO
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
