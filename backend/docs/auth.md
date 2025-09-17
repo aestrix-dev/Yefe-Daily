@@ -110,6 +110,8 @@ All endpoints are prefixed with `/v1`.
     ```json
     {
         "token": "your_invitation_token"
+        "confirm_password":"Confirm Pasword"
+        "password":"Pasword"
     }
     ```
 - **Successful Response (200 OK):**
