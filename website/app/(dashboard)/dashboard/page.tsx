@@ -10,7 +10,8 @@ import Users from '@/components/icons/Users'
 import Premium from '@/components/icons/Premium'
 import Daily from '@/components/icons/Daily'
 import Challenge from '@/components/icons/Challenge'
-import { dashboardService, type DashboardResponse } from '@/services/dashboard.service'
+import { dashboardService } from '@/services/dashboard.service'
+import type { DashboardResponse } from '@/lib/types/api'
 import { authService } from '@/services/auth.service'
 import { 
   DashboardSkeleton, 
@@ -24,15 +25,15 @@ import {
 // Transform API data to match component structure
 const transformDashboardData = (apiData: DashboardResponse['data']) => {
   // Helper function to get change percentage
-  const getChangePercentage = (metric: typeof apiData.totalUsers) => {
-    if (metric.changeType === 'same') return '0.0%'
-    const sign = metric.changeType === 'increase' ? '+' : '-'
+  const getChangePercentage = (metric: typeof apiData.total_users) => {
+    if (metric.change_type === 'same') return '0.0%'
+    const sign = metric.change_type === 'increase' ? '+' : '-'
     return `${sign}${Math.abs(metric.change * 100).toFixed(1)}%`
   }
 
   // Helper function to get trend
-  const getTrend = (changeType: string): "up" | "down" => {
-    return changeType === 'increase' ? 'up' : 'down'
+  const getTrend = (change_type: string): "up" | "down" => {
+    return change_type === 'increase' ? 'up' : 'down'
   }
 
   // Helper function to format description
@@ -48,55 +49,55 @@ const transformDashboardData = (apiData: DashboardResponse['data']) => {
     stats: [
       {
         title: "Total Users",
-        value: apiData.totalUsers.value.toLocaleString(),
-        change: getChangePercentage(apiData.totalUsers),
-        trend: getTrend(apiData.totalUsers.changeType),
+        value: apiData.total_users.value.toLocaleString(),
+        change: getChangePercentage(apiData.total_users),
+        trend: getTrend(apiData.total_users.change_type),
         description: "from last month",
         icon: Users
       },
       {
         title: "Daily Active Users",
-        value: apiData.quickInsights.activeUsersToday.toLocaleString(),
-        change: "+3.1%", 
+        value: apiData.quick_insights.active_users_today.toLocaleString(),
+        change: "+3.1%",
         trend: "up" as const,
         description: "from last month",
         icon: Daily
       },
       {
         title: "Premium Subscribers",
-        value: apiData.premiumSubscribers.value.toLocaleString(),
-        change: getChangePercentage(apiData.premiumSubscribers),
-        trend: getTrend(apiData.premiumSubscribers.changeType),
+        value: apiData.premium_subscribers.value.toLocaleString(),
+        change: getChangePercentage(apiData.premium_subscribers),
+        trend: getTrend(apiData.premium_subscribers.change_type),
         description: "from last month",
         icon: Premium
       },
       {
         title: "Conversion Rate",
-        value: `${apiData.quickInsights.premiumConversionRate.toFixed(1)}%`,
-        change: "+2.1%", 
+        value: `${apiData.quick_insights.premium_conversion_rate.toFixed(1)}%`,
+        change: "+2.1%",
         trend: "up" as const,
         description: "from last month",
         icon: Challenge
       }
     ] as Stat[],
-    recentActivity: apiData.recentActivity.map(activity => ({
+    recentActivity: apiData.recent_activity.map(activity => ({
       type: activity.type.charAt(0).toUpperCase() + activity.type.slice(1).replace('_', ' '),
       email: activity.user,
       description: formatDescription(activity.description),
-      time: activity.timeAgo
+      time: activity.time_ago
     })) as ActivityT[],
     quickInsights: [
       {
         title: "Premium Conversion Rate",
-        value: `${apiData.quickInsights.premiumConversionRate.toFixed(1)}%`
+        value: `${apiData.quick_insights.premium_conversion_rate.toFixed(1)}%`
       },
       {
         title: "Active Users Today",
-        value: apiData.quickInsights.activeUsersToday.toLocaleString()
+        value: apiData.quick_insights.active_users_today.toLocaleString()
       },
       {
         title: "Pending Invitations",
-        value: apiData.quickInsights.pendingInvitations.toString()
+        value: apiData.quick_insights.pending_invitations.toString()
       }
     ] as Insight[]
   }
@@ -129,7 +130,7 @@ export default function Dashboard() {
       if (response && response.success && response.data) {
         const transformedData = transformDashboardData(response.data)
         setDashboardData(transformedData)
-        setLastUpdated(response.data.lastUpdated)
+        setLastUpdated(response.data.last_updated)
         
         // Show success toast only on initial load or retry
         // if (!dashboardData) {

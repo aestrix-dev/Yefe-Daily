@@ -1,46 +1,7 @@
 // services/dashboard.service.ts
 
 import { BaseService } from './config/api.config'
-
-
-interface DashboardMetric {
-  value: number
-  change: number
-  changeType: 'increase' | 'decrease' | 'same'
-}
-
-interface RecentActivity {
-  id: string
-  type: string
-  user: string
-  description: any 
-  timeAgo: string
-}
-
-interface QuickInsights {
-  premiumConversionRate: number
-  activeUsersToday: number
-  pendingInvitations: number
-}
-
-interface MonthlyRegistration {
-  month: string
-  count: number
-}
-
-export interface DashboardResponse {
-  success: boolean
-  message: string
-  data: {
-    totalUsers: DashboardMetric
-    premiumSubscribers: DashboardMetric
-    recentActivity: RecentActivity[]
-    quickInsights: QuickInsights
-    lastUpdated: string
-    MonthleyRegistrations: MonthlyRegistration[]
-  }
-  timestamp: string
-}
+import type { DashboardResponse } from '@/lib/types/api'
 
 class DashboardService extends BaseService {
   constructor() {

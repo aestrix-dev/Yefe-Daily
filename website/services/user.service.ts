@@ -1,63 +1,25 @@
 
 import { BaseService } from './config/api.config'
-
-export interface ApiUser {
-  id: string
-  name: string
-  email: string
-  plan_type: string
-  status: string
-  last_login: string | null
-  created_at: string
-  updated_at: string
-}
-
-export interface UserListResponse {
-  success: boolean
-  message: string
-  data: {
-    users: ApiUser[]
-    total: number
-    page: number
-    page_size: number
-    total_pages: number
-  }
-  timestamp: string
-}
-
-interface UserListParams {
-  page?: number
-  limit?: number
-  search?: string
-  status?: string
-  plan_type?: string
-  sort_by?: string
-  sort_order?: 'asc' | 'desc'
-}
-
-interface CreateUserData {
-  name: string
-  email: string
-  password: string
-  plan_type?: string
-}
-
-interface UpdateUserData {
-  name?: string
-  email?: string
-  plan_type?: string
-  status?: string
-}
+import type {
+  ApiUser,
+  UserListResponse,
+  UserListParams,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UpdateUserStatusRequest,
+  UpdateUserPlanRequest,
+  BaseApiResponse
+} from '@/lib/types/api'
 
 class UserService extends BaseService {
   constructor() {
-    super('/v1/admin/users')
+    super('/v1/admin')
   }
 
-  // Get all users with pagination and filters
+  // Get all users with pagination and filters (GET /admin/users)
   async getUsers(params?: UserListParams): Promise<UserListResponse> {
     const queryParams = new URLSearchParams()
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
@@ -65,46 +27,57 @@ class UserService extends BaseService {
         }
       })
     }
-    
+
     const queryString = queryParams.toString()
-    const endpoint = queryString ? `?${queryString}` : ''
-    
+    const endpoint = `/users${queryString ? `?${queryString}` : ''}`
+
     return this.get<UserListResponse>(endpoint)
   }
 
-  // Get user by ID
-  async getUserById(userId: string): Promise<{ success: boolean; data: ApiUser }> {
-    return this.get<{ success: boolean; data: ApiUser }>(`/${userId}`)
+  // Get user by ID (GET /admin/{userID})
+  async getUserById(userId: string): Promise<ApiUser> {
+    return this.get<ApiUser>(`/${userId}`)
   }
 
-  // Create new user
-  async createUser(userData: CreateUserData): Promise<{ success: boolean; data: ApiUser }> {
-    return this.post<{ success: boolean; data: ApiUser }, CreateUserData>(userData)
+  // Create new user (not in admin.md but keeping for completeness)
+  async createUser(userData: CreateUserRequest): Promise<{ success: boolean; data: ApiUser }> {
+    return this.post<{ success: boolean; data: ApiUser }, CreateUserRequest>(userData, '/users')
   }
 
-  // Update user
-  async updateUser(userId: string, userData: UpdateUserData): Promise<{ success: boolean; data: ApiUser }> {
-    return this.put<{ success: boolean; data: ApiUser }, UpdateUserData>(userData, `/${userId}`)
+  // Update user (not explicitly in admin.md but keeping for completeness)
+  async updateUser(userId: string, userData: UpdateUserRequest): Promise<{ success: boolean; data: ApiUser }> {
+    return this.put<{ success: boolean; data: ApiUser }, UpdateUserRequest>(userData, `/${userId}`)
   }
 
-  // Delete user
-  async deleteUser(userId: string): Promise<{ success: boolean; message: string }> {
-    return this.delete<{ success: boolean; message: string }>(`/${userId}`)
+  // Update user status (PUT /admin/{userID}/status)
+  async updateUserStatus(userId: string, statusData: UpdateUserStatusRequest): Promise<void> {
+    return this.put<void, UpdateUserStatusRequest>(statusData, `/${userId}/status`)
   }
 
-  // Suspend user
-  async suspendUser(userId: string, reason?: string): Promise<{ success: boolean; data: ApiUser }> {
-    return this.patch<{ success: boolean; data: ApiUser }, { reason?: string }>({ reason }, `/${userId}/suspend`)
+  // Update user plan (PUT /admin/{userID}/plan)
+  async updateUserPlan(userId: string, planData: UpdateUserPlanRequest): Promise<void> {
+    return this.put<void, UpdateUserPlanRequest>(planData, `/${userId}/plan`)
   }
 
-  // Activate user
-  async activateUser(userId: string): Promise<{ success: boolean; data: ApiUser }> {
-    return this.patch<{ success: boolean; data: ApiUser }, {}>({}, `/${userId}/activate`)
+  // Delete user (DELETE /admin/{userID})
+  async deleteUser(userId: string): Promise<void> {
+    return this.delete<void>(`/${userId}`)
   }
 
-  // Get user statistics
+  // Legacy methods for backwards compatibility
+  // Suspend user (deprecated - use updateUserStatus instead)
+  async suspendUser(userId: string, reason?: string): Promise<void> {
+    return this.updateUserStatus(userId, { status: 'suspend' })
+  }
+
+  // Activate user (deprecated - use updateUserStatus instead)
+  async activateUser(userId: string): Promise<void> {
+    return this.updateUserStatus(userId, { status: 'active' })
+  }
+
+  // Get user statistics (not in admin.md but keeping for existing functionality)
   async getUserStats(): Promise<{ success: boolean; data: any }> {
-    return this.get<{ success: boolean; data: any }>('/stats')
+    return this.get<{ success: boolean; data: any }>('/users/stats')
   }
 }
 

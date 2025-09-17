@@ -12,10 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Eye, User as UserIcon, ChevronUp, ChevronDown, RefreshCw, CrownIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Eye, User as UserIcon, ChevronUp, ChevronDown, RefreshCw, CrownIcon, ChevronLeft, ChevronRight, Shield, ShieldOff } from 'lucide-react'
 import type { User } from '@/lib/types'
 import UserModal from '@/components/modals/UserModal'
-import { userService, type ApiUser } from '@/services/user.service'
+import { userService } from '@/services/user.service'
+import type { ApiUser } from '@/lib/types/api'
 import { 
   UserManagementSkeleton,
   EmptyUsersState
@@ -111,6 +112,7 @@ export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [suspendingUsers, setSuspendingUsers] = useState<Set<string>>(new Set())
 
   // Fetch all users from API
   const fetchUsers = async () => {
@@ -176,6 +178,47 @@ export default function UserManagement() {
     }
   }
 
+  // Handle user suspension/activation
+  const handleUserStatusToggle = async (userId: string, currentStatus: User['status']) => {
+    try {
+      setSuspendingUsers(prev => new Set(prev).add(userId))
+
+      const newStatus = currentStatus === 'Active' ? 'suspend' : 'active'
+      await userService.updateUserStatus(userId, { status: newStatus })
+
+      // Update the user in the local state
+      setAllUsers(prev =>
+        prev.map(user =>
+          user.id === userId
+            ? { ...user, status: newStatus === 'suspend' ? 'Suspended' : 'Active' }
+            : user
+        )
+      )
+
+      toast.success(
+        `User ${newStatus === 'suspend' ? 'suspended' : 'activated'} successfully`,
+        {
+          duration: 3000,
+          position: 'top-right',
+        }
+      )
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message ||
+                          err?.message ||
+                          `Failed to ${currentStatus === 'Active' ? 'suspend' : 'activate'} user`
+
+      toast.error(errorMessage, {
+        duration: 4000,
+        position: 'top-right',
+      })
+    } finally {
+      setSuspendingUsers(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(userId)
+        return newSet
+      })
+    }
+  }
 
   useEffect(() => {
     let filtered = [...allUsers]
@@ -410,11 +453,35 @@ export default function UserManagement() {
                           <Button variant="ghost" size="sm">
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <UserModal user={user}>
+                          <UserModal
+                            user={user}
+                            onStatusToggle={handleUserStatusToggle}
+                            isLoading={suspendingUsers.has(user.id)}
+                          >
                             <Button variant="ghost" size="sm">
                               <UserIcon className="w-4 h-4" />
                             </Button>
                           </UserModal>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleUserStatusToggle(user.id, user.status)}
+                            disabled={suspendingUsers.has(user.id)}
+                            className={`${
+                              user.status === 'Active'
+                                ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                                : 'text-green-600 hover:text-green-700 hover:bg-green-50'
+                            }`}
+                            title={user.status === 'Active' ? 'Suspend user' : 'Activate user'}
+                          >
+                            {suspendingUsers.has(user.id) ? (
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                            ) : user.status === 'Active' ? (
+                              <ShieldOff className="w-4 h-4" />
+                            ) : (
+                              <Shield className="w-4 h-4" />
+                            )}
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

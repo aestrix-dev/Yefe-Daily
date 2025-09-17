@@ -1,5 +1,5 @@
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -9,18 +9,33 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { RefreshCw } from 'lucide-react'
 import type { User } from '@/lib/types'
 
 interface UserModalProps {
   user: User;
   children: React.ReactNode;
+  onStatusToggle?: (userId: string, currentStatus: User['status']) => Promise<void>;
+  isLoading?: boolean;
 }
 
-const UserModal: React.FC<UserModalProps> = ({ user, children }) => {
+const UserModal: React.FC<UserModalProps> = ({ user, children, onStatusToggle, isLoading = false }) => {
   const isActive = user.status === 'Active'
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleStatusToggle = async () => {
+    if (!onStatusToggle) return
+
+    try {
+      await onStatusToggle(user.id, user.status)
+      setIsOpen(false) // Close modal on successful action
+    } catch (error) {
+      // Error handling is done in parent component
+    }
+  }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
@@ -150,17 +165,31 @@ const UserModal: React.FC<UserModalProps> = ({ user, children }) => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button variant="outline" className="flex-1">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setIsOpen(false)}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
-            <Button 
+            <Button
               className={`flex-1 ${
-                isActive 
-                  ? 'bg-red-500 hover:bg-red-600 text-white' 
+                isActive
+                  ? 'bg-red-500 hover:bg-red-600 text-white'
                   : 'bg-green-500 hover:bg-green-600 text-white'
               }`}
+              onClick={handleStatusToggle}
+              disabled={isLoading || !onStatusToggle}
             >
-              {isActive ? 'Suspend User' : 'Activate User'}
+              {isLoading ? (
+                <div className="flex items-center">
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  {isActive ? 'Suspending...' : 'Activating...'}
+                </div>
+              ) : (
+                isActive ? 'Suspend User' : 'Activate User'
+              )}
             </Button>
           </div>
         </div>
