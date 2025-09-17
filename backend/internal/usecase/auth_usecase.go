@@ -275,7 +275,7 @@ func (a *authUseCase) AcceptNotificaions(ctx context.Context, fcmToken string, u
 
 	welcomeReq := fire_base.NotificationRequest{
 		Token: fcmToken,
-		Title: "Welcome to Yefe Daily!",
+		Title: "Welcome to Yefa Daily!",
 		Body:  "Your notification preferences have been saved.",
 		Data:  map[string]string{"type": "welcome"},
 	}

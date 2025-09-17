@@ -28,7 +28,7 @@ This notification is sent once, immediately after a user successfully enables pu
 - **Payload Example:**
   ```json
   {
-    "title": "Welcome to Yefe Daily!",
+    "title": "Welcome to Yefa Daily!",
     "body": "Your notification preferences have been saved.",
     "data": {
       "type": "welcome"

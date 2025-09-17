@@ -185,7 +185,7 @@ func (e *EmailServiceImpl) SendAdminInvitation(ctx context.Context, req dto.Admi
 }
 func (e *EmailServiceImpl) SendPaymentConfirmationEmail(ctx context.Context, req dto.PaymentConfirmationEmailData) error {
 	// Build the invitation email content
-	subject := fmt.Sprintf("Payment confitmation for Yefe Plus")
+	subject := fmt.Sprintf("Payment confitmation for Yefa Plus")
 
 	htmlBody := e.buildPaymentConfirmationHTML(req)
 	textBody := e.buildPaymentConfirmationText(req)
