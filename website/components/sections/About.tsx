@@ -103,8 +103,9 @@ const About = () => {
                 </p>
 
                 {/* Custom Button - pushed to bottom with mt-auto */}
-                      <Link
-                          href={feature.link}
+                      <a
+                  href={feature.link}
+                  target='_blank'
                   className={`
                     w-full font-lato font-semibold px-6 py-3 rounded-full text-base transition-all duration-300 hover:scale-105 hover:shadow-lg mt-auto
                     ${feature.buttonVariant === 'primary' 
@@ -116,7 +117,7 @@ const About = () => {
                   `}
                 >
                   {feature.buttonText}
-                </Link>
+                </a>
               </div>
             </div>
           ))}
