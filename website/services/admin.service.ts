@@ -23,9 +23,9 @@ class AdminService extends BaseService {
     return this.delete<BaseApiResponse>(`/admins/${adminId}`)
   }
 
-  async acceptInvitation(token: string, password: string): Promise<{ message: string; admin: ApiUser }> {
-    return this.post<{ message: string; admin: ApiUser }, { token: string; password: string }>(
-      { token, password },
+  async acceptInvitation(token: string, password: string, confirmPassword: string): Promise<{ message: string; admin: ApiUser }> {
+    return this.post<{ message: string; admin: ApiUser }, { token: string; password: string; confirm_password: string }>(
+      { token, password, confirm_password: confirmPassword },
       '/invitations/accept'
     )
   }

@@ -96,7 +96,7 @@ export interface AdminListResponse extends BaseApiResponse {
 export interface DashboardMetric {
   value: number
   change: number
-  change_type: 'increase' | 'decrease' | 'same'
+  changeType: 'increase' | 'decrease' | 'same'
 }
 
 export interface RecentActivity {
@@ -104,13 +104,13 @@ export interface RecentActivity {
   type: string
   user: string
   description: any
-  time_ago: string
+  timeAgo: string
 }
 
 export interface QuickInsights {
-  premium_conversion_rate: number
-  active_users_today: number
-  pending_invitations: number
+  premiumConversionRate: number
+  activeUsersToday: number
+  pendingInvitations: number
 }
 
 export interface MonthlyRegistration {
@@ -119,12 +119,12 @@ export interface MonthlyRegistration {
 }
 
 export interface DashboardData {
-  total_users: DashboardMetric
-  premium_subscribers: DashboardMetric
-  recent_activity: RecentActivity[]
-  quick_insights: QuickInsights
-  last_updated: string
-  monthly_registrations: MonthlyRegistration[]
+  totalUsers: DashboardMetric
+  premiumSubscribers: DashboardMetric
+  recentActivity: RecentActivity[]
+  quickInsights: QuickInsights
+  lastUpdated: string
+  MonthleyRegistrations: MonthlyRegistration[]
 }
 
 export interface DashboardResponse extends BaseApiResponse {

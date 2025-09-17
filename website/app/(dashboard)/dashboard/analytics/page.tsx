@@ -11,37 +11,57 @@ import { dashboardService } from '@/services/dashboard.service';
 import type { DashboardResponse } from '@/lib/types/api';
 import { StatCardSkeleton } from '@/components/skeletons/SkeletonComponents';
 
-const transformAnalyticsData = (apiData: DashboardResponse['data']) => {
-  const getChangePercentage = (metric: typeof apiData.total_users) => {
-    if (metric.change_type === 'same') return '0.0%'
-    const sign = metric.change_type === 'increase' ? '+' : '-'
-    return `${sign}${Math.abs(metric.change * 100).toFixed(1)}%`
+const transformAnalyticsData = (apiData: DashboardResponse['data'] | any) => {
+  // Handle completely null/undefined apiData
+  if (!apiData || typeof apiData !== 'object') {
+    apiData = {}
+  }
+  // Helper function to safely get change percentage
+  const getChangePercentage = (metric: any) => {
+    if (!metric || typeof metric !== 'object') return '0.0%'
+    if (metric.changeType === 'same' || !metric.change) return '0.0%'
+    const sign = metric.changeType === 'increase' ? '+' : '-'
+    const changeValue = typeof metric.change === 'number' ? metric.change : 0
+    return `${sign}${Math.abs(changeValue * 100).toFixed(1)}%`
   }
 
   const getTrend = (changeType: string): "up" | "down" => {
     return changeType === 'increase' ? 'up' : 'down'
   }
 
+  // Helper function to safely get value
+  const getValue = (metric: any): number => {
+    if (!metric || typeof metric !== 'object') return 0
+    return typeof metric.value === 'number' ? metric.value : 0
+  }
+
+  // Safe access to nested data with fallbacks - API uses camelCase
+  const totalUsers = apiData?.totalUsers || { value: 0, changeType: 'same', change: 0 }
+  const premiumSubscribers = apiData?.premiumSubscribers || { value: 0, changeType: 'same', change: 0 }
+  const quickInsights = apiData?.quickInsights || {
+    premiumConversionRate: 0
+  }
+
   return [
     {
       title: "Total Users",
-      value: apiData.total_users.value.toLocaleString(),
-      change: getChangePercentage(apiData.total_users),
-      trend: getTrend(apiData.total_users.change_type),
+      value: getValue(totalUsers).toLocaleString(),
+      change: getChangePercentage(totalUsers),
+      trend: getTrend(totalUsers.changeType || 'same'),
       description: "from last month",
       icon: Users
     },
     {
       title: "Premium Subscribers",
-      value: apiData.premium_subscribers.value.toLocaleString(),
-      change: getChangePercentage(apiData.premium_subscribers),
-      trend: getTrend(apiData.premium_subscribers.change_type),
+      value: getValue(premiumSubscribers).toLocaleString(),
+      change: getChangePercentage(premiumSubscribers),
+      trend: getTrend(premiumSubscribers.changeType || 'same'),
       description: "from last month",
       icon: Premium
     },
     {
       title: "Premium Conversion Rate",
-      value: `${apiData.quick_insights.premium_conversion_rate.toFixed(1)}%`,
+      value: `${(quickInsights.premiumConversionRate || 0).toFixed(1)}%`,
       change: "+2.1%",
       trend: "up" as const,
       description: "from last month",
@@ -63,10 +83,11 @@ const page = () => {
 
       const response = await dashboardService.getDashboardData()
 
-      if (response && response.success && response.data) {
-        const transformedData = transformAnalyticsData(response.data)
+      if (response && response.success) {
+        // Even if data is empty or partially missing, transform it safely
+        const transformedData = transformAnalyticsData(response.data || {})
         setAnalyticsData(transformedData)
-        setLastUpdated(response.data.last_updated)
+        setLastUpdated(response.data?.lastUpdated || new Date().toISOString())
       } else {
         throw new Error(response?.message || 'Invalid response format')
       }

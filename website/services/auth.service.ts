@@ -50,6 +50,11 @@ class AuthService extends BaseService {
 
       const { access_token, refresh_token, expires_in } = loginResponse.data
 
+      // Store token temporarily so the /me call can use it
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authToken', access_token)
+      }
+
       const userResponse = await this.get<UserResponse>('/me')
 
       if (!userResponse.success) {
@@ -80,6 +85,11 @@ class AuthService extends BaseService {
       }
 
       const { access_token, refresh_token, expires_in } = response.data
+
+      // Store token temporarily so the /me call can use it
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authToken', access_token)
+      }
 
       const userResponse = await this.get<UserResponse>('/me')
 

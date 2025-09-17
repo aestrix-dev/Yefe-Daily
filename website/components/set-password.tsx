@@ -39,7 +39,7 @@ export function SetPassword({
   // Check if token is present
   React.useEffect(() => {
     if (!token) {
-      setError('Invalid invitation link. Token is missing.')
+      setError('Invalid invitation link. The invitation token is missing from the URL.')
     }
   }, [token])
 
@@ -96,27 +96,40 @@ export function SetPassword({
       setLoading(true)
       setError(null)
 
-      await adminService.acceptInvitation(token, formData.password)
+      await adminService.acceptInvitation(token, formData.password, formData.confirmPassword)
 
       setSuccess(true)
-      toast.success('Password created successfully! Redirecting to login...', {
+      toast.success('Password created successfully!', {
         duration: 3000,
         position: 'top-right',
       })
 
       // Redirect to login after 2 seconds
-      setTimeout(() => {
-        router.push('/sign-in')
-      }, 2000)
+      // setTimeout(() => {
+      //   router.push('/sign-in')
+      // }, 2000)
 
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.message ||
-                          err?.message ||
-                          'Failed to create password. Please try again.'
+      console.log('Set password error:', err)
+
+      let errorMessage = 'Failed to create password. Please try again.'
+
+      // Handle specific error cases
+      if (err?.response?.status === 401) {
+        errorMessage = 'Invalid or expired invitation link. Please request a new invitation.'
+      } else if (err?.response?.status === 400) {
+        errorMessage = err?.response?.data?.message || 'Invalid request. Please check your input.'
+      } else if (err?.response?.status === 422) {
+        errorMessage = err?.response?.data?.message || 'Validation error. Please check your password requirements.'
+      } else if (err?.response?.data?.message) {
+        errorMessage = err?.response?.data?.message
+      } else if (err?.message) {
+        errorMessage = err?.message
+      }
 
       setError(errorMessage)
       toast.error(errorMessage, {
-        duration: 4000,
+        duration: 6000, // Longer duration for error messages
         position: 'top-right',
       })
     } finally {
@@ -138,7 +151,7 @@ export function SetPassword({
             </div>
             <CardTitle className="text-green-600">Password Created Successfully!</CardTitle>
             <CardDescription>
-              Your admin account has been set up. You will be redirected to the login page shortly.
+              Your admin account has been set up successfully.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -169,7 +182,15 @@ export function SetPassword({
           {/* Token missing state */}
           {!token ? (
             <div className="text-center py-6">
-              <p className="text-red-600 mb-4">Invalid invitation link</p>
+              <div className="mb-4">
+                <svg className="w-12 h-12 text-red-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 19c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <h3 className="text-lg font-medium text-red-600 mb-2">Invalid Invitation Link</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  The invitation token is missing or malformed. Please check your invitation email and use the correct link.
+                </p>
+              </div>
               <Button
                 onClick={() => router.push('/sign-in')}
                 variant="outline"
