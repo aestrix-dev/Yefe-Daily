@@ -209,7 +209,7 @@ func (uc *adminUserUseCase) GetPendingInvitations(ctx context.Context) ([]domain
 func (uc *adminUserUseCase) AcceptInvitation(ctx context.Context, invitationRequst dto.AcceptInviteDTO) error {
 
 	invitation, err := uc.adminRepo.GetAdminInvitationByID(ctx, invitationRequst.Token)
-	if err == nil {
+	if err != nil {
 		logger.Log.WithError(err).Error("Invitation not found")
 		return domain.ErrInvalidToken
 	}
