@@ -228,6 +228,68 @@ func main() {
 		return nil
 	})
 
+	err = scheduler.AddJob("send-weekly-sleep-analytics", "Weekly sleep analytics", utils.WEEKLY, func(ctx context.Context) error {
+		users, err := userRepo.GetProUsers(ctx)
+		if err != nil {
+			logger.Log.WithError(err).Error("Failed to get pro users for weekly sleep analytics")
+			return err
+		}
+
+		for _, user := range users {
+			go func(user *domain.User) {
+				now := time.Now()
+				sevenDaysAgo := now.AddDate(0, 0, -7)
+				sleeps, err := sleepRepo.GetSleepsByUserIDAndDateRange(ctx, user.ID, sevenDaysAgo, now)
+				if err != nil {
+					logger.Log.WithError(err).WithField("user_id", user.ID).Error("Failed to get sleep data for user")
+					return
+				}
+
+				if len(sleeps) == 0 {
+					return // No sleep data for this user
+				}
+
+				var totalSleep time.Duration
+				longestSleep := sleeps[0]
+				for _, sleep := range sleeps {
+					duration := sleep.WokeUpAt.Sub(sleep.SleptAt)
+					totalSleep += duration
+					if duration > longestSleep.WokeUpAt.Sub(longestSleep.SleptAt) {
+						longestSleep = sleep
+					}
+				}
+
+				token, err := fmcRepo.GetFCMToken(ctx, user.ID)
+				if err != nil {
+					logger.Log.WithError(err).WithField("user_id", user.ID).Error("Failed to get FCM token for user")
+					return
+				}
+
+				if token == "" {
+					return // No FCM token for this user
+				}
+
+				title := "Your Weekly Sleep Report is Ready!"
+				body := fmt.Sprintf("You slept for a total of %.1f hours this week. Your longest sleep was on %s.", totalSleep.Hours(), longestSleep.CreatedAt.Weekday().String())
+				data := map[string]string{"type": "sleep_analytics"}
+
+				req := fire_base.NotificationRequest{
+					Token: token,
+					Title: title,
+					Body:  body,
+					Data:  data,
+				}
+
+				if err := fcmService.SendNotification(ctx, req); err != nil {
+					logger.Log.WithError(err).WithField("user_id", user.ID).Error("Failed to send sleep analytics notification")
+				}
+			}(user)
+		}
+
+		logger.Log.Info("Weekly sleep analytics job completed")
+		return nil
+	})
+
 	reflection := inmemeoryCache.GetOrSetWithTTLAndContext(serverCtx, "daily-reflection", func() any {
 		ref := dailyRelectionUsecase.GetRandomDailyReflection()
 		if err != nil {
