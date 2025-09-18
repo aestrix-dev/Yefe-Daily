@@ -430,3 +430,31 @@ func (r *userRepository) isSensitiveUpdate(user *domain.User) bool {
 	// For now, we'll log all updates
 	return true
 }
+
+func (r *userRepository) GetProUsers(ctx context.Context) ([]*domain.User, error) {
+	var users []*domain.User
+	var dbUsers []models.User
+
+	err := r.db.WithContext(ctx).
+		Joins("JOIN fcm_user_preferences ON fcm_user_preferences.user_id = users.id").
+		Where("users.plan_type = ? AND fcm_user_preferences.fcm_token != ?", "yefe_plus", "").
+		Preload("Profile").
+		Find(&dbUsers).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get pro users: %w", err)
+	}
+
+	for _, dbUser := range dbUsers {
+		var user domain.User
+		err = utils.TypeConverter(dbUser, &user)
+		if err != nil {
+			return nil, err
+		}
+		user.PasswordHash = dbUser.PasswordHash
+		user.Salt = dbUser.Salt
+		users = append(users, &user)
+	}
+
+	return users, nil
+}

@@ -109,6 +109,7 @@ type UserRepository interface {
 	UpdateLastLogin(ctx context.Context, userID string) error
 	CreateAdminUser(ctx context.Context, user *User, role string) error
 	UpdateUserRole(ctx context.Context, userID string, role string) error
+	GetProUsers(ctx context.Context) ([]*User, error)
 }
 
 type UserProfileRepository interface {
