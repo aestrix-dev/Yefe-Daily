@@ -39,8 +39,13 @@ class FirebaseNotificationService {
       // Request permission for notifications
       await _requestPermission();
 
-      // Get FCM token
-      await _getFCMToken();
+      // Get FCM token (with timeout to prevent hanging)
+      await _getFCMToken().timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          _logger.w('⏰ FCM token request timed out - continuing without token');
+        },
+      );
 
       // Setup message handlers
       _setupMessageHandlers();
@@ -51,7 +56,8 @@ class FirebaseNotificationService {
       _logger.i('✅ Firebase Notification Service initialized successfully');
     } catch (e) {
       _logger.e('❌ Failed to initialize Firebase Notification Service: $e');
-      rethrow;
+      _logger.w('📱 App will continue without push notifications');
+      // Don't rethrow to prevent app crash
     }
   }
 
@@ -93,9 +99,18 @@ class FirebaseNotificationService {
     try {
       _logger.i('🔑 Getting FCM token...');
 
-      // For iOS devices, wait for APNS token with retries
+      // For iOS devices, try to wait for APNS token but don't block
       if (Platform.isIOS) {
-        await _waitForAPNSToken();
+        bool apnsAvailable = await _waitForAPNSToken();
+        if (!apnsAvailable) {
+          _logger.w('⚠️ APNS token not available - push notifications may not work');
+          _logger.w('📱 Make sure:');
+          _logger.w('   1. Push Notifications capability is enabled in Xcode');
+          _logger.w('   2. App is properly signed with valid provisioning profile');
+          _logger.w('   3. Running on real device (not simulator)');
+          _logger.w('   4. Device is connected to internet');
+          // Continue anyway - FCM might still work for some scenarios
+        }
       }
 
       _fcmToken = await _firebaseMessaging.getToken();
@@ -105,15 +120,25 @@ class FirebaseNotificationService {
         // Send token to server
         await _sendTokenToServer(_fcmToken!);
       } else {
-        _logger.w('⚠️ Failed to obtain FCM token');
+        _logger.w('⚠️ Failed to obtain FCM token - check APNS configuration');
       }
     } catch (e) {
-      _logger.e('❌ Error getting FCM token: $e');
+      if (e.toString().contains('apns-token-not-set')) {
+        _logger.e('❌ APNS token not available - push notifications will not work');
+        _logger.e('🔧 To fix this:');
+        _logger.e('   1. Open ios/Runner.xcworkspace in Xcode');
+        _logger.e('   2. Select Runner target > Signing & Capabilities');
+        _logger.e('   3. Add "Push Notifications" capability');
+        _logger.e('   4. Ensure proper code signing with valid provisioning profile');
+        _logger.e('   5. Test on real device, not simulator');
+      } else {
+        _logger.e('❌ Error getting FCM token: $e');
+      }
     }
   }
 
   /// Wait for APNS token on iOS with retries
-  Future<void> _waitForAPNSToken() async {
+  Future<bool> _waitForAPNSToken() async {
     const maxRetries = 5;
     const retryDelay = Duration(seconds: 2);
 
@@ -122,7 +147,7 @@ class FirebaseNotificationService {
         final apnsToken = await _firebaseMessaging.getAPNSToken();
         if (apnsToken != null) {
           _logger.i('📱 APNS token available: ${apnsToken.substring(0, 20)}...');
-          return;
+          return true;
         } else {
           _logger.w('⚠️ APNS token not available yet, attempt ${i + 1}/$maxRetries');
           if (i < maxRetries - 1) {
@@ -138,6 +163,7 @@ class FirebaseNotificationService {
     }
 
     _logger.w('⚠️ Could not get APNS token after $maxRetries attempts, proceeding anyway...');
+    return false;
   }
 
 

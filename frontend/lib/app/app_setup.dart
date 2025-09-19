@@ -67,11 +67,13 @@ class AppSetup {
     print('⏰ Registering puzzle timer service...');
     locator.registerSingleton<PuzzleTimerService>(PuzzleTimerService());
 
-    // Register and initialize Firebase notification service
-    print('🔔 Initializing Firebase notification service...');
+    // Register Firebase notification service (initialize asynchronously)
+    print('🔔 Registering Firebase notification service...');
     final notificationService = FirebaseNotificationService();
-    await notificationService.initialize();
     locator.registerSingleton<FirebaseNotificationService>(notificationService);
+
+    // Initialize Firebase notifications in background to avoid blocking app startup
+    _initializeFirebaseNotificationsAsync(notificationService);
 
     // Register HTTP client service
     print('🌐 Registering HTTP client...');
@@ -177,5 +179,20 @@ class AppSetup {
   // Helper method to reset services (useful for testing)
   static Future<void> reset() async {
     await locator.reset();
+  }
+
+  // Initialize Firebase notifications asynchronously to avoid blocking app startup
+  static void _initializeFirebaseNotificationsAsync(FirebaseNotificationService service) {
+    Future.delayed(Duration.zero, () async {
+      try {
+        print('🔔 Starting async Firebase notification initialization...');
+        await service.initialize();
+        print('✅ Firebase notifications initialized successfully');
+      } catch (e) {
+        print('⚠️ Firebase notification initialization failed: $e');
+        print('📱 This is normal on simulators or if Push Notifications capability is missing');
+        // Don't crash the app, just log the error
+      }
+    });
   }
 }
