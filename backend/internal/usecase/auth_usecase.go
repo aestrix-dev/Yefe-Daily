@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 	"yefe_app/v1/internal/domain"
@@ -163,13 +164,13 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 
 	// Create session
 	session := &domain.Session{
-		ID:           uuid.New().String(),
-		UserID:       user.ID,
-		Token:        utils.GenerateSecureToken(),
-		IPAddress:    req.IPAddress,
-		UserAgent:    req.UserAgent,
-		IsActive:     true,
-		CreatedAt:    time.Now(),
+		ID:        uuid.New().String(),
+		UserID:    user.ID,
+		Token:     utils.GenerateSecureToken(),
+		IPAddress: req.IPAddress,
+		UserAgent: req.UserAgent,
+		IsActive:  true,
+		CreatedAt: time.Now(),
 	}
 
 	if err := a.sessionRepo.Create(ctx, session); err != nil {
@@ -189,7 +190,7 @@ func (a *authUseCase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 		logger.Log.WithError(err).Error("Could not update last login")
 	}
 	return &dto.LoginResponse{
-		AccessToken:  accessToken,
+		AccessToken: accessToken,
 	}, nil
 }
 
@@ -247,11 +248,11 @@ func (a *authUseCase) AcceptNotificaions(ctx context.Context, fcmToken string, u
 	morningHour := morningTime[0]
 	morningMinute := morningTime[1]
 
-	eveningHour := eveningTime[0]
+	eveningHour, _ := strconv.Atoi(eveningTime[0])
 	eveningMinute := eveningTime[1]
 
-	morningCron := fmt.Sprintf("0 %s %s * * *", morningMinute, morningHour)
-	eveningCron := fmt.Sprintf("0 %s %s * * *", eveningMinute, eveningHour)
+	morningCron := fmt.Sprintf("%s %s * * *", morningMinute, morningHour)
+	eveningCron := fmt.Sprintf("%s %d * * *", eveningMinute, eveningHour+12)
 	if err := a.fmcService.AddRecurringMotivationalNotification(
 		utils.GenerateID()+utils.GenerateSecureToken(),
 		preferences.UserID,
