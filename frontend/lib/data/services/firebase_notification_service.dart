@@ -166,7 +166,6 @@ class FirebaseNotificationService {
     return false;
   }
 
-
   /// Setup message handlers
   void _setupMessageHandlers() {
     _logger.i('📨 Setting up message handlers...');

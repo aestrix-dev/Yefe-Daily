@@ -427,7 +427,7 @@ class OnboardingPageThree extends ViewModelWidget<OnboardingViewModel> {
         }
       }
     } catch (e) {
-      print('Error parsing time string: $timeString - $e');
+
     }
     return null;
   }

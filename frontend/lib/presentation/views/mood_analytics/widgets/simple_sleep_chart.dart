@@ -180,7 +180,6 @@ class _SimpleSleepChartState extends State<SimpleSleepChart>
     return dayMap[fullDay] ?? fullDay.substring(0, 3);
   }
 
-
   Widget _buildAnimatedBar(BuildContext context, double duration, int index, double yAxisMax) {
     return AnimatedBuilder(
       animation: _barAnimations[index],

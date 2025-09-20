@@ -14,7 +14,6 @@ extension AudioCache on StorageService {
     final now = DateTime.now().toIso8601String();
     await setString(_audioCacheDateKey, now);
 
-    print('✅ Cached ${audios.length} audio items');
   }
 
   Future<List<AudioModel>?> getCachedAudioList() async {
@@ -34,15 +33,14 @@ extension AudioCache on StorageService {
               .map((e) => AudioModel.fromJson(e))
               .toList();
 
-          print('✅ Loaded ${cachedAudios.length} cached audio items');
           return cachedAudios;
         } else {
           // Clear old cache
           await _clearAudioCache();
-          print('⏰ Audio cache expired, cleared old data');
+
         }
       } catch (e) {
-        print('❌ Error parsing cached audio list: $e');
+
         await _clearAudioCache();
       }
     }
@@ -73,6 +71,6 @@ extension AudioCache on StorageService {
   // Clear all audio-related cache
   Future<void> clearAudioCache() async {
     await _clearAudioCache();
-    print('🗑️ Audio cache cleared');
+
   }
 }

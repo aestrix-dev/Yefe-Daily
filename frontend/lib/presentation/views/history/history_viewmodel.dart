@@ -29,7 +29,7 @@ class HistoryViewModel extends BaseViewModel {
   }
 
   Future<void> fetchJournalEntries() async {
-    print('🔄 Fetching journal entries...');
+
     setBusy(true);
     _errorMessage = null;
 
@@ -39,24 +39,15 @@ class HistoryViewModel extends BaseViewModel {
       _entries = result.data ?? [];
 
       // Debug Logging
-      print('🟢 API Call Success');
-      print('📊 Entries Count: ${_entries.length}');
-      for (var entry in _entries) {
-        print('➡️ Entry ID: ${entry.id}');
-        print('    Type: ${entry.type}');
-        print('    Content: ${entry.content}');
-        print('    Tags: ${entry.tags}');
-        print('    Created At: ${entry.createdAt}');
-      }
 
       if (_entries.isEmpty) {
-        print('⚠️ Entries list is empty!');
+
       } else {
-        print('✅ Entries loaded into ViewModel');
+
       }
     } else {
       _errorMessage = result.error ?? 'Failed to fetch entries';
-      print('❌ API Call Failed: $_errorMessage');
+
       _showErrorToast(_errorMessage!);
     }
 

@@ -107,7 +107,7 @@ class ChallengesViewModel extends BaseViewModel {
       // Then try to load fresh data if online
       await _loadFreshDataIfOnline();
     } catch (e) {
-      print('Error initializing ChallengesViewModel: $e');
+
     } finally {
       setBusy(false);
     }
@@ -164,7 +164,7 @@ class ChallengesViewModel extends BaseViewModel {
         }
       }
     } catch (e) {
-      print('Error loading cached data: $e');
+
     }
   }
 
@@ -183,9 +183,7 @@ class ChallengesViewModel extends BaseViewModel {
         // Only load today's challenge if conditions are met
         await _loadTodaysChallenge();
       } else {
-        print(
-          '🚫 Not loading new challenge - either completed today or puzzle countdown active',
-        );
+
       }
 
       // Load puzzle if not on cooldown
@@ -201,7 +199,7 @@ class ChallengesViewModel extends BaseViewModel {
         );
       }
     } catch (e) {
-      print('Error loading fresh data: $e');
+
     }
   }
 
@@ -216,7 +214,7 @@ class ChallengesViewModel extends BaseViewModel {
         notifyListeners();
       }
     } catch (e) {
-      print('Error loading today\'s challenge: $e');
+
     }
   }
 
@@ -233,7 +231,7 @@ class ChallengesViewModel extends BaseViewModel {
         notifyListeners();
       }
     } catch (e) {
-      print('Error loading completed challenges: $e');
+
     }
   }
 
@@ -246,7 +244,7 @@ class ChallengesViewModel extends BaseViewModel {
         notifyListeners();
       }
     } catch (e) {
-      print('Error loading challenge stats: $e');
+
     }
   }
 
@@ -270,32 +268,31 @@ class ChallengesViewModel extends BaseViewModel {
 
     // If challenge completed today AND puzzle countdown is still active, use cached challenge
     if (hasCompletedToday && !canAttemptPuzzle) {
-      print('✅ Challenge completed today, puzzle countdown active - using cached challenge');
+
       return false;
     }
     
     // If challenge completed today but countdown expired, can load new challenge
     if (hasCompletedToday && canAttemptPuzzle) {
-      print('✅ Challenge completed today but countdown expired - can load new challenge');
+
       return true;
     }
 
     // If no challenge completed today but countdown active, use cached challenge
     if (!hasCompletedToday && !canAttemptPuzzle) {
-      print('⏰ No completion today, puzzle countdown active - using cached challenge');
+
       return false;
     }
 
     // No challenge completed today and countdown expired - load new challenge
-    print('🆕 No completion today, countdown expired - loading new challenge');
+
     return true;
   }
 
   // Setup timer service callbacks
   void _setupTimerCallbacks() {
     _timerService.onTimerExpired = () {
-      print('⏰ Timer expired, resetting puzzle state and fetching new content...');
-      
+
       // Clear puzzle state for new puzzle
       _updatePuzzleState(
         _puzzleState.copyWith(
@@ -327,8 +324,7 @@ class ChallengesViewModel extends BaseViewModel {
   // Handle refresh after countdown expires - this allows new challenges even if previous day was completed
   Future<void> _refreshAfterCountdownExpired() async {
     try {
-      print('🔄 Refreshing content after countdown expired...');
-      
+
       // Get new puzzle
       await getDailyPuzzle();
       
@@ -337,10 +333,9 @@ class ChallengesViewModel extends BaseViewModel {
       
       // Now load today's challenge (should be available since countdown expired)
       await _loadTodaysChallenge();
-      
-      print('✅ Content refreshed after countdown expiry');
+
     } catch (e) {
-      print('❌ Error refreshing content after countdown: $e');
+
     }
   }
 
@@ -360,7 +355,7 @@ class ChallengesViewModel extends BaseViewModel {
   // Get daily puzzle from API
   Future<void> getDailyPuzzle() async {
     if (!_timerService.canAttemptPuzzle()) {
-      print('🚫 Cannot attempt puzzle - on cooldown');
+
       return;
     }
 
@@ -368,15 +363,11 @@ class ChallengesViewModel extends BaseViewModel {
     _clearError();
 
     try {
-      print('🧩 Loading daily puzzle...');
 
       final result = await _challengeRepository.getDailyPuzzle();
 
       if (result.isSuccess) {
         final puzzle = result.data!;
-
-        // Check if this is a new puzzle
-        final isNewPuzzle = _timerService.isNewPuzzle(puzzle.id);
 
         _updatePuzzleState(
           _puzzleState.copyWith(
@@ -389,12 +380,8 @@ class ChallengesViewModel extends BaseViewModel {
           ),
         );
 
-        print('✅ Daily puzzle loaded successfully!');
-        print(
-          '🧩 Puzzle: ${puzzle.title} ${isNewPuzzle ? "(NEW)" : "(EXISTING)"}',
-        );
       } else {
-        print('❌ Failed to load puzzle: ${result.error}');
+
         _setError(result.error ?? 'Failed to load daily puzzle');
 
         if (_context != null) {
@@ -405,7 +392,7 @@ class ChallengesViewModel extends BaseViewModel {
         }
       }
     } catch (e) {
-      print('❌ Error loading puzzle: $e');
+
       _setError('An unexpected error occurred while loading puzzle');
 
       if (_context != null) {
@@ -429,12 +416,8 @@ class ChallengesViewModel extends BaseViewModel {
     _clearError();
 
     try {
-      print('📝 Submitting puzzle answer...');
-      print('🧩 Puzzle ID: ${_puzzleState.puzzle!.id}');
-      print('✅ Selected Answer: ${_puzzleState.selectedAnswer}');
 
       // Backend expects 1-based answer numbers (1, 2, 3) directly
-      print('📤 Sending answer to backend: ${_puzzleState.selectedAnswer}');
 
       final result = await _challengeRepository.submitPuzzleAnswer(
         puzzleId: _puzzleState.puzzle!.id,
@@ -446,9 +429,6 @@ class ChallengesViewModel extends BaseViewModel {
         final submissionTime = DateTime.now();
 
         // Backend returns 1-based answer numbers directly, no conversion needed
-        print(
-          '📥 Backend response: correctAnswer=${submissionData.correctAnswer}',
-        );
 
         // Update puzzle state with submission result
         _updatePuzzleState(
@@ -469,13 +449,6 @@ class ChallengesViewModel extends BaseViewModel {
         // Record submission in timer service (starts 24hr countdown)
         await _timerService.recordSubmission(_puzzleState.puzzle!.id);
 
-        print('✅ Puzzle answer submitted successfully!');
-        print('🎯 Correct: ${submissionData.isCorrect}');
-        print('🏆 Points Earned: ${submissionData.pointsEarned}');
-        print(
-          '📊 UI Display: User selected answer ${_puzzleState.selectedAnswer}, correct answer is ${submissionData.correctAnswer}',
-        );
-
         // Show success/failure toast based on correctness
         if (_context != null) {
           if (submissionData.isCorrect) {
@@ -492,7 +465,7 @@ class ChallengesViewModel extends BaseViewModel {
           }
         }
       } else {
-        print('❌ Failed to submit answer: ${result.error}');
+
         _setError(result.error ?? 'Failed to submit puzzle answer');
 
         if (_context != null) {
@@ -503,7 +476,7 @@ class ChallengesViewModel extends BaseViewModel {
         }
       }
     } catch (e) {
-      print('❌ Error submitting answer: $e');
+
       _setError('An unexpected error occurred while submitting answer');
 
       if (_context != null) {
@@ -523,7 +496,7 @@ class ChallengesViewModel extends BaseViewModel {
   Future<void> markChallengeAsComplete(String challengeId) async {
     // Prevent multiple clicks - check if already processing this challenge
     if (_markingAsComplete.contains(challengeId)) {
-      print('Challenge $challengeId already being processed, ignoring click');
+
       return;
     }
 
@@ -538,7 +511,7 @@ class ChallengesViewModel extends BaseViewModel {
           message: 'Complete the daily puzzle first!',
         );
       }
-      print('Complete the daily puzzle first!');
+
       return;
     }
 
@@ -587,11 +560,6 @@ class ChallengesViewModel extends BaseViewModel {
           _completedChallenges.insert(0, completedChallenge);
           await _storageService.cacheCompletedChallengesList(_completedChallenges);
 
-          print('=== CHALLENGE COMPLETED ===');
-          print('Challenge: ${challenge.title}');
-          print('Points Earned: ${challenge.points}');
-          print('Completed Date: ${DateTime.now()}');
-          print('==========================');
 
           // Show success toast
           if (_context != null) {
@@ -612,7 +580,7 @@ class ChallengesViewModel extends BaseViewModel {
           }
         }
       } catch (e) {
-        print('Error completing challenge: $e');
+
         if (_context != null) {
           ToastOverlay.showError(
             context: _context!,

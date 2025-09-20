@@ -23,7 +23,6 @@ class HomeViewModel extends BaseViewModel {
       locator<ReflectionRepository>();
 
   List<JournalModel> _entries = [];
-  String? _errorMessage;
   UserModel? _user;
   bool _isRefreshing = false;
   bool _hasInternetConnection = true;
@@ -66,8 +65,6 @@ class HomeViewModel extends BaseViewModel {
   int get fireCount => _challengeStats?.currentStreak ?? 0;
 
   Future<void> fetchJournalEntries() async {
-    print('🔄 Fetching journal entries...');
-    _errorMessage = null;
 
     final result = await _journalRepository.getJournalEntries();
 
@@ -77,12 +74,8 @@ class HomeViewModel extends BaseViewModel {
       // Cache the entries
       await _storageService.cacheJournalEntries(_entries);
 
-      print(
-        '🟢 API Call Success - ${_entries.length} entries loaded and cached',
-      );
     } else {
-      _errorMessage = result.error ?? 'Failed to fetch entries';
-      print('❌ API Call Failed: $_errorMessage');
+      // Error occurred but not displayed to user
     }
 
     notifyListeners();
@@ -98,7 +91,7 @@ class HomeViewModel extends BaseViewModel {
       fetchJournalEntries();
       await _loadFreshDataIfOnline();
     } catch (e) {
-      print('Error initializing HomeViewModel: $e');
+
     } finally {
       setBusy(false);
     }
@@ -115,29 +108,29 @@ class HomeViewModel extends BaseViewModel {
       final cachedStats = await _storageService.getCachedChallengeStats();
       if (cachedStats != null) {
         _challengeStats = cachedStats;
-        print('✅ Loaded cached streak: ${cachedStats.currentStreak}');
+
       }
 
       // Try to load reflection first, fallback to cached verse
       final cachedReflection = await _storageService.getCachedReflection();
       if (cachedReflection != null) {
         _todaysVerse = cachedReflection.toVerseModel();
-        print('✅ Loaded cached reflection: ${cachedReflection.reference}');
+
       } else {
         final cachedVerse = await _storageService.getCachedVerse();
         if (cachedVerse != null) {
           _todaysVerse = cachedVerse;
-          print('✅ Loaded cached verse as fallback');
+
         }
       }
 
       final cachedEntries = await _storageService.getCachedJournalEntries();
       if (cachedEntries != null) {
         _entries = cachedEntries;
-        print('✅ Loaded ${_entries.length} cached journal entries');
+
       }
     } catch (e) {
-      print('Error loading cached data: $e');
+
     }
   }
 
@@ -152,7 +145,7 @@ class HomeViewModel extends BaseViewModel {
         await fetchJournalEntries();
       }
     } catch (e) {
-      print('Error loading fresh data: $e');
+
       _hasInternetConnection = false;
     }
   }
@@ -170,35 +163,33 @@ class HomeViewModel extends BaseViewModel {
         }
       }
     } catch (e) {
-      print('Error loading today\'s challenge: $e');
+
     }
   }
 
   Future<void> _loadTodaysReflection() async {
     try {
-      print('📖 Loading today\'s reflection...');
 
       final result = await _reflectionRepository.getDailyReflection();
 
       if (result.isSuccess) {
         final reflection = result.data!;
         _todaysVerse = reflection.toVerseModel();
-        print('✅ Reflection loaded: ${reflection.reference}');
+
       } else {
-        print('❌ Failed to load reflection: ${result.error}');
+
         // Keep the default verse if reflection fails
       }
 
       notifyListeners();
     } catch (e) {
-      print('Error loading today\'s reflection: $e');
+
       // Keep the default verse if reflection fails
     }
   }
 
   Future<void> _loadChallengeStats() async {
     try {
-      print('📊 Loading challenge stats from API...');
 
       final result = await _challengeRepository.getChallengeStats();
 
@@ -207,16 +198,15 @@ class HomeViewModel extends BaseViewModel {
         
         // Cache the stats
         await _storageService.cacheChallengeStats(_challengeStats!);
-        
-        print('✅ Challenge stats loaded - Streak: ${_challengeStats!.currentStreak}');
+
       } else {
-        print('❌ Failed to load challenge stats: ${result.error}');
+
         // Keep cached stats if API fails
       }
 
       notifyListeners();
     } catch (e) {
-      print('Error loading challenge stats: $e');
+
       // Keep cached stats if error occurs
     }
   }

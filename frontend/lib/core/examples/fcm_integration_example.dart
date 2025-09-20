@@ -17,17 +17,17 @@ class FCMIntegrationExample {
       bool success = await _fcmService.submitTokenToServer();
 
       if (success) {
-        print('✅ FCM token successfully submitted to server');
+
         // Show success message to user if needed
         // ScaffoldMessenger.of(context).showSnackBar(
         //   SnackBar(content: Text('Notifications enabled successfully!'))
         // );
       } else {
-        print('⚠️ Failed to submit FCM token to server');
+
         // Handle failure - maybe retry later or show message to user
       }
     } catch (e) {
-      print('❌ Error during FCM integration: $e');
+
     }
   }
 

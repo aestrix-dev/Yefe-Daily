@@ -140,8 +140,6 @@ class UpgradePopup extends StatelessWidget {
                             _buildFeature(
                               'All Tower Talks (audio)',
                             ),
-                           
-                            
 
                             SizedBox(height: 24.h),
 

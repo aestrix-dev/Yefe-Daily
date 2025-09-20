@@ -21,11 +21,8 @@ Future<void> main() async {
   // Register background message handler
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  print('🚀 Starting app initialization...');
-
   // Setup services first
   await AppSetup.setupServices();
-  print('✅ App services initialized');
 
   // Initialize audio service for background playback
   await _initializeAudioService();
@@ -39,13 +36,11 @@ Future<void> main() async {
   Stripe.publishableKey =
       'pk_test_51Rjcn1Cc0zU2ZKe3wErao4byE0zLWN1cPJhqHHF2690YBk2eiblSNPJmpUa3YT9SwHc7umx1SqLdRdotUyITnYag00rapeOvO7';
 
-  print('🎵 Running app...');
   runApp(const MyApp());
 }
 
 Future<void> _initializeAudioService() async {
   try {
-    print('🎵 Initializing audio service...');
 
     await AudioService.init(
       builder: () => locator<AudioPlayerService>(),
@@ -58,9 +53,8 @@ Future<void> _initializeAudioService() async {
       ),
     );
 
-    print('✅ Audio service initialized successfully');
   } catch (e) {
-    print('❌ Failed to initialize audio service: $e');
+
     // Don't throw error, let app continue without audio service
   }
 }

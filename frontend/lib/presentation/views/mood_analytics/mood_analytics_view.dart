@@ -122,7 +122,6 @@ class MoodAnalyticsView extends StackedView<MoodAnalyticsViewModel> {
     );
   }
 
-
   @override
   MoodAnalyticsViewModel viewModelBuilder(BuildContext context) => 
       MoodAnalyticsViewModel();

@@ -7,7 +7,6 @@ class PaystackWebViewService {
     required String paymentUrl,
     required BuildContext context,
   }) async {
-    print('💳 Starting Paystack payment with URL: $paymentUrl');
 
     return await showModalBottomSheet<PaystackPaymentResult>(
           context: context,
@@ -47,14 +46,14 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (String url) {
-            print('💳 Page started loading: $url');
+
             setState(() {
               _isLoading = true;
               _errorMessage = null;
             });
           },
           onPageFinished: (String url) {
-            print('💳 Page finished loading: $url');
+
             setState(() {
               _isLoading = false;
             });
@@ -67,14 +66,13 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
             }
           },
           onWebResourceError: (WebResourceError error) {
-            print('❌ WebView error: ${error.description}');
+
             setState(() {
               _isLoading = false;
               _errorMessage = 'Failed to load payment page';
             });
           },
           onNavigationRequest: (NavigationRequest request) {
-            print('💳 Navigation request: ${request.url}');
 
             // Check for success/failure URLs
             final result = _checkPaymentResult(request.url);
@@ -93,7 +91,6 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
   }
 
   PaystackPaymentResult? _checkPaymentResult(String url) {
-    print('🔍 Checking URL for payment result: $url');
 
     // Extract payment reference from URL if present
     String? paymentReference = _extractPaymentReference(url);
@@ -109,7 +106,7 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
         url.contains('status=success') ||
         url.contains('trxref=') || // Paystack transaction reference
         url.contains('reference=')) {
-      print('✅ Payment successful detected from URL: $url');
+
       return PaystackPaymentResult.success(paymentReference: paymentReference);
     }
 
@@ -123,7 +120,7 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
         url.contains('status=failed') ||
         url.contains('status=cancelled') ||
         url.contains('status=canceled')) {
-      print('❌ Payment failed/cancelled detected from URL: $url');
+
       return PaystackPaymentResult.failed('Payment was declined or cancelled');
     }
 
@@ -131,7 +128,7 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
     if (url.startsWith('http') &&
         !url.contains('checkout.paystack.com') &&
         !url.contains('about:blank')) {
-      print('🔄 Possible redirect detected, might be success: $url');
+
       // This could be a success redirect - you might need to adjust based on your backend
       return PaystackPaymentResult.success(paymentReference: paymentReference);
     }
@@ -147,7 +144,7 @@ class _PaystackWebViewSheetState extends State<PaystackWebViewSheet> {
 
     if (match != null && match.groupCount >= 2) {
       String reference = match.group(2)!;
-      print('📝 Extracted payment reference: $reference');
+
       return reference;
     }
 

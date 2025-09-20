@@ -52,7 +52,6 @@ class SplashView extends StackedView<SplashViewModel> {
             ),
           ),
 
-         
           Center(
             child: Image.asset(
               'assets/images/logo.png',

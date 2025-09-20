@@ -324,7 +324,6 @@ class AudioPlayerService extends BaseAudioHandler {
     return Duration.zero;
   }
 
-
   // Enhanced media item creation helper
   MediaItem _createMediaItem(AudioModel audio) {
     return MediaItem(

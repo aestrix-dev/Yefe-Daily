@@ -178,8 +178,7 @@ class _ErrorInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     // Log for debugging (only in debug mode)
     if (kDebugMode) {
-      print('🔴 API Error: ${err.type} - ${err.response?.statusCode ?? 'No status'}');
-      print('🔴 Response data: ${err.response?.data}');
+
     }
 
     switch (err.type) {
@@ -294,8 +293,7 @@ class _ErrorInterceptor extends Interceptor {
     } catch (e) {
       // Log the error for debugging
       if (kDebugMode) {
-        print('🔴 Error extracting server message: $e');
-        print('🔴 Response data: $responseData');
+
       }
     }
     return null;

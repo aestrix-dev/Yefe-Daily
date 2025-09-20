@@ -16,7 +16,6 @@ class ProfileHeader extends StatelessWidget {
     required this.onUpgrade,
   });
 
-
   @override
   Widget build(BuildContext context) {
     final isPremium = userPlan == 'Yefa +';

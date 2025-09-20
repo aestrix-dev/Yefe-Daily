@@ -191,7 +191,6 @@ class _ToastNotificationState extends State<ToastNotification>
   }
 }
 
-
 class ToastOverlay {
   static OverlayEntry? _currentOverlay;
 
@@ -212,7 +211,7 @@ class ToastOverlay {
       try {
         overlay = Overlay.of(context);
       } catch (e) {
-        print('First overlay attempt failed: $e');
+
       }
 
       // Second try: get from navigator context
@@ -221,7 +220,7 @@ class ToastOverlay {
           final navigatorContext = Navigator.of(context).context;
           overlay = Overlay.of(navigatorContext);
         } catch (e) {
-          print('Second overlay attempt failed: $e');
+
         }
       }
 
@@ -230,13 +229,12 @@ class ToastOverlay {
         try {
           overlay = Overlay.of(context, rootOverlay: true);
         } catch (e) {
-          print('Third overlay attempt failed: $e');
+
         }
       }
 
       if (overlay == null) {
-        print('❌ Could not find overlay, falling back to console log');
-        print('Toast: [$type] $message');
+
         return;
       }
 
@@ -261,8 +259,7 @@ class ToastOverlay {
 
       overlay.insert(_currentOverlay!);
     } catch (e) {
-      print('❌ Error showing toast: $e');
-      print('Toast fallback: [$type] $message');
+
     }
   }
 
@@ -271,7 +268,7 @@ class ToastOverlay {
       _currentOverlay?.remove();
       _currentOverlay = null;
     } catch (e) {
-      print('Error hiding toast: $e');
+
     }
   }
 

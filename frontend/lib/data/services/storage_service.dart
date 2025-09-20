@@ -67,7 +67,7 @@ extension UserStorage on StorageService {
       final jsonMap = jsonDecode(jsonString);
       return UserModel.fromJson(jsonMap);
     } catch (e) {
-      print('❌ Error decoding user: $e');
+
       return null;
     }
   }

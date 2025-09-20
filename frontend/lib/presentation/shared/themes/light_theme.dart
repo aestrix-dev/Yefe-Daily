@@ -51,9 +51,7 @@ class LightTheme {
           ),
         ),
       ),
-      
-     
-      
+
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -80,7 +78,6 @@ class LightTheme {
     );
   }
 }
-
 
 // Custom theme extension for your app-specific colors
 class AppColorsExtension extends ThemeExtension<AppColorsExtension> {

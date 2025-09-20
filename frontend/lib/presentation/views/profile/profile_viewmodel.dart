@@ -92,8 +92,6 @@ class ProfileViewModel extends BaseViewModel {
     _isNotificationsEnabled =
         _storageService.getBool('isNotificationsEnabled') ?? true;
 
-    print('👤 User loaded: $_userName');
-    print('👑 Premium status: $_isPremium');
     notifyListeners();
   }
 
@@ -106,7 +104,7 @@ class ProfileViewModel extends BaseViewModel {
         notifyListeners();
       }
     } catch (e) {
-      print('Error loading challenge stats in profile: $e');
+
     }
   }
 
@@ -116,7 +114,6 @@ class ProfileViewModel extends BaseViewModel {
       final wasUpdated = _storageService.getBool('premium_status_updated') ?? false;
 
       if (wasUpdated) {
-        print('👑 Premium status was updated from notification, refreshing UI...');
 
         // Clear the update flag
         await _storageService.remove('premium_status_updated');
@@ -144,7 +141,7 @@ class ProfileViewModel extends BaseViewModel {
         }
       }
     } catch (e) {
-      print('❌ Error checking premium status updates: $e');
+
     }
   }
 
@@ -152,7 +149,6 @@ class ProfileViewModel extends BaseViewModel {
   void _setupPremiumStatusListener() {
     _premiumStatusSubscription = _premiumStatusService.premiumStatusUpdates.listen(
       (update) {
-        print('🔔 Premium status update received: $update');
 
         // Update the premium status immediately
         _isPremium = update.isPremium;
@@ -175,10 +171,9 @@ class ProfileViewModel extends BaseViewModel {
         // Notify UI to rebuild
         notifyListeners();
 
-        print('👑 Premium status updated in UI: $_isPremium');
       },
       onError: (error) {
-        print('❌ Error listening to premium status updates: $error');
+
       },
     );
   }
@@ -233,7 +228,6 @@ class ProfileViewModel extends BaseViewModel {
     if (_context == null) return;
 
     try {
-      print('💳 ProfileViewModel: Processing Stripe payment...');
 
       // Show loading dialog
       _showLoadingDialog('Processing payment...');
@@ -247,7 +241,6 @@ class ProfileViewModel extends BaseViewModel {
       Navigator.of(_context!).pop();
 
       if (result.isSuccess) {
-        print('✅ ProfileViewModel: Stripe payment initiated successfully!');
 
         // DO NOT update premium status here - wait for payment notification
         // _isPremium = true; // REMOVED - only update from notification
@@ -258,7 +251,7 @@ class ProfileViewModel extends BaseViewModel {
           message: 'Payment initiated! You\'ll be notified when complete.',
         );
       } else {
-        print('❌ ProfileViewModel: Stripe payment failed: ${result.error}');
+
         ToastOverlay.showError(
           context: _context!,
           message: result.error ?? 'Payment failed',
@@ -270,7 +263,6 @@ class ProfileViewModel extends BaseViewModel {
         Navigator.of(_context!).pop();
       }
 
-      print('❌ ProfileViewModel: Stripe payment error: $e');
       ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
     }
   }
@@ -279,7 +271,6 @@ class ProfileViewModel extends BaseViewModel {
     if (_context == null) return;
 
     try {
-      print('💳 ProfileViewModel: Processing Paystack payment...');
 
       // Show loading dialog
       _showLoadingDialog('Processing payment...');
@@ -293,7 +284,6 @@ class ProfileViewModel extends BaseViewModel {
       Navigator.of(_context!).pop();
 
       if (result.isSuccess) {
-        print('✅ ProfileViewModel: Paystack payment initiated successfully!');
 
         // DO NOT update premium status here - wait for payment notification
         // _isPremium = true; // REMOVED - only update from notification
@@ -304,7 +294,7 @@ class ProfileViewModel extends BaseViewModel {
           message: 'Payment initiated! You\'ll be notified when complete.',
         );
       } else {
-        print('❌ ProfileViewModel: Paystack payment failed: ${result.error}');
+
         ToastOverlay.showError(
           context: _context!,
           message: result.error ?? 'Payment failed',
@@ -316,7 +306,6 @@ class ProfileViewModel extends BaseViewModel {
         Navigator.of(_context!).pop();
       }
 
-      print('❌ ProfileViewModel: Paystack payment error: $e');
       ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
     }
   }
@@ -365,18 +354,14 @@ class ProfileViewModel extends BaseViewModel {
     _isNotificationsEnabled = !_isNotificationsEnabled;
     _storageService.setBool('isNotificationsEnabled', _isNotificationsEnabled);
 
-    print('=== NOTIFICATIONS TOGGLED ===');
-    print('Notifications enabled: $_isNotificationsEnabled');
-
     if (_isNotificationsEnabled) {
-      print('📤 Attempting to submit FCM token manually...');
 
       try {
         // Try to submit FCM token to server
         bool success = await _fcmService.submitTokenToServer();
 
         if (success) {
-          print('✅ FCM token submitted successfully');
+
           if (_context != null) {
             Navigator.of(_context!).pop(); // Close popup
             ToastOverlay.showSuccess(
@@ -385,7 +370,7 @@ class ProfileViewModel extends BaseViewModel {
             );
           }
         } else {
-          print('⚠️ FCM token submission failed');
+
           if (_context != null) {
             Navigator.of(_context!).pop(); // Close popup
             ToastOverlay.showError(
@@ -395,7 +380,7 @@ class ProfileViewModel extends BaseViewModel {
           }
         }
       } catch (e) {
-        print('❌ Error submitting FCM token: $e');
+
         if (_context != null) {
           Navigator.of(_context!).pop(); // Close popup
           ToastOverlay.showError(
@@ -405,7 +390,7 @@ class ProfileViewModel extends BaseViewModel {
         }
       }
     } else {
-      print('🔕 Notifications disabled');
+
       if (_context != null) {
         Navigator.of(_context!).pop(); // Close popup
         ToastOverlay.showSuccess(
@@ -415,7 +400,6 @@ class ProfileViewModel extends BaseViewModel {
       }
     }
 
-    print('============================');
     notifyListeners();
   }
 
@@ -443,11 +427,11 @@ class ProfileViewModel extends BaseViewModel {
           mode: LaunchMode.externalApplication,
         );
         if (opened) {
-          print('✅ Opened WhatsApp group with external app');
+
           return;
         }
       } catch (e) {
-        print('External app launch failed: $e');
+
       }
       
       // 2. Try with platformDefault mode
@@ -457,11 +441,11 @@ class ProfileViewModel extends BaseViewModel {
           mode: LaunchMode.platformDefault,
         );
         if (opened) {
-          print('✅ Opened WhatsApp group with platform default');
+
           return;
         }
       } catch (e) {
-        print('Platform default launch failed: $e');
+
       }
       
       // 3. Final fallback - open in web browser
@@ -469,10 +453,9 @@ class ProfileViewModel extends BaseViewModel {
         whatsappWebUrl,
         mode: LaunchMode.inAppWebView,
       );
-      print('✅ Opened WhatsApp group in browser');
-      
+
     } catch (e) {
-      print('❌ Error opening WhatsApp: $e');
+
       _showUrlError('Failed to open WhatsApp. Please check your internet connection.');
     }
   }
@@ -494,11 +477,11 @@ class ProfileViewModel extends BaseViewModel {
           mode: LaunchMode.externalApplication,
         );
         if (opened) {
-          print('✅ Opened Telegram channel with external app');
+
           return;
         }
       } catch (e) {
-        print('External app launch failed: $e');
+
       }
       
       // 2. Try with platformDefault mode
@@ -508,11 +491,11 @@ class ProfileViewModel extends BaseViewModel {
           mode: LaunchMode.platformDefault,
         );
         if (opened) {
-          print('✅ Opened Telegram channel with platform default');
+
           return;
         }
       } catch (e) {
-        print('Platform default launch failed: $e');
+
       }
       
       // 3. Final fallback - open in web browser
@@ -520,14 +503,12 @@ class ProfileViewModel extends BaseViewModel {
         telegramWebUrl,
         mode: LaunchMode.inAppWebView,
       );
-      print('✅ Opened Telegram channel in browser');
-      
+
     } catch (e) {
-      print('❌ Error opening Telegram: $e');
+
       _showUrlError('Failed to open Telegram. Please check your internet connection.');
     }
   }
-
 
   void _showUrlError(String message) {
     if (_context == null) return;

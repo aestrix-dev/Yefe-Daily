@@ -10,8 +10,7 @@ class NotificationTestExample {
 
   /// Test welcome notification handling
   static void testWelcomeNotification() {
-    print('🧪 Testing welcome notification...');
-    
+
     final Map<String, dynamic> welcomeData = {
       'type': 'welcome',
     };
@@ -26,8 +25,7 @@ class NotificationTestExample {
 
   /// Test daily motivation notification handling
   static void testDailyNotification() {
-    print('🧪 Testing daily motivation notification...');
-    
+
     final Map<String, dynamic> dailyData = {
       'type': 'daily',
     };
@@ -42,8 +40,7 @@ class NotificationTestExample {
 
   /// Test challenge notification handling
   static void testChallengeNotification() {
-    print('🧪 Testing challenge notification...');
-    
+
     final Map<String, dynamic> challengeData = {
       'type': 'challenge',
       'challengeId': 'daily-journal-001',
@@ -72,11 +69,6 @@ class NotificationTestExample {
 
     // Note: In real testing, you would need to create a proper RemoteMessage mock
     // This is simplified for demonstration
-    print('📱 Mock notification created:');
-    print('   Type: $type');
-    print('   Title: $title');  
-    print('   Body: $body');
-    print('   Data: $data');
 
     // Return a basic RemoteMessage-like structure
     // In actual testing, you'd use a proper mock or test framework
@@ -88,19 +80,13 @@ class NotificationTestExample {
 
   /// Run all notification tests
   static void runAllTests() {
-    print('🚀 Running all notification tests...');
-    print('');
-    
+
     testWelcomeNotification();
-    print('');
-    
+
     testDailyNotification();
-    print('');
-    
+
     testChallengeNotification();
-    print('');
-    
-    print('✅ All notification tests completed!');
+
   }
 }
 

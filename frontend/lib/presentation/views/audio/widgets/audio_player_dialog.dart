@@ -46,9 +46,7 @@ class _AudioPlayerBottomSheetState extends State<AudioPlayerBottomSheet> {
     final currentAudio = widget.playerService.currentAudio;
     if (currentAudio == null || currentAudio.id != widget.audio.id) {
       // If different audio or no audio, reset the player state
-      print(
-        '🎵 AudioPlayerDialog: Resetting progress for new audio ${widget.audio.title}',
-      );
+
       // The progress will show zero until the new audio starts playing
     }
   }

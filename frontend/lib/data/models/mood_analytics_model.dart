@@ -96,9 +96,7 @@ class MoodAnalyticsModel {
     } else {
       moodValue = 4;  // Very poor sleep (<5 hours)
     }
-    
-    print('🔄 Sleep conversion: ${sleepData.duration}h → mood $moodValue');
-    
+
     return MoodAnalyticsModel(
       date: sleepData.date,
       moodValue: moodValue,

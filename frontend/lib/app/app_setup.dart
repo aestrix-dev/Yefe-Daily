@@ -33,42 +33,41 @@ final locator = GetIt.instance;
 
 class AppSetup {
   static Future<void> setupServices() async {
-    print('🚀 Starting service registration...');
 
     // Register navigation services
-    print('📍 Registering navigation services...');
+
     locator.registerSingleton<NavigationService>(NavigationService());
     locator.registerSingleton(AppNavigationService());
 
     //  Register stacked services
-    print('📱 Registering stacked services...');
+
     locator.registerSingleton(DialogService());
     locator.registerSingleton(SnackbarService());
 
     //  Register and initialize storage service
-    print('💾 Initializing storage service...');
+
     final storageService = StorageService();
     await storageService.init();
     locator.registerSingleton<StorageService>(storageService);
 
     //  Register theme service
-    print('🎨 Registering theme service...');
+
     locator.registerSingleton<ThemeService>(ThemeService());
 
     // Register toast service
-    print('🍞 Registering toast service...');
+
     locator.registerSingleton<ToastService>(ToastService.instance);
 
     // Register premium status service
-    print('👑 Registering premium status service...');
+
     locator.registerSingleton<PremiumStatusService>(PremiumStatusService());
 
     // Register puzzle timer service
-    print('⏰ Registering puzzle timer service...');
+
     locator.registerSingleton<PuzzleTimerService>(PuzzleTimerService());
 
     // Register Firebase notification service (initialize asynchronously)
-    print('🔔 Registering Firebase notification service...');
+
     final notificationService = FirebaseNotificationService();
     locator.registerSingleton<FirebaseNotificationService>(notificationService);
 
@@ -76,17 +75,16 @@ class AppSetup {
     _initializeFirebaseNotificationsAsync(notificationService);
 
     // Register HTTP client service
-    print('🌐 Registering HTTP client...');
+
     locator.registerLazySingleton<DioService>(() => DioService());
 
-    print('💳 Registering payment services...');
     locator.registerLazySingleton<PaymentApiService>(() => PaymentApiService());
     locator.registerLazySingleton<PaymentService>(() => PaymentService());
-    print('🎵 Registering audio services...');
+
     locator.registerSingleton<AudioDownloadService>(AudioDownloadService());
     locator.registerSingleton<AudioPlayerService>(AudioPlayerService());
     //  Register API services (depend on DioService)
-    print('🔌 Registering API services...');
+
     locator.registerLazySingleton<AuthApiService>(() => AuthApiService());
     locator.registerLazySingleton<AudioApiService>(() => AudioApiService());
     locator.registerLazySingleton<ChallengeApiService>(
@@ -100,7 +98,7 @@ class AppSetup {
     locator.registerLazySingleton<SleepApiService>(() => SleepApiService());
 
     //  Register repositories (depend on API services)
-    print('📚 Registering repositories...');
+
     locator.registerLazySingleton<AuthRepository>(() => AuthRepository());
     locator.registerLazySingleton<AudioRepository>(() => AudioRepository());
     locator.registerLazySingleton<ChallengeRepository>(
@@ -117,8 +115,6 @@ class AppSetup {
     );
     locator.registerLazySingleton<SleepRepository>(() => SleepRepository());
 
-    print('✅ All services registered successfully!');
-
     // Validate setup
     _validateServices();
   }
@@ -126,7 +122,6 @@ class AppSetup {
   // Helper method to validate all services are properly registered
   static void _validateServices() {
     try {
-      print('🔍 Validating service registration...');
 
       // Audio services
       locator<AudioDownloadService>();
@@ -157,12 +152,8 @@ class AppSetup {
       locator<ReflectionRepository>();
       locator<SleepRepository>();
 
-      print('✅ All services validated successfully!');
     } catch (e) {
-      print('❌ Service validation failed: $e');
-      print(
-        '❌ Make sure all required files are created and imported correctly!',
-      );
+
     }
   }
 
@@ -185,12 +176,11 @@ class AppSetup {
   static void _initializeFirebaseNotificationsAsync(FirebaseNotificationService service) {
     Future.delayed(Duration.zero, () async {
       try {
-        print('🔔 Starting async Firebase notification initialization...');
+
         await service.initialize();
-        print('✅ Firebase notifications initialized successfully');
+
       } catch (e) {
-        print('⚠️ Firebase notification initialization failed: $e');
-        print('📱 This is normal on simulators or if Push Notifications capability is missing');
+
         // Don't crash the app, just log the error
       }
     });

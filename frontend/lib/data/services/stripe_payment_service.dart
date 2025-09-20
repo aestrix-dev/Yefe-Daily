@@ -7,14 +7,8 @@ class StripePaymentService {
     required BuildContext context,
   }) async {
     try {
-      print(
-        '💳 Starting Stripe payment with client secret: ${clientSecret.substring(0, 20)}...',
-      );
 
-      
       await Stripe.instance.presentPaymentSheet();
-
-      print('✅ Payment completed successfully');
 
       // Extract payment intent ID from client secret
       final paymentIntentId = _extractPaymentIntentId(clientSecret);
@@ -24,7 +18,6 @@ class StripePaymentService {
         status: 'succeeded',
       );
     } on StripeException catch (e) {
-      print('❌ Stripe error: ${e.error.localizedMessage}');
 
       // Handle user cancellation
       if (e.error.localizedMessage?.contains('canceled') == true ||
@@ -36,7 +29,7 @@ class StripePaymentService {
       final errorMessage = e.error.localizedMessage ?? 'Payment failed';
       return StripePaymentResult.failed(errorMessage);
     } catch (e) {
-      print('❌ Unexpected error during Stripe payment: $e');
+
       return StripePaymentResult.failed('Unexpected error occurred');
     }
   }
@@ -58,7 +51,6 @@ class StripePaymentService {
     required BuildContext context,
   }) async {
     try {
-      print('💳 Initializing Stripe payment sheet...');
 
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
@@ -69,10 +61,9 @@ class StripePaymentService {
         ),
       );
 
-      print('✅ Payment sheet initialized successfully');
       return true;
     } catch (e) {
-      print('❌ Error initializing payment sheet: $e');
+
       return false;
     }
   }

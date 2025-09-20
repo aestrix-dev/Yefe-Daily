@@ -1,7 +1,6 @@
 // Example usage of the enhanced AudioPlayerService
 // This demonstrates how to implement background audio with system controls
 
-
 import 'package:yefa/app/app_setup.dart';
 import 'package:yefa/data/services/audio_player_service.dart';
 import 'package:yefa/data/models/audio_model.dart';
@@ -48,12 +47,9 @@ class AudioUsageExample {
         0, // index
         localFilePath,
       );
-      
-      print('🎵 Started playing: $title');
-      print('🔧 System controls available on lock screen and notification panel');
-      
+
     } catch (e) {
-      print('❌ Error playing audio: $e');
+
     }
   }
 
@@ -81,16 +77,9 @@ class AudioUsageExample {
         startIndex,
         localFilePaths[startIndex],
       );
-      
-      print('🎵 Started playlist with ${audioList.length} tracks');
-      print('📱 Users can now control playback from:');
-      print('   - Lock screen media controls');
-      print('   - Notification panel');
-      print('   - Bluetooth/wired headphone controls');
-      print('   - Car audio systems');
-      
+
     } catch (e) {
-      print('❌ Error playing playlist: $e');
+
     }
   }
 
@@ -123,30 +112,25 @@ class AudioUsageExample {
   static void listenToPlayerState() {
     // Listen to playlist changes
     _audioService.playlist.listen((playlist) {
-      print('📋 Playlist updated: ${playlist.length} tracks');
+
     });
     
     // Listen to current track index changes
     _audioService.currentIndex.listen((index) {
       final currentTrack = _audioService.currentAudio;
       if (currentTrack != null) {
-        print('🎵 Now playing: ${currentTrack.title}');
+
       }
     });
     
     // Listen to audio player state directly
     _audioService.audioPlayer.playerStateStream.listen((state) {
-      print('🔄 Player state: ${state.playing ? 'Playing' : 'Paused'}');
-      print('📊 Processing: ${state.processingState}');
+
     });
     
     // Listen to position changes for progress updates
     _audioService.audioPlayer.positionStream.listen((position) {
-      final duration = _audioService.audioPlayer.duration;
-      if (duration != null) {
-        final progress = position.inMilliseconds / duration.inMilliseconds;
-        print('⏱️ Progress: ${(progress * 100).toStringAsFixed(1)}%');
-      }
+      // Listen to position updates
     });
   }
 }

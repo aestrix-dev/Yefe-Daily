@@ -38,7 +38,7 @@ extension ChallengeStorage on StorageService {
           await _clearChallengeCache();
         }
       } catch (e) {
-        print('❌ Error parsing cached challenge: $e');
+
         await _clearChallengeCache();
       }
     }
@@ -88,7 +88,7 @@ extension VerseStorage on StorageService {
           await _clearVerseCache();
         }
       } catch (e) {
-        print('❌ Error parsing cached verse: $e');
+
         await _clearVerseCache();
       }
     }
@@ -120,7 +120,6 @@ extension ReflectionStorage on StorageService {
     final today = DateTime.now().toIso8601String();
     await setString(_reflectionDateKey, today);
 
-    print('✅ Cached reflection: ${reflection.reference}');
   }
 
   Future<ReflectionModel?> getCachedReflection() async {
@@ -128,7 +127,7 @@ extension ReflectionStorage on StorageService {
     final cacheDateString = getString(_reflectionDateKey);
 
     if (reflectionJson == null || cacheDateString == null) {
-      print('❌ No cached reflection found');
+
       return null;
     }
 
@@ -140,15 +139,15 @@ extension ReflectionStorage on StorageService {
       if (_isSameDay(cacheDate, today)) {
         final reflectionMap = json.decode(reflectionJson);
         final reflection = ReflectionModel.fromJson(reflectionMap);
-        print('✅ Loaded cached reflection: ${reflection.reference}');
+
         return reflection;
       } else {
-        print('⏰ Cached reflection is outdated, clearing cache');
+
         await clearReflectionCache();
         return null;
       }
     } catch (e) {
-      print('❌ Error loading cached reflection: $e');
+
       await clearReflectionCache();
       return null;
     }
@@ -157,7 +156,7 @@ extension ReflectionStorage on StorageService {
   Future<void> clearReflectionCache() async {
     await remove(_reflectionKey);
     await remove(_reflectionDateKey);
-    print('🧹 Cleared reflection cache');
+
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
@@ -200,7 +199,7 @@ extension JournalStorage on StorageService {
           await _clearJournalCache();
         }
       } catch (e) {
-        print('❌ Error parsing cached journal entries: $e');
+
         await _clearJournalCache();
       }
     }
@@ -240,7 +239,6 @@ extension PuzzleStorage on StorageService {
     final today = DateTime.now().toIso8601String();
     await setString(_puzzleDateKey, today);
 
-    print('✅ Cached puzzle: ${puzzle.title}');
   }
 
   Future<PuzzleModel?> getCachedPuzzle() async {
@@ -248,7 +246,7 @@ extension PuzzleStorage on StorageService {
     final cacheDateString = getString(_puzzleDateKey);
 
     if (puzzleJson == null || cacheDateString == null) {
-      print('❌ No cached puzzle found');
+
       return null;
     }
 
@@ -260,15 +258,15 @@ extension PuzzleStorage on StorageService {
       if (_isSameDay(cacheDate, today)) {
         final puzzleMap = json.decode(puzzleJson);
         final puzzle = PuzzleModel.fromJson(puzzleMap);
-        print('✅ Loaded cached puzzle: ${puzzle.title}');
+
         return puzzle;
       } else {
-        print('⏰ Cached puzzle is outdated, clearing cache');
+
         await clearPuzzleCache();
         return null;
       }
     } catch (e) {
-      print('❌ Error loading cached puzzle: $e');
+
       await clearPuzzleCache();
       return null;
     }
@@ -277,7 +275,7 @@ extension PuzzleStorage on StorageService {
   Future<void> clearPuzzleCache() async {
     await remove(_puzzleKey);
     await remove(_puzzleDateKey);
-    print('🧹 Cleared puzzle cache');
+
   }
 
   // Cache puzzle state (submission status, selected answer, etc.)
@@ -290,7 +288,7 @@ extension PuzzleStorage on StorageService {
       'submissionResult': state.submissionResult?.toJson(),
     });
     await setString(_puzzleStateKey, stateJson);
-    print('💾 Cached puzzle state');
+
   }
 
   Future<Map<String, dynamic>?> getCachedPuzzleState() async {
@@ -300,7 +298,7 @@ extension PuzzleStorage on StorageService {
     try {
       return json.decode(stateJson);
     } catch (e) {
-      print('❌ Error loading cached puzzle state: $e');
+
       await remove(_puzzleStateKey);
       return null;
     }
@@ -308,7 +306,7 @@ extension PuzzleStorage on StorageService {
 
   Future<void> clearPuzzleState() async {
     await remove(_puzzleStateKey);
-    print('🧹 Cleared puzzle state cache');
+
   }
 
   // Cache puzzle submission status for challenge completion
@@ -322,7 +320,7 @@ extension PuzzleStorage on StorageService {
       'submissionDate': DateTime.now().toIso8601String(),
     });
     await setString(_puzzleSubmissionKey, submissionData);
-    print('💾 Cached puzzle submission status: $hasSubmitted for $puzzleId');
+
   }
 
   Future<bool> getPuzzleSubmissionStatus() async {
@@ -343,7 +341,7 @@ extension PuzzleStorage on StorageService {
         return false;
       }
     } catch (e) {
-      print('❌ Error loading puzzle submission status: $e');
+
       await remove(_puzzleSubmissionKey);
       return false;
     }
@@ -374,7 +372,6 @@ extension CompletedChallengesStorage on StorageService {
     final today = DateTime.now().toIso8601String();
     await setString(_completedChallengesDateKey, today);
 
-    print('✅ Cached ${challenges.length} completed challenges');
   }
 
   Future<List<ChallengeModel>?> getCachedCompletedChallengesList() async {
@@ -382,7 +379,7 @@ extension CompletedChallengesStorage on StorageService {
     final cacheDateString = getString(_completedChallengesDateKey);
 
     if (challengesJson == null || cacheDateString == null) {
-      print('❌ No cached completed challenges found');
+
       return null;
     }
 
@@ -396,15 +393,15 @@ extension CompletedChallengesStorage on StorageService {
         final challenges = challengesList
             .map((e) => ChallengeModel.fromJson(e))
             .toList();
-        print('✅ Loaded ${challenges.length} cached completed challenges');
+
         return challenges;
       } else {
-        print('⏰ Cached completed challenges are outdated, clearing cache');
+
         await clearCompletedChallengesCache();
         return null;
       }
     } catch (e) {
-      print('❌ Error loading cached completed challenges: $e');
+
       await clearCompletedChallengesCache();
       return null;
     }
@@ -413,7 +410,7 @@ extension CompletedChallengesStorage on StorageService {
   Future<void> clearCompletedChallengesCache() async {
     await remove(_completedChallengesKey);
     await remove(_completedChallengesDateKey);
-    print('🧹 Cleared completed challenges cache');
+
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
@@ -436,7 +433,6 @@ extension ChallengeStatsStorage on StorageService {
     final now = DateTime.now().toIso8601String();
     await setString(_challengeStatsDateKey, now);
 
-    print('✅ Cached challenge stats - Streak: ${stats.currentStreak}');
   }
 
   Future<ChallengeStatsModel?> getCachedChallengeStats() async {
@@ -444,7 +440,7 @@ extension ChallengeStatsStorage on StorageService {
     final cacheDateString = getString(_challengeStatsDateKey);
 
     if (statsJson == null || cacheDateString == null) {
-      print('❌ No cached challenge stats found');
+
       return null;
     }
 
@@ -457,15 +453,15 @@ extension ChallengeStatsStorage on StorageService {
       if (difference.inHours < 1) {
         final statsMap = json.decode(statsJson);
         final stats = ChallengeStatsModel.fromJson(statsMap);
-        print('✅ Loaded cached challenge stats - Streak: ${stats.currentStreak}');
+
         return stats;
       } else {
-        print('⏰ Cached challenge stats are outdated, clearing cache');
+
         await clearChallengeStatsCache();
         return null;
       }
     } catch (e) {
-      print('❌ Error loading cached challenge stats: $e');
+
       await clearChallengeStatsCache();
       return null;
     }
@@ -474,7 +470,7 @@ extension ChallengeStatsStorage on StorageService {
   Future<void> clearChallengeStatsCache() async {
     await remove(_challengeStatsKey);
     await remove(_challengeStatsDateKey);
-    print('🧹 Cleared challenge stats cache');
+
   }
 }
 

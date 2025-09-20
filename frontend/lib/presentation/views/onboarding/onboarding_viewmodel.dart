@@ -159,28 +159,25 @@ class OnboardingViewModel extends BaseViewModel {
         userPrefs: userPrefs,
       );
 
-      print('OnboardingViewModel: Starting registration...');
-
       // Make the registration API call
       final result = await _authRepository.register(request);
 
       if (result.isSuccess) {
-        print('OnboardingViewModel: Registration successful');
 
         // Mark onboarding as completed
         await _storageService.setBool('hasSeenOnboarding', true);
 
         // Submit FCM token after successful registration
-        print('OnboardingViewModel: Submitting FCM token...');
+
         try {
           bool fcmSuccess = await _fcmService.submitTokenToServer();
           if (fcmSuccess) {
-            print('✅ OnboardingViewModel: FCM token submitted successfully');
+
           } else {
-            print('⚠️ OnboardingViewModel: FCM token submission failed');
+
           }
         } catch (e) {
-          print('❌ OnboardingViewModel: FCM token error: $e');
+
         }
 
         _setAuthenticating(false);
@@ -188,19 +185,19 @@ class OnboardingViewModel extends BaseViewModel {
         // Navigate to home
         final context = StackedService.navigatorKey?.currentContext;
         if (context != null) {
-          print('OnboardingViewModel: Navigating to home');
+
           context.pushReplacement(AppRoutes.home);
         } else {
-          print('OnboardingViewModel: ERROR - Context is null!');
+
         }
       } else {
         // Registration failed
-        print('OnboardingViewModel: Registration failed - ${result.error}');
+
         _setError(result.error ?? 'Registration failed. Please try again.');
         _setAuthenticating(false);
       }
     } catch (e) {
-      print('OnboardingViewModel: Registration error - $e');
+
       _setError('An unexpected error occurred. Please try again.');
       _setAuthenticating(false);
     }

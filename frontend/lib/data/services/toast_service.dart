@@ -26,10 +26,9 @@ class ToastService {
         duration: duration,
       );
     } else {
-      print('⚠️ ToastService: No context available to show toast');
+
     }
   }
-
 
   // Show error toast
   void showError({
@@ -44,7 +43,7 @@ class ToastService {
         duration: duration,
       );
     } else {
-      print('⚠️ ToastService: No context available to show toast');
+
     }
   }
 
@@ -61,7 +60,7 @@ class ToastService {
         duration: duration,
       );
     } else {
-      print('⚠️ ToastService: No context available to show toast');
+
     }
   }
 
@@ -78,7 +77,7 @@ class ToastService {
         duration: duration,
       );
     } else {
-      print('⚠️ ToastService: No context available to show toast');
+
     }
   }
 
@@ -97,7 +96,7 @@ class ToastService {
         duration: duration,
       );
     } else {
-      print('⚠️ ToastService: No context available to show toast');
+
     }
   }
   // Hide current toast

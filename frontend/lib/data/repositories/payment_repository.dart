@@ -18,7 +18,6 @@ class PaymentRepository extends BaseRepository {
     required BuildContext context,
   }) async {
     try {
-      print('PaymentRepository: Starting payment process for $provider');
 
       // Step 1: Create payment intent
       final intentResult = await _apiService.createPaymentIntent(
@@ -30,9 +29,6 @@ class PaymentRepository extends BaseRepository {
       }
 
       final paymentIntent = intentResult.data!;
-      print(
-        'PaymentRepository: Payment intent created - ${paymentIntent.paymentId}',
-      );
 
       // Step 2: Process payment based on provider
       bool paymentSuccessful = false;
@@ -80,8 +76,6 @@ class PaymentRepository extends BaseRepository {
         return Failure(paymentError ?? 'Payment failed');
       }
 
-      print('PaymentRepository: Payment completed successfully');
-
       // Step 3: Verify payment with backend
       String? paymentIntentIdForVerification;
 
@@ -89,14 +83,8 @@ class PaymentRepository extends BaseRepository {
         paymentIntentIdForVerification = stripePaymentIntentId;
       } else if (provider == 'paystack') {
         paymentIntentIdForVerification = paymentIntent.paymentRef;
-        print(
-          'PaymentRepository: Using Paystack payment_ref: ${paymentIntent.paymentRef}',
-        );
-      }
 
-      print('PaymentRepository: Verifying payment...');
-      print('  - payment_id: ${paymentIntent.paymentId}');
-      print('  - payment_intent_id: $paymentIntentIdForVerification');
+      }
 
       final verificationResult = await _apiService.verifyPayment(
         provider: provider,
@@ -114,21 +102,19 @@ class PaymentRepository extends BaseRepository {
 
       // Handle different payment statuses
       if (verification.isSuccessful) {
-        print('PaymentRepository: Payment verified as successful');
+
         await _paymentService.updateUserPremiumStatus();
         return Success(verification);
       } else if (verification.isProcessing) {
-        print('PaymentRepository: Payment is processing');
+
         // Don't update premium status yet, but return success with processing status
         return Success(verification);
       } else {
-        print(
-          'PaymentRepository: Payment verification failed - ${verification.message}',
-        );
+
         return Failure('Payment was not successful: ${verification.message}');
       }
     } catch (e) {
-      print('PaymentRepository: Error during payment process - $e');
+
       return Failure('Payment process failed: $e');
     }
   }
@@ -142,13 +128,13 @@ class PaymentRepository extends BaseRepository {
       final isPremium = await isUserPremium();
 
       if (isPremium) {
-        print('PaymentRepository: User already has premium status');
+
         return Success(null);
       } else {
         return Failure('No premium status found');
       }
     } catch (e) {
-      print('PaymentRepository: Error restoring premium status - $e');
+
       return Failure('Failed to restore premium status: $e');
     }
   }

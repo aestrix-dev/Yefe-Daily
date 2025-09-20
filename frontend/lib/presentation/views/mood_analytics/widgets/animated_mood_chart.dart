@@ -247,7 +247,6 @@ class _AnimatedMoodChartState extends State<AnimatedMoodChart>
     final actualDuration = _moodToSleepDuration(mood.moodValue);
     
     // Debug logging
-    print('🔍 Chart Bar $index: ${mood.dayOfWeek} = ${mood.moodValue} (${actualDuration}h duration)');
     
     // Use full available height (200h minus space for text above bars)
     final maxHeight = 180.0;
@@ -260,7 +259,7 @@ class _AnimatedMoodChartState extends State<AnimatedMoodChart>
         
         // Additional debug logging for Saturday (index 6)
         if (index == 6 && mood.moodValue > 0) {
-          print('🎯 Saturday bar: duration=${actualDuration}h, barHeight=${barHeight}, animationValue=${_barAnimations[index].value}, animatedHeight=${animatedHeight}');
+
         }
         
         return Column(

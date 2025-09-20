@@ -349,11 +349,11 @@ class RecentActivities extends StatelessWidget {
           mode: LaunchMode.externalApplication,
         );
         if (opened) {
-          print('✅ Opened WhatsApp share with external app');
+
           return;
         }
       } catch (e) {
-        print('External app launch failed: $e');
+
       }
 
       // 2. Try with platformDefault mode
@@ -363,11 +363,11 @@ class RecentActivities extends StatelessWidget {
           mode: LaunchMode.platformDefault,
         );
         if (opened) {
-          print('✅ Opened WhatsApp share with platform default');
+
           return;
         }
       } catch (e) {
-        print('Platform default launch failed: $e');
+
       }
 
       // 3. Final fallback - open in web browser
@@ -375,10 +375,9 @@ class RecentActivities extends StatelessWidget {
         uri,
         mode: LaunchMode.inAppWebView,
       );
-      print('✅ Opened WhatsApp share in browser');
 
     } catch (e) {
-      print('❌ Error sharing to WhatsApp: $e');
+
     }
   }
 
@@ -400,11 +399,11 @@ class RecentActivities extends StatelessWidget {
           mode: LaunchMode.externalApplication,
         );
         if (opened) {
-          print('✅ Opened Telegram share with external app');
+
           return;
         }
       } catch (e) {
-        print('External app launch failed: $e');
+
       }
 
       // 2. Try with platformDefault mode
@@ -414,11 +413,11 @@ class RecentActivities extends StatelessWidget {
           mode: LaunchMode.platformDefault,
         );
         if (opened) {
-          print('✅ Opened Telegram share with platform default');
+
           return;
         }
       } catch (e) {
-        print('Platform default launch failed: $e');
+
       }
 
       // 3. Final fallback - open in web browser
@@ -426,10 +425,9 @@ class RecentActivities extends StatelessWidget {
         uri,
         mode: LaunchMode.inAppWebView,
       );
-      print('✅ Opened Telegram share in browser');
 
     } catch (e) {
-      print('❌ Error sharing to Telegram: $e');
+
     }
   }
 
@@ -438,14 +436,14 @@ class RecentActivities extends StatelessWidget {
     final formattedDate = DateFormat('MMM d, yyyy').format(activity.createdAt);
 
     return '''
-📝 $title
+$title
 
 "${activity.content}"
 
 Shared from Yefa Daily App
 Date: $formattedDate
 
-Download Yefa Daily: [App Store/Play Store Link]
+Download Yefa Daily: [https://www.yefadaily.com]
 ''';
   }
 }

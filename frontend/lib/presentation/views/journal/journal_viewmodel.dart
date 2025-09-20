@@ -46,7 +46,6 @@ class JournalViewModel extends BaseViewModel {
   void _setupPremiumStatusListener() {
     _premiumStatusSubscription = _premiumStatusService.premiumStatusUpdates.listen(
       (update) {
-        print('🔔 Premium status update received in JournalView: $update');
 
         // Update the premium status immediately
         _isPremiumUser = update.isPremium;
@@ -69,10 +68,9 @@ class JournalViewModel extends BaseViewModel {
         // Notify UI to rebuild
         notifyListeners();
 
-        print('👑 Premium status updated in JournalView UI: $_isPremiumUser');
       },
       onError: (error) {
-        print('❌ Error listening to premium status updates in JournalView: $error');
+
       },
     );
   }
@@ -148,7 +146,6 @@ class JournalViewModel extends BaseViewModel {
     if (_context == null) return;
 
     try {
-      print('JournalViewModel: Processing Stripe payment...');
 
       // Show loading dialog
       _showLoadingDialog('Processing payment...');
@@ -165,7 +162,7 @@ class JournalViewModel extends BaseViewModel {
         final verification = result.data!;
 
         if (verification.isSuccessful) {
-          print('JournalViewModel: Stripe payment successful!');
+
           _isPremiumUser = true;
           notifyListeners();
 
@@ -174,7 +171,6 @@ class JournalViewModel extends BaseViewModel {
             message: 'Payment successful! You now have premium access 🎉',
           );
         } else if (verification.isProcessing) {
-          print('JournalViewModel: Stripe payment is processing...');
 
           ToastOverlay.showWarning(
             context: _context!,
@@ -183,7 +179,7 @@ class JournalViewModel extends BaseViewModel {
           );
         }
       } else {
-        print('JournalViewModel: Stripe payment failed: ${result.error}');
+
         ToastOverlay.showError(
           context: _context!,
           message: result.error ?? 'Payment failed',
@@ -195,7 +191,6 @@ class JournalViewModel extends BaseViewModel {
         Navigator.of(_context!).pop();
       }
 
-      print('JournalViewModel: Stripe payment error: $e');
       ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
     }
   }
@@ -204,7 +199,6 @@ class JournalViewModel extends BaseViewModel {
     if (_context == null) return;
 
     try {
-      print('JournalViewModel: Processing Paystack payment...');
 
       // Show loading dialog
       _showLoadingDialog('Processing payment...');
@@ -221,7 +215,7 @@ class JournalViewModel extends BaseViewModel {
         final verification = result.data!;
 
         if (verification.isSuccessful) {
-          print('JournalViewModel: Paystack payment successful!');
+
           _isPremiumUser = true;
           notifyListeners();
 
@@ -230,7 +224,6 @@ class JournalViewModel extends BaseViewModel {
             message: 'Payment successful! You now have premium access 🎉',
           );
         } else if (verification.isProcessing) {
-          print('JournalViewModel: Paystack payment is processing...');
 
           ToastOverlay.showWarning(
             context: _context!,
@@ -239,7 +232,7 @@ class JournalViewModel extends BaseViewModel {
           );
         }
       } else {
-        print('JournalViewModel: Paystack payment failed: ${result.error}');
+
         ToastOverlay.showError(
           context: _context!,
           message: result.error ?? 'Payment failed',
@@ -251,7 +244,6 @@ class JournalViewModel extends BaseViewModel {
         Navigator.of(_context!).pop();
       }
 
-      print('JournalViewModel: Paystack payment error: $e');
       ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
     }
   }

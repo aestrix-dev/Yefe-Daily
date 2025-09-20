@@ -22,13 +22,13 @@ class ReflectionRepository {
         if (cachedReflection != null &&
             cachedReflection.isForToday &&
             cachedReflection.isFresh) {
-          print('📖 Using cached reflection: ${cachedReflection.reference}');
+
           return Success(cachedReflection);
         }
       }
 
       // Fetch from API
-      print('🌐 Fetching fresh reflection from API...');
+
       final result = await _apiService.getDailyReflection();
 
       if (result.isSuccess) {
@@ -36,7 +36,6 @@ class ReflectionRepository {
 
         // Cache the new reflection
         await _storageService.cacheReflection(reflection);
-        print('💾 Cached new reflection: ${reflection.reference}');
 
         return Success(reflection);
       } else {
@@ -44,20 +43,19 @@ class ReflectionRepository {
         final cachedReflection = await _storageService.getCachedReflection();
 
         if (cachedReflection != null) {
-          print('📖 API failed, using cached reflection as fallback');
+
           return Success(cachedReflection);
         }
 
         return result;
       }
     } catch (e) {
-      print('❌ Error in reflection repository: $e');
 
       // Try to return cached data as fallback
       final cachedReflection = await _storageService.getCachedReflection();
 
       if (cachedReflection != null) {
-        print('📖 Error occurred, using cached reflection as fallback');
+
         return Success(cachedReflection);
       }
 

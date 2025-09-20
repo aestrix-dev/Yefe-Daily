@@ -11,16 +11,12 @@ class JournalApiService extends BaseApiService {
     CreateJournalRequest request,
   ) async {
     try {
-      print('📝 Creating journal entry...');
-      print('📤 Request: ${request.toJson()}');
+
 
       final response = await dioService.post(
         '/v1/journal/entries',
         data: request.toJson(),
       );
-
-      print('✅ Create Response: ${response.statusCode}');
-      print('📥 Response Data: ${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final journalResponse = JournalResponse.fromJson(response.data);
@@ -32,9 +28,6 @@ class JournalApiService extends BaseApiService {
         );
       }
     } on DioException catch (e) {
-      print('❌ Create Journal Error: ${e.message}');
-      print('📍 Status: ${e.response?.statusCode}');
-      print('📦 Response: ${e.response?.data}');
 
       String errorMessage = 'Failed to create journal entry';
       if (e.response?.data != null) {
@@ -47,7 +40,7 @@ class JournalApiService extends BaseApiService {
 
       return Failure(errorMessage, statusCode: e.response?.statusCode);
     } catch (e) {
-      print('❌ General Error in createJournalEntry: $e');
+
       return Failure('An unexpected error occurred: $e');
     }
   }
@@ -55,12 +48,8 @@ class JournalApiService extends BaseApiService {
   // Get all journal entries (simple)
   Future<ApiResult<List<JournalModel>>> getJournalEntries() async {
     try {
-      print('📖 Getting all journal entries...');
 
       final response = await dioService.get('/v1/journal/entries');
-
-      print('✅ Get Entries Response: ${response.statusCode}');
-      print('📥 Response Data: ${response.data}');
 
       if (response.statusCode == 200) {
         // Handle different response structures
@@ -89,7 +78,6 @@ class JournalApiService extends BaseApiService {
         );
       }
     } on DioException catch (e) {
-      print('❌ Get Entries Error: ${e.message}');
 
       String errorMessage = 'Failed to get journal entries';
       if (e.response?.data != null) {
@@ -102,7 +90,7 @@ class JournalApiService extends BaseApiService {
 
       return Failure(errorMessage, statusCode: e.response?.statusCode);
     } catch (e) {
-      print('❌ General Error in getJournalEntries: $e');
+
       return Failure('An unexpected error occurred: $e');
     }
   }
@@ -110,11 +98,8 @@ class JournalApiService extends BaseApiService {
   // Delete journal entry
   Future<ApiResult<bool>> deleteJournalEntry(String entryId) async {
     try {
-      print('🗑️ Deleting journal entry: $entryId');
 
       final response = await dioService.delete('/v1/journal/entries/$entryId');
-
-      print('✅ Delete Response: ${response.statusCode}');
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         return Success(true);
@@ -125,7 +110,6 @@ class JournalApiService extends BaseApiService {
         );
       }
     } on DioException catch (e) {
-      print('❌ Delete Entry Error: ${e.message}');
 
       String errorMessage = 'Failed to delete journal entry';
       if (e.response?.data != null) {

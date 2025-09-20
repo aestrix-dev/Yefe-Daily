@@ -104,7 +104,7 @@ class AudioViewModel extends BaseViewModel {
         _createSingleCategory(cachedAudios);
       }
     } catch (e) {
-      print('❌ Error loading cached audios: $e');
+
     }
   }
 
@@ -113,7 +113,7 @@ class AudioViewModel extends BaseViewModel {
       _isPremiumUser = await _paymentService.isUserPremium();
       notifyListeners();
     } catch (e) {
-      print('❌ Error loading premium status: $e');
+
       _isPremiumUser = false;
     }
   }
@@ -124,7 +124,6 @@ class AudioViewModel extends BaseViewModel {
       final wasUpdated = _storageService.getBool('premium_status_updated') ?? false;
 
       if (wasUpdated) {
-        print('👑 Premium status was updated from notification in AudioView, refreshing...');
 
         // Clear the update flag
         await _storageService.remove('premium_status_updated');
@@ -152,7 +151,7 @@ class AudioViewModel extends BaseViewModel {
         }
       }
     } catch (e) {
-      print('❌ Error checking premium status updates in AudioView: $e');
+
     }
   }
 
@@ -160,7 +159,6 @@ class AudioViewModel extends BaseViewModel {
   void _setupPremiumStatusListener() {
     _premiumStatusSubscription = _premiumStatusService.premiumStatusUpdates.listen(
       (update) {
-        print('🔔 Premium status update received in AudioView: $update');
 
         // Update the premium status immediately
         _isPremiumUser = update.isPremium;
@@ -184,10 +182,9 @@ class AudioViewModel extends BaseViewModel {
         // Notify UI to rebuild
         notifyListeners();
 
-        print('👑 Premium status updated in AudioView UI: $_isPremiumUser');
       },
       onError: (error) {
-        print('❌ Error listening to premium status updates in AudioView: $error');
+
       },
     );
   }
@@ -197,14 +194,14 @@ class AudioViewModel extends BaseViewModel {
       _hasInternetConnection = await _checkInternetConnection();
 
       if (_hasInternetConnection) {
-        print('🎵 Fetching fresh audio data...');
+
         await fetchAudios(fromCache: false);
       } else {
         // Still try to fetch - sometimes connectivity check fails but internet works
         await fetchAudios(fromCache: false);
       }
     } catch (e) {
-      print('❌ Error loading fresh data: $e');
+
       _hasInternetConnection = false;
     }
   }
@@ -221,19 +218,16 @@ class AudioViewModel extends BaseViewModel {
     try {
       final connectivityResult = await Connectivity().checkConnectivity();
       final hasConnection = connectivityResult != ConnectivityResult.none;
-      print(
-        '🔍 Connectivity check result: $connectivityResult (hasConnection: $hasConnection)',
-      );
+
       return hasConnection;
     } catch (e) {
-      print('❌ Connectivity check failed: $e');
+
       return false;
     }
   }
 
   // Fetch audios from API
   Future<void> fetchAudios({bool fromCache = true}) async {
-    print('🎵 AudioViewModel: Starting to fetch audios...');
 
     // Only show loading if we don't have cached data
     if (_audioCategories.isEmpty) {
@@ -244,17 +238,14 @@ class AudioViewModel extends BaseViewModel {
 
     try {
       final result = await _audioApiService.getAudios();
-      print('🎵 AudioViewModel: API call completed');
 
       if (result is Success<List<AudioModel>>) {
-        print('🎵 AudioViewModel: Success! Got ${result.data.length} audios');
 
         // Cache the fresh data
         await _storageService.cacheAudioList(result.data);
 
         _createSingleCategory(result.data);
       } else if (result is Failure) {
-        print('❌ AudioViewModel: API failure - ${result.error}');
 
         // Only set error if we don't have cached data
         if (_audioCategories.isEmpty) {
@@ -262,7 +253,6 @@ class AudioViewModel extends BaseViewModel {
         }
       }
     } catch (e) {
-      print('❌ AudioViewModel: Exception during fetch - $e');
 
       // Only set error if we don't have cached data
       if (_audioCategories.isEmpty) {
@@ -270,20 +260,18 @@ class AudioViewModel extends BaseViewModel {
       }
     } finally {
       _setLoading(false);
-      print('🎵 AudioViewModel: Fetch completed, loading set to false');
+
     }
   }
 
   // Create single "Tower Talk" category with all audios
   void _createSingleCategory(List<AudioModel> audios) {
-    print(
-      '🎵 AudioViewModel: Creating single category with ${audios.length} audios',
-    );
+
     _audioCategories = [
       AudioCategoryModel(id: 'tower_talk', title: 'Tower Talk', audios: audios),
     ];
     notifyListeners();
-    print('🎵 AudioViewModel: Category created and listeners notified');
+
   }
 
   // Handle audio tap - shows bottom sheet or upgrade card
@@ -342,13 +330,13 @@ class AudioViewModel extends BaseViewModel {
 
       await _downloadAndPlay(audio);
     } catch (e) {
-      print('❌ Error playing audio: $e');
+
       _setErrorMessage('Failed to play audio: $e');
     }
   }
 
   Future<void> _downloadAndPlay(AudioModel audio) async {
-    print('🎧 Downloading: ${audio.title}');
+
     _downloadingStates[audio.id] = true;
     notifyListeners();
 
@@ -369,7 +357,7 @@ class AudioViewModel extends BaseViewModel {
       // Play the downloaded audio
       await _playAudio(audio, localPath);
     } catch (e) {
-      print('❌ Download error: $e');
+
       _downloadingStates[audio.id] = false;
       _downloadProgress.remove(audio.id);
       notifyListeners();
@@ -385,7 +373,7 @@ class AudioViewModel extends BaseViewModel {
 
       await _playerService.setPlaylistAndPlay(allAudios, audioIndex, localPath);
     } catch (e) {
-      print('❌ Playback error: $e');
+
       rethrow;
     }
   }
@@ -408,45 +396,42 @@ class AudioViewModel extends BaseViewModel {
 
   // Ensure current audio is downloaded when switching tracks
   Future<void> _ensureCurrentAudioIsDownloaded() async {
-    print('🎵 AudioViewModel: Ensuring current audio is downloaded...');
+
     final currentAudio = _playerService.currentAudio;
     if (currentAudio == null) {
-      print('❌ AudioViewModel: Current audio is null');
+
       return;
     }
 
-    print('🎵 AudioViewModel: Current audio: ${currentAudio.title}');
     try {
       if (!(await _downloadService.isAudioDownloaded(currentAudio.id))) {
-        print(
-          '🎵 AudioViewModel: Current audio not downloaded, downloading...',
-        );
+
         final localPath = await _downloadService.downloadAudio(
           currentAudio.id,
           currentAudio.downloadUrl,
         );
-        print('🎵 AudioViewModel: Download completed, setting up playback...');
+
         await _playerService.setPlaylistAndPlay(
           _playerService.currentPlaylist,
           _playerService.currentPlaylistIndex,
           localPath,
         );
       } else {
-        print('🎵 AudioViewModel: Current audio already downloaded');
+
         final localPath = _downloadService.getLocalPath(currentAudio.id);
         if (localPath != null) {
-          print('🎵 AudioViewModel: Setting up playback with existing file...');
+
           await _playerService.setPlaylistAndPlay(
             _playerService.currentPlaylist,
             _playerService.currentPlaylistIndex,
             localPath,
           );
         } else {
-          print('❌ AudioViewModel: Local path is null for downloaded audio');
+
         }
       }
     } catch (e) {
-      print('❌ AudioViewModel: Error in _ensureCurrentAudioIsDownloaded - $e');
+
       _setErrorMessage('Failed to switch track: $e');
     }
   }
@@ -454,14 +439,14 @@ class AudioViewModel extends BaseViewModel {
   // Check if audio is downloaded
   Future<bool> isAudioDownloaded(String audioId) async {
     final isDownloaded = await _downloadService.isAudioDownloaded(audioId);
-    print('🎵 AudioViewModel: Audio $audioId downloaded: $isDownloaded');
+
     return isDownloaded;
   }
 
   // Check if audio is currently downloading
   bool isAudioDownloading(String audioId) {
     final isDownloading = _downloadingStates[audioId] ?? false;
-    print('🎵 AudioViewModel: Audio $audioId downloading: $isDownloading');
+
     return isDownloading;
   }
 
@@ -472,9 +457,9 @@ class AudioViewModel extends BaseViewModel {
   }
 
   void showPaymentSheet() {
-    print('🎵 AudioViewModel: Showing payment sheet');
+
     if (_context == null) {
-      print('❌ AudioViewModel: Context is null, cannot show payment sheet');
+
       return;
     }
 
@@ -485,12 +470,12 @@ class AudioViewModel extends BaseViewModel {
       builder: (context) => PaymentProviderSheet(
         onStripeTap: () async {
           Navigator.of(context).pop();
-          print('🎵 AudioViewModel: Stripe payment selected');
+
           await _handleStripePayment();
         },
         onPaystackTap: () async {
           Navigator.of(context).pop();
-          print('🎵 AudioViewModel: Paystack payment selected');
+
           await _handlePaystackPayment();
         },
       ),
@@ -501,7 +486,6 @@ class AudioViewModel extends BaseViewModel {
     if (_context == null) return;
 
     try {
-      print('💳 AudioViewModel: Processing Stripe payment...');
 
       // Show loading dialog
       _showLoadingDialog('Processing payment...');
@@ -515,10 +499,10 @@ class AudioViewModel extends BaseViewModel {
       Navigator.of(_context!).pop();
 
       if (result.isSuccess) {
-        print('✅ AudioViewModel: Stripe payment successful!');
+
         await _handleSuccessfulPayment();
       } else {
-        print('❌ AudioViewModel: Stripe payment failed: ${result.error}');
+
         ToastOverlay.showError(
           context: _context!,
           message: result.error ?? 'Payment failed',
@@ -530,7 +514,6 @@ class AudioViewModel extends BaseViewModel {
         Navigator.of(_context!).pop();
       }
 
-      print('❌ AudioViewModel: Stripe payment error: $e');
       ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
     }
   }
@@ -539,7 +522,6 @@ class AudioViewModel extends BaseViewModel {
     if (_context == null) return;
 
     try {
-      print('💳 AudioViewModel: Processing Paystack payment...');
 
       // Show loading dialog
       _showLoadingDialog('Processing payment...');
@@ -553,10 +535,10 @@ class AudioViewModel extends BaseViewModel {
       Navigator.of(_context!).pop();
 
       if (result.isSuccess) {
-        print('✅ AudioViewModel: Paystack payment successful!');
+
         await _handleSuccessfulPayment();
       } else {
-        print('❌ AudioViewModel: Paystack payment failed: ${result.error}');
+
         ToastOverlay.showError(
           context: _context!,
           message: result.error ?? 'Payment failed',
@@ -568,7 +550,6 @@ class AudioViewModel extends BaseViewModel {
         Navigator.of(_context!).pop();
       }
 
-      print('❌ AudioViewModel: Paystack payment error: $e');
       ToastOverlay.showError(context: _context!, message: 'Payment failed: $e');
     }
   }
@@ -581,8 +562,7 @@ class AudioViewModel extends BaseViewModel {
       // Update local premium status
       _isPremiumUser = true;
       _showUpgradeCardForCategory = null;
-      
-      print('✅ AudioViewModel: Premium status updated successfully');
+
       notifyListeners();
 
       // Show success message
@@ -593,7 +573,7 @@ class AudioViewModel extends BaseViewModel {
         );
       }
     } catch (e) {
-      print('❌ AudioViewModel: Error updating premium status: $e');
+
       if (_context != null) {
         ToastOverlay.showError(
           context: _context!,
@@ -622,25 +602,25 @@ class AudioViewModel extends BaseViewModel {
   }
 
   void toggleUpgradeCard(String categoryId) {
-    print('🎵 AudioViewModel: Toggling upgrade card for category: $categoryId');
+
     if (_showUpgradeCardForCategory == categoryId) {
       _showUpgradeCardForCategory = null;
-      print('🎵 AudioViewModel: Hiding upgrade card');
+
     } else {
       _showUpgradeCardForCategory = categoryId;
-      print('🎵 AudioViewModel: Showing upgrade card');
+
     }
     notifyListeners();
   }
 
   void upgradeToPremium() {
-    print('🎵 AudioViewModel: Upgrading to premium - showing payment sheet');
+
     showPaymentSheet();
   }
 
   // Refresh data (pull-to-refresh)
   Future<void> refresh() async {
-    print('🎵 AudioViewModel: Refreshing data...');
+
     // Reload premium status and fresh data on manual refresh
     // Note: This does NOT re-initialize the player service to avoid disrupting playback
     await _loadPremiumStatus();
@@ -648,22 +628,20 @@ class AudioViewModel extends BaseViewModel {
   }
 
   void _setLoading(bool loading) {
-    print('🎵 AudioViewModel: Setting loading to $loading');
+
     _isLoading = loading;
     notifyListeners();
   }
 
   void _setErrorMessage(String? errorMessage) {
-    print('🎵 AudioViewModel: Setting error message: $errorMessage');
+
     _errorMessage = errorMessage;
     notifyListeners();
   }
 
   @override
   void dispose() {
-    print(
-      '🎵 AudioViewModel: Dispose called - NOT disposing singleton services',
-    );
+
     // Cancel premium status subscription
     _premiumStatusSubscription?.cancel();
     // Don't dispose singleton services

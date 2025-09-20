@@ -11,7 +11,7 @@ class AuthApiService extends BaseApiService {
   // Single register endpoint that handles both registration and login
   Future<ApiResult<RegisterResponse>> register(RegisterRequest request) async {
     if (kDebugMode) {
-      print('🔍 AuthApiService: Starting registration request');
+
     }
 
     final result = await safeApiCall<RegisterResponse>(
@@ -24,7 +24,7 @@ class AuthApiService extends BaseApiService {
       final user = result.data!.data.user;
       await locator<StorageService>().saveUser(user);
       if (kDebugMode) {
-        print('👤 User saved: ${user.name}');
+
       }
     }
 
@@ -34,7 +34,7 @@ class AuthApiService extends BaseApiService {
   // Accept notifications by sending FCM token to server
   Future<ApiResult<AcceptNotificationResponse>> acceptNotifications(AcceptNotificationRequest request) async {
     if (kDebugMode) {
-      print('🔍 AuthApiService: Starting accept notifications request');
+
     }
 
     return await safeApiCall<AcceptNotificationResponse>(

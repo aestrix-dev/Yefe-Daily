@@ -76,7 +76,7 @@ class HistoryView extends StackedView<HistoryViewModel> {
                       return HistoryItemCard(
                         entry: item,
                         onTap: () {
-                          print('Tapped entry: ${item.id}');
+
                         },
                         onDelete: () {
                           viewModel.onDeleteEntry(item.id);

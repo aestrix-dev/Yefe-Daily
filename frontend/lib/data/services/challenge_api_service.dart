@@ -18,8 +18,6 @@ class ChallengeApiService extends BaseApiService {
     try {
       final response = await dioService.get('/v1/challenges/today');
 
-      print('📥 Today Challenge Raw Response: ${response.data}');
-
       if (response.statusCode == 200) {
         final outer = response.data['challenge'];
         final inner = outer['challenge'];
@@ -36,12 +34,8 @@ class ChallengeApiService extends BaseApiService {
   // Get completed challenges
   Future<ApiResult<List<ChallengeModel>>> getCompletedChallenges() async {
     try {
-      print('📋 Getting completed challenges...');
 
       final response = await dioService.get('/v1/challenges/history');
-
-      print('✅ Completed Challenges Response: ${response.statusCode}');
-      print('📥 Response Data: ${response.data}');
 
       if (response.statusCode == 200) {
         final challengesList =
@@ -60,7 +54,6 @@ class ChallengeApiService extends BaseApiService {
           return ChallengeModel.fromJson(challengeData);
         }).toList();
 
-        print('✅ Parsed ${completedChallenges.length} completed challenges');
         return Success(completedChallenges);
       } else {
         return Failure(
@@ -69,9 +62,6 @@ class ChallengeApiService extends BaseApiService {
         );
       }
     } on DioException catch (e) {
-      print('❌ Completed Challenges Error: ${e.message}');
-      print('📍 Status: ${e.response?.statusCode}');
-      print('📦 Response: ${e.response?.data}');
 
       String errorMessage = 'Failed to get completed challenges';
       if (e.response?.data != null) {
@@ -84,7 +74,7 @@ class ChallengeApiService extends BaseApiService {
 
       return Failure(errorMessage, statusCode: e.response?.statusCode);
     } catch (e) {
-      print('❌ General Error in getCompletedChallenges: $e');
+
       return Failure('An unexpected error occurred: $e');
     }
   }
@@ -99,12 +89,8 @@ class ChallengeApiService extends BaseApiService {
   // Get challenge statistics
   Future<ApiResult<ChallengeStatsModel>> getChallengeStats() async {
     try {
-      print('📊 Getting challenge stats...');
 
       final response = await dioService.get('/v1/challenges/stats');
-
-      print('✅ Challenge Stats Response: ${response.statusCode}');
-      print('📥 Response Data: ${response.data}');
 
       if (response.statusCode == 200) {
         final stats = ChallengeStatsModel.fromJson(response.data);
@@ -116,9 +102,6 @@ class ChallengeApiService extends BaseApiService {
         );
       }
     } on DioException catch (e) {
-      print('❌ Challenge Stats Error: ${e.message}');
-      print('📍 Status: ${e.response?.statusCode}');
-      print('📦 Response: ${e.response?.data}');
 
       String errorMessage = 'Failed to get challenge stats';
       if (e.response?.data != null) {
@@ -131,7 +114,7 @@ class ChallengeApiService extends BaseApiService {
 
       return Failure(errorMessage, statusCode: e.response?.statusCode);
     } catch (e) {
-      print('❌ General Error in getChallengeStats: $e');
+
       return Failure('An unexpected error occurred: $e');
     }
   }
@@ -139,12 +122,8 @@ class ChallengeApiService extends BaseApiService {
   // Get daily puzzle
   Future<ApiResult<PuzzleResponse>> getDailyPuzzle() async {
     try {
-      print('🧩 Getting daily puzzle...');
 
       final response = await dioService.get('/v1/puzzle/daily');
-
-      print('✅ Daily Puzzle Response: ${response.statusCode}');
-      print('📥 Response Data: ${response.data}');
 
       if (response.statusCode == 200) {
         final puzzleResponse = PuzzleResponse.fromJson(response.data);
@@ -156,9 +135,6 @@ class ChallengeApiService extends BaseApiService {
         );
       }
     } on DioException catch (e) {
-      print('❌ Daily Puzzle Error: ${e.message}');
-      print('📍 Status: ${e.response?.statusCode}');
-      print('📦 Response: ${e.response?.data}');
 
       String errorMessage = 'Failed to get daily puzzle';
       if (e.response?.data != null) {
@@ -171,7 +147,7 @@ class ChallengeApiService extends BaseApiService {
 
       return Failure(errorMessage, statusCode: e.response?.statusCode);
     } catch (e) {
-      print('❌ General Error in getDailyPuzzle: $e');
+
       return Failure('An unexpected error occurred: $e');
     }
   }
@@ -181,16 +157,12 @@ class ChallengeApiService extends BaseApiService {
     SubmitPuzzleRequest request,
   ) async {
     try {
-      print('📝 Submitting puzzle answer...');
-      print('📤 Request: ${request.toJson()}');
+
 
       final response = await dioService.put(
         '/v1/puzzle/submit',
         data: request.toJson(),
       );
-
-      print('✅ Submit Answer Response: ${response.statusCode}');
-      print('📥 Response Data: ${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final fullJson = response.data as Map<String, dynamic>;
@@ -217,9 +189,6 @@ class ChallengeApiService extends BaseApiService {
         );
       }
     } on DioException catch (e) {
-      print('❌ Submit Answer Error: ${e.message}');
-      print('📍 Status: ${e.response?.statusCode}');
-      print('📦 Response: ${e.response?.data}');
 
       String errorMessage = 'Failed to submit puzzle answer';
       if (e.response?.data != null) {
@@ -232,7 +201,7 @@ class ChallengeApiService extends BaseApiService {
 
       return Failure(errorMessage, statusCode: e.response?.statusCode);
     } catch (e) {
-      print('❌ General Error in submitPuzzleAnswer: $e');
+
       return Failure('An unexpected error occurred: $e');
     }
   }

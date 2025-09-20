@@ -31,16 +31,16 @@ class PuzzleTimerService {
     if (lastSubmissionString != null) {
       try {
         _lastSubmissionTime = DateTime.parse(lastSubmissionString);
-        print('📅 Loaded last submission: $_lastSubmissionTime');
+
       } catch (e) {
-        print('❌ Error parsing submission time: $e');
+
         _clearStoredData();
       }
     }
 
     if (puzzleId != null) {
       _currentPuzzleId = puzzleId;
-      print('🧩 Loaded current puzzle ID: $_currentPuzzleId');
+
     }
   }
 
@@ -53,7 +53,6 @@ class PuzzleTimerService {
     await _storageService.setString(_lastSubmissionKey, now.toIso8601String());
     await _storageService.setString(_currentPuzzleIdKey, puzzleId);
 
-    print('💾 Saved submission data: $puzzleId at $now');
   }
 
   // Clear stored data
@@ -64,7 +63,6 @@ class PuzzleTimerService {
     await _storageService.remove(_lastSubmissionKey);
     await _storageService.remove(_currentPuzzleIdKey);
 
-    print('🧹 Cleared puzzle timer storage');
   }
 
   // Check if user is on cooldown
@@ -101,18 +99,16 @@ class PuzzleTimerService {
     _stopCountdown();
 
     if (!isOnCooldown) {
-      print('✅ No cooldown needed, timer expired');
+
       onTimerExpired?.call();
       return;
     }
-
-    print('⏰ Starting 24hr countdown...');
 
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final remaining = remainingCooldown;
 
       if (remaining == null || remaining.isNegative) {
-        print('🎉 Countdown complete! Time for new puzzle');
+
         _stopCountdown();
         _clearStoredData();
         onTimerExpired?.call();
@@ -131,10 +127,10 @@ class PuzzleTimerService {
   // Initialize timer service (call when app starts)
   void initialize() {
     if (isOnCooldown) {
-      print('🕐 User on cooldown, starting timer...');
+
       _startCountdown();
     } else {
-      print('✅ No cooldown, ready for new puzzle');
+
     }
   }
 
@@ -142,7 +138,7 @@ class PuzzleTimerService {
   Future<void> reset() async {
     _stopCountdown();
     await _clearStoredData();
-    print('🔄 Puzzle timer reset');
+
   }
 
   // Check if user can attempt puzzle

@@ -42,7 +42,7 @@ class AuthRepository extends BaseRepository {
         final userMap = jsonDecode(userJson) as Map<String, dynamic>;
         return UserModel.fromJson(userMap);
       } catch (e) {
-        print('Error parsing stored user: $e');
+
         return null;
       }
     }
@@ -101,8 +101,5 @@ class AuthRepository extends BaseRepository {
       _storageService.setString(_tokenExpiryKey, expiryTime.toIso8601String()),
     ]);
 
-    print('✅ Auth data stored successfully');
-    print('🔑 Token: ${token.accessToken.substring(0, 20)}...');
-    print('👤 User: ${user.name} (${user.email})');
   }
 }

@@ -31,7 +31,6 @@ class PaymentProviderSheet extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
 
-           
             Row(
               children: [
                 Expanded(
