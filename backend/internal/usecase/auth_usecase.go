@@ -252,7 +252,7 @@ func (a *authUseCase) AcceptNotificaions(ctx context.Context, fcmToken string, u
 	eveningMinute := eveningTime[1]
 
 	morningCron := fmt.Sprintf("0 %s %s * * *", morningMinute, morningHour)
-	eveningCron := fmt.Sprintf("0 %s %d * * *", eveningMinute, eveningHour+12)
+	eveningCron := fmt.Sprintf("0 %s %d * * *", eveningMinute, eveningHour+11)
 	if err := a.fmcService.AddRecurringMotivationalNotification(
 		utils.GenerateID()+utils.GenerateSecureToken(),
 		preferences.UserID,
